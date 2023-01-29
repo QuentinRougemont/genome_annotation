@@ -38,14 +38,38 @@ for now it is designed for microbotryum as some custom fungus database are neces
 # Steps 
 
 
-1 - trimmomatic
+1 - trimmomatic: trim the reads  
 
-2 - database
+you can count the number of retained reads using the scripts : `./00_scripts/utility_scripts/count_read_fastq.sh`
+
+for instance: 
+```sh
+cd 02_trimmed ../00_scripts/utility_scripts/count_read_fastq.sh *fq >> read_count.txt
+```
+
+
+2 - create database for gsnap
 
 3 - alignment with gsnap:
 
-for a given genome located in the folder 03_genome and a set of input in 02_trimmed ; simply loop over files:
+for a given genome located in the folder `03_genome` and a set of input in `02_trimmed` ;  
+simply loop over files:
+
+```sh
 for i in 02_trimmed/*R1.paired.fastq.gz ; 
 do 
 ./00_scripts/02_gsnap.sh 03_genome/M_inter_1389.PBcR.20160424.quiver.finished.fasta $i ; 
 done
+```
+
+4 - count the number of well mapped reads
+
+5 - TE discovery and masking
+
+
+6 - Runnning braker
+
+
+7 -  Combining different run with TSEBRA
+
+8 - Write a report -- quality assesment and extraction of CDS
