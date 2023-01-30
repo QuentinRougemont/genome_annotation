@@ -119,7 +119,7 @@ set the parameter of tsebra accordingly
 then run:
 ```sh
 ./00_scripts/07_tsebra.sh species_name best_database_run 
-``
+```
 
 ## 8 - Write a report -- quality assesment and extraction of CDS
 
