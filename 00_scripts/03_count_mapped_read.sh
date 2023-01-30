@@ -10,7 +10,7 @@ fi
 bam=${@};
 for i in ${bam[@]}
 do
-    samtool view -c $i |awk -v var=$i 'END {print var"\t"$1}' > comptage_brute.${i%.bam}.txt
+    samtools view -c $i |awk -v var=$i 'END {print var"\t"$1}' > comptage_brute.${i%.bam}.txt
     samtools view -F 0x4 $i | cut -f 1 | sort | uniq | wc -l |\
 		awk -v var="$i" 'END {print var"\t"$1}' > comptage_F04.${i%.bam}.txt ;
 done
