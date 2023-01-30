@@ -111,8 +111,20 @@ I use 5 runs for the proteiinDB and choose the one with best Busco score
 
 ## 7 -  Combining different run with TSEBRA
 
+### /!\ WARNING /!\
 
+read TSEBRA manual before running the script. 
+set the parameter of tsebra accordingly
+
+then run:
+```sh
+./00_scripts/07_tsebra.sh species_name best_database_run 
+``
 
 ## 8 - Write a report -- quality assesment and extraction of CDS
 
+run busco
 
+run braker script to obtain a report
+
+annotate further with interproscan

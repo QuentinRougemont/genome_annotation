@@ -1,11 +1,23 @@
 #!/bin/bash
-
 #miniscript to run tsebra
+#Author: QR
+#Date: 23-01-23
 
-name=$1 #name of the species
+if [ $# -ne 2  ]; then
+    echo "USAGE: $0 species_name best_database_run "
+    echo "Expecting a basename for the species and the name of the best  run from braker using database from protein "
+    exit 1
+else
+    name=$1
+    best_run=$2
+    echo "Name is : ${name}"
+    echo " "
+    echo "best run is ${best_run}"
+    echo "*****"
+fi
 
 run1=06_braker/rnaseq
-run2=06_braker/round3_braker_on_refprot_2023-01-17_17h34m03s
+run2=06_braker/$best_run #round2_braker_on_refprot_2023-01-29_21h27m06s round3_braker_on_refprot_2023-01-17_17h34m03s
 
 b1=$run1/braker.gtf
 b2=$run2/braker.gtf
@@ -21,19 +33,13 @@ fix_gtf_ids.py --gtf $b2 --out $new_b2
 b1=$new_b1
 b2=$new_b2
 
+rm -rf 07-tsebra_results/ 2>/dev/null
 mkdir 07-tsebra_results/
 cp default.cfg 07-tsebra_results/
 
 # ----- run TSEBRA ----- #
 tsebra.py -g "${b1}","${b2}" \
-	  -c default.cfg \
-	  -e  "${run1}"/hintsfile.gff,"${run2}"/hintsfile.gff\
-	  -o 07-tsebra_results/$name.combined.gtf 
+          -c default.cfg \
+          -e  "${run1}"/hintsfile.gff,"${run2}"/hintsfile.gff\
+          -o 07-tsebra_results/$name.combined.gtf
 
-exit
-
-# ----- using AUGSUSTUS hints instead ----- #  
-tsebra.py -g "${run1}"/augustus.hints.gtf,"${run2}"/augustus.hints.gtf \
-	  -c default.cfg \
-	  -e  "${run1}"/hintsfile.gff,"${run2}"/hintsfile.gff\
-	  -o $name.combined.gtf 
