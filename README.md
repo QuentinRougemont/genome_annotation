@@ -37,6 +37,8 @@ for now it is designed for microbotryum as some custom fungus database are neces
 
 # Steps 
 
+your genome should be in the `03_genome` folder!  
+
 
 1 - trimmomatic: trim the reads  
 
@@ -49,6 +51,13 @@ cd 02_trimmed ../00_scripts/utility_scripts/count_read_fastq.sh *fq >> read_coun
 
 
 2 - create database for gsnap
+
+```sh
+./00_scripts/01_gmap.sh 03_genome/your_genome.fa
+ ```
+
+Note: only works with uncompressed genome  
+ 
 
 3 - alignment with gsnap:
 
@@ -64,12 +73,46 @@ done
 
 4 - count the number of well mapped reads
 
+use the script:
+```
+./00_scripts/03_count_mapped_read.sh 
+```
+
+and compare it to the number of trimmed reads to evaluate the quality of the data
+
+
 5 - TE discovery and masking
+
+We will identify denovo repeat (from our genome) using *RepeatModeler* and mask the genome using known TE Library using *Repeatmasker* 
+
+use this script:
+
+```
+./00_scripts/05_repeatmodeler.sh
+```
+
+## WARNING:  
+edit the script to provide path to your own database of repetetive regions. 
+Here I use 3 custom libraries + online data you may have more or less of these, so comment or delete unessecary rounds of RepeatMasker 
 
 
 6 - Runnning braker
 
+## data: 
+* RNAseq for the target species
+
+* Protein database from several closely related species
+
+
+The script ```./00_scripts/06_braker.sh``` will run Braker separately for RNAseq and the protein database. 
+I use 5 runs for the proteiinDB and choose the one with best Busco score 
+
+
 
 7 -  Combining different run with TSEBRA
 
+
+
 8 - Write a report -- quality assesment and extraction of CDS
+
+
