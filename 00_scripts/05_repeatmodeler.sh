@@ -36,7 +36,9 @@ sed 's/ [0-9A-Za-z=-]*//g' $genome > ${genome%.fa}.simpl.fa
 genome=${genome%.fa}.simpl.fa
 base=$(basename $genome )
 
+#build db:
 BuildDatabase -name $database -engine ncbi $genome 2>&1 | tee $LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+#de novo TE annotations:
 RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee $LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
 
@@ -76,4 +78,7 @@ FOLDER4="${base}"_mask_fungi.$TIMESTAMP
 mkdir "$FOLDER4"
 RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
 	tee $LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log
+
+cd 03_genome
+ln -s $FOLDER4/$base.masked.masked.masked.masked genome.masked.fa
 
