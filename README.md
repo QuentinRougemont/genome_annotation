@@ -127,4 +127,6 @@ run busco
 
 run braker script to obtain a report
 
-annotate further with interproscan
+annotate further with [interproscan](https://interproscan-docs.readthedocs.io/en/latest/index.html):
+interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
+
