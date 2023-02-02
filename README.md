@@ -123,10 +123,16 @@ then run:
 
 ## 8 - Write a report -- quality assesment and extraction of CDS
 
-run busco
+* When using TSEBRA we no longer have a consensus file for amino-acid (`augustus.hints.aa` nor the coding seq àugustus.hints.codingseq`), so we extract them again from the fasta using gffread and convert them with transeq.
+See exemple script ```00_scripts/08_extractcds.sh```  to do this
 
-run braker script to obtain a report
+* run busco
 
-annotate further with [interproscan](https://interproscan-docs.readthedocs.io/en/latest/index.html):
+* run braker script to obtain a report
+
+* annotate further with [interproscan](https://interproscan-docs.readthedocs.io/en/latest/index.html):  
+
+```
 interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
+```
 
