@@ -123,7 +123,9 @@ then run:
 
 ## 8 - Write a report -- quality assesment and extraction of CDS
 
-* When using TSEBRA we no longer have a consensus file for amino-acid (`augustus.hints.aa` nor the coding seq àugustus.hints.codingseq`), so we extract them again from the fasta using gffread and convert them with transeq.
+* When using TSEBRA we no longer have a consensus file for amino-acid (`augustus.hints.aa` nor the coding seq `augustus.hints.codingseq`),   
+  so we extract them again from the fasta using gffread and convert them with transeq.
+  
 See exemple script ```00_scripts/08_extractcds.sh```  to do this
 
 * run busco
