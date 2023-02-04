@@ -138,3 +138,4 @@ See exemple script ```00_scripts/08_extractcds.sh```  to do this
 interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 ```
 
+Note: I had to install libdw1 (without root). 
