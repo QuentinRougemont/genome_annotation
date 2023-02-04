@@ -88,7 +88,7 @@ We will identify denovo repeat (from our genome) using *RepeatModeler* and mask 
 use this script:
 
 ```
-./00_scripts/05_repeatmodeler.sh
+./00_scripts/05_repeatmodeler.sh 2>&1 |tee RM.log
 ```
 
 ### WARNING:  
@@ -104,7 +104,12 @@ Here I use 3 custom libraries + online data you may have more or less of these, 
 * Protein database from several closely related species
 
 
-The script ```./00_scripts/06_braker.sh``` will run Braker separately for RNAseq and the protein database. 
+Run: 
+```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
+
+This will run Braker separately for RNAseq and the protein database.   
+
+
 I use 5 runs for the proteiinDB and choose the one with best Busco score 
 
 
