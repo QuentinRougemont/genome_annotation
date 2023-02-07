@@ -104,6 +104,25 @@ Here I use 3 custom libraries + online data you may have more or less of these, 
 * Protein database from several closely related species
 
 
+### WARNING /!\ 
+
+make sure to have all the dependencies installed as indicated on [braker](https://github.com/Gaius-Augustus/BRAKER#installation)
+
+install all perl-dependencies! 
+like so:
+
+```
+conda install -c anaconda perl biopython
+conda install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
+    perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
+    perl-exception-class perl-test-pod perl-file-which  perl-mce \
+    perl-threaded perl-list-util perl-math-utils cdbtools \
+    perl-list-moreutils
+
+#additional install:
+conda install -c bioconda perl-file-homedir
+```
+
 Run: 
 ```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
 
