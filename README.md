@@ -123,6 +123,11 @@ conda install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
 conda install -c bioconda perl-file-homedir
 ```
 
+install [Augustus](https://github.com/Gaius-Augustus/Augustus) and [Bamtools](https://github.com/pezmaster31/bamtools). 
+Note: I had to find some tricks for Bamtools and Augustus in case of bugs with Augustus see details [here](https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md)  
+
+
+
 Run: 
 ```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
 
