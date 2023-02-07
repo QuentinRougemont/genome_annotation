@@ -124,9 +124,22 @@ conda install -c bioconda perl-file-homedir
 ```
 
 install [Augustus](https://github.com/Gaius-Augustus/Augustus) and [Bamtools](https://github.com/pezmaster31/bamtools). 
-Note: I had to find some tricks for Bamtools and Augustus in case of bugs with Augustus see details [here](https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md)  
+
+Note: Without root privilege I had to find some tricks for Bamtools and Augustus. 
+In case of bugs with Augustus see details [here](https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md)  
+
+export augustus ```config/bin/script```  path (add them to your ~/.bashrc):  
+
+```
+export AUGUSTUS_CONFIG_PATH=/home/path/to/augustus/config
+export AUGUSTUS_BIN_PATH=/home/path/to/augustus/bin/
+export AUGUSTUS_SCRIPTS_PATH=/home/path/to/augustus_scripts
+```
 
 
+
+
+#### when all is ok:
 
 Run: 
 ```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
