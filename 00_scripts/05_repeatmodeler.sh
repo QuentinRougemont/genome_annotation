@@ -48,10 +48,14 @@ sed 's/ [0-9A-Za-z=-]*//g' $genome > ${genome%.fa}.simpl.fa
 genome=${genome%.fa}.simpl.fa
 base=$(basename $genome )
 
+
+mkdir 05_TE 2>/dev/null
+cd 05_TE
+
 #build db:
-BuildDatabase -name $database -engine ncbi $genome 2>&1 | tee $LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+BuildDatabase -name $database -engine ncbi $genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
 #de novo TE annotations:
-RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee $LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
+RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
 
 
@@ -60,7 +64,7 @@ RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee $LOG_FOLDER/rep
 FOLDER1="${base}"_mask_fugrep.$TIMESTAMP
 mkdir $FOLDER1
 lib1=/home/quentin/database/fugrep.ref #change according to your repeat lib
-RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" $genome 2>&1 | tee $LOG_FOLDER/repeatmasker_fugrep_$base.$TIMESTAMP.log
+RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" $genome 2>&1 | tee ../$LOG_FOLDER/repeatmasker_fugrep_$base.$TIMESTAMP.log
 
 ## ----- step2.2: based on fngrep ----- ##
 # database 2:
@@ -70,7 +74,7 @@ fnbase=$(basename $lib2)
 FOLDER2="${base}"_mask_fngrep.$TIMESTAMP
 mkdir $FOLDER2
 RepeatMasker -pa 24 -e ncbi -lib $lib2 -xsmall -dir "$FOLDER2" "$FOLDER1"/$base.masked 2>&1 |\
-	tee $LOG_FOLDER/repeatmasker_fngrep_$base.$TIMESTAMP.log
+	tee ../$LOG_FOLDER/repeatmasker_fngrep_$base.$TIMESTAMP.log
 
 
 ## ----- step2.3: based on de-novo repeat + repbase ----- ##
@@ -81,7 +85,7 @@ mkdir "$FOLDER3"
 
 cat $database-families.fa $lib3 > $base.repbase.fa
 RepeatMasker -pa 24 -e ncbi -lib $base.repbase.fa -xsmall -dir "$FOLDER3" "$FOLDER2"/"$base".masked.masked 2>&1 |\
-	tee $LOG_FOLDER/repeatmasker_$base.repbase20.05.$base.$TIMESTAMP.log
+	tee ../$LOG_FOLDER/repeatmasker_$base.repbase20.05.$base.$TIMESTAMP.log
 
 
 ## ----- step 2.4: based on online data ----- ## 
@@ -89,7 +93,7 @@ RepeatMasker -pa 24 -e ncbi -lib $base.repbase.fa -xsmall -dir "$FOLDER3" "$FOLD
 FOLDER4="${base}"_mask_fungi.$TIMESTAMP
 mkdir "$FOLDER4"
 RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
-	tee $LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log
+	tee ../$LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log
 
 cd 03_genome
 ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.masked.fa
