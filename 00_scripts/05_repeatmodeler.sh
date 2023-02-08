@@ -95,6 +95,6 @@ mkdir "$FOLDER4"
 RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
 	tee ../$LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log
 
-cd 03_genome
+cd ../03_genome
 ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.masked.fa
 
