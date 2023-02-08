@@ -30,6 +30,18 @@ LOG_FOLDER="99_log_files"
 mkdir $LOG_FOLDER 2>/dev/null
 cp $SCRIPT $LOG_FOLDER/"$TIMESTAMP"_"$NAME"
 
+## ----- check compression of fasta  ------ ##
+#check compression
+if file --mime-type "$genome" | grep -q gzip$; then
+   echo "$genome is gzipped"
+   gunzip "$genome"
+   genome=${genome%.gz}
+else
+   echo "$genome is not gzipped"
+   genome=$genome
+fi
+
+
 ## ----- step 1 -- run repeatmodeler ------ ##
 sed 's/ [0-9A-Za-z=-]*//g' $genome > ${genome%.fa}.simpl.fa
 
