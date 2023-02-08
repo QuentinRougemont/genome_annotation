@@ -53,7 +53,7 @@ mkdir 05_TE 2>/dev/null
 cd 05_TE
 
 #build db:
-BuildDatabase -name $database -engine ncbi $genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
 #de novo TE annotations:
 RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
@@ -64,7 +64,7 @@ RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/
 FOLDER1="${base}"_mask_fugrep.$TIMESTAMP
 mkdir $FOLDER1
 lib1=/home/quentin/database/fugrep.ref #change according to your repeat lib
-RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" $genome 2>&1 | tee ../$LOG_FOLDER/repeatmasker_fugrep_$base.$TIMESTAMP.log
+RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/repeatmasker_fugrep_$base.$TIMESTAMP.log
 
 ## ----- step2.2: based on fngrep ----- ##
 # database 2:
