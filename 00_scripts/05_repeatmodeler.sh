@@ -96,13 +96,15 @@ then
         awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
         sed -e '/Unknown/,+1d' |\
         cat $lib3 - > $base.repbase.fa
+	lib3cat="$base".no_unknown.repbase.fa
 else
 	#with known repeat
         echo "keep all candidate TEs... "
         cat $database-families.fa $lib3 > $base.repbase.fa
+	lib3cat="$base".repbase.fa
 fi
 
-RepeatMasker -pa 24 -e ncbi -lib $base.repbase.fa -xsmall -dir "$FOLDER3" "$FOLDER2"/"$base".masked.masked 2>&1 |\
+RepeatMasker -pa 24 -e ncbi -lib $lib3cat -xsmall -dir "$FOLDER3" "$FOLDER2"/"$base".masked.masked 2>&1 |\
 	tee ../$LOG_FOLDER/repeatmasker_$base.repbase20.05.$base.$TIMESTAMP.log
 
 
