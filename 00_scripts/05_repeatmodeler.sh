@@ -66,7 +66,7 @@ RepeatModeler -pa 24 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/
 
 ## ----- step 2 -- run repeatmasker ----- ##
 ## ----- step2.1: based on fugrep ----- ##
-FOLDER1="${base}"_mask_fugrep.$TIMESTAMP
+FOLDER1=FOLDER1_"${base}"_mask_fugrep.$TIMESTAMP
 mkdir $FOLDER1
 lib1=/home/quentin/database/fugrep.ref #change according to your repeat lib
 RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/repeatmasker_fugrep_$base.$TIMESTAMP.log
@@ -76,7 +76,7 @@ RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 |
 lib2=/home/quentin/database/fngrep.aa.fasta #edit this if necessary!
 fnbase=$(basename $lib2)
 
-FOLDER2="${base}"_mask_fngrep.$TIMESTAMP
+FOLDER2=FOLDER2_"${base}"_mask_fngrep.$TIMESTAMP
 mkdir $FOLDER2
 RepeatMasker -pa 24 -e ncbi -lib $lib2 -xsmall -dir "$FOLDER2" "$FOLDER1"/$base.masked 2>&1 |\
 	tee ../$LOG_FOLDER/repeatmasker_fngrep_$base.$TIMESTAMP.log
@@ -85,7 +85,7 @@ RepeatMasker -pa 24 -e ncbi -lib $lib2 -xsmall -dir "$FOLDER2" "$FOLDER1"/$base.
 ## ----- step2.3: based on de-novo repeat + repbase ----- ##
 lib3=/home/quentin/database/repbase20.05_aaSeq_cleaned_TE.fa
 lib3base=$(basename $lib3)
-FOLDER3="${base}"_mask_"$base"_"$lib3base"."$TIMESTAMP"
+FOLDER3=FOLDER3_"${base}"_mask_"$base"_"$lib3base"."$TIMESTAMP"
 mkdir "$FOLDER3"
 
 # test if we keep Unknwon repeat or not
@@ -110,7 +110,7 @@ RepeatMasker -pa 24 -e ncbi -lib $lib3cat -xsmall -dir "$FOLDER3" "$FOLDER2"/"$b
 
 ## ----- step 2.4: based on online data ----- ## 
 #online database
-FOLDER4="${base}"_mask_fungi.$TIMESTAMP
+FOLDER4=FOLDER4_"${base}"_mask_fungi.$TIMESTAMP
 mkdir "$FOLDER4"
 RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
 	tee ../$LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log

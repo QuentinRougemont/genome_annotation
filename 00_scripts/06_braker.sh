@@ -4,7 +4,16 @@
 #Date: 01-01-2023
 
 #external data
-genome=$1 #the reference genome here! "genome.wholemask.fa"
+if [ $# -ne 1  ]; then
+    echo "USAGE: $0 reference_genome database name rm_unknwon(yes/no)"
+    echo -e "Expecting the reference_genome as input\n"
+    exit 1
+else
+    genome=$1
+    echo -e "reference genome is $genome \n"
+    echo " "
+fi
+
 base=$(basename $genome )
 
 TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
@@ -23,11 +32,11 @@ braker.pl --species="$base" --fungus --genome="$genome" --cores="$NCPUS"  --soft
 ##  --------- step 2 : BRAKER WITH REFERENCE DATABASE USING THREE ROUNDS --------- ## 
 
 #prepare architecture:
-FOLDER1=06_braker/round1_braker_on_refprot_$TIME
-FOLDER2=06_braker/round2_braker_on_refprot_$TIME
-FOLDER3=06_braker/round3_braker_on_refprot_$TIME 
-FOLDER4=06_braker/round4_braker_on_refprot_$TIME
-FOLDER5=06_braker/round5_braker_on_refprot_$TIME
+FOLDER1=06_braker/round1_braker_on_refprot #_$TIME
+FOLDER2=06_braker/round2_braker_on_refprot #_$TIME
+FOLDER3=06_braker/round3_braker_on_refprot #_$TIME 
+FOLDER4=06_braker/round4_braker_on_refprot #_$TIME
+FOLDER5=06_braker/round5_braker_on_refprot #_$TIME
 
 mkdir -p $FOLDER1 $FOLDER2 $FOLDER3 $FOLDER4 $FOLDER5 2>/dev/null
 
