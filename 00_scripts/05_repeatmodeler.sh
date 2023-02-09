@@ -6,15 +6,20 @@
 #--- EXTERNAL VARIABLE ---- #
 #input : reference genome and a database name (e.g. the species name)
 #output: several files
-if [ $# -ne 2  ]; then
-    echo "USAGE: $0 reference_genome database name"
-    echo "Expecting the name of the reference genome and a basename for database building (e.g. 'myfavoritespecies')"
+if [ $# -ne 3  ]; then
+    echo "USAGE: $0 reference_genome database name rm_unknwon(yes/no)"
+    echo -e "Expecting the following parameters:\n
+          1 - the reference genome\n
+          2 - a basename for database building (e.g. 'myfavoritespecies')\n
+          3 - a string YES/NO about wether unknwon repeat should be removed\n\n"
     exit 1
 else
     genome=$1
     database=$2
+    rm_unknown=$3
     echo -e "reference genome is $genome \n"
-    echo "database is : ${database}"
+    echo -e "database is : ${database}\n"
+    echo -e "rm_unknown option is set to $rm_unknown"
     echo " "
 fi
 
@@ -83,7 +88,20 @@ lib3base=$(basename $lib3)
 FOLDER3="${base}"_mask_"$base"_"$lib3base"."$TIMESTAMP"
 mkdir "$FOLDER3"
 
-cat $database-families.fa $lib3 > $base.repbase.fa
+# test if we keep Unknwon repeat or not
+	## without Unknwon repeat ##
+if [[ rm_unknown = "YES" ]]
+then
+        echo "removing Unknown TE Repeats ..."
+        awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
+        sed -e '/Unknown/,+1d' |\
+        cat $lib3 - > $base.repbase.fa
+else
+	#with known repeat
+        echo "keep all candidate TEs... "
+        cat $database-families.fa $lib3 > $base.repbase.fa
+fi
+
 RepeatMasker -pa 24 -e ncbi -lib $base.repbase.fa -xsmall -dir "$FOLDER3" "$FOLDER2"/"$base".masked.masked 2>&1 |\
 	tee ../$LOG_FOLDER/repeatmasker_$base.repbase20.05.$base.$TIMESTAMP.log
 
