@@ -90,7 +90,7 @@ mkdir "$FOLDER3"
 
 # test if we keep Unknwon repeat or not
 	## without Unknwon repeat ##
-if [[ rm_unknown = "YES" ]]
+if [[ $rm_unknown = "YES" ]]
 then
         echo "removing Unknown TE Repeats ..."
         awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
@@ -115,7 +115,7 @@ RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/
 
 cd ../03_genome
 
-if [[ rm_unknown = "YES" ]]
+if [[ $rm_unknown = "YES" ]]
 then
         ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.wholemask_no_unknown.fa
 else
