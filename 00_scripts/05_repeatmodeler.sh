@@ -114,5 +114,11 @@ RepeatMasker -pa 24 -e ncbi -species fungi -xsmall -dir "$FOLDER4"   "$FOLDER3"/
 	tee ../$LOG_FOLDER/repeatmasker_fungi.$base.$TIMESTAMP.log
 
 cd ../03_genome
-ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.masked.fa
+
+if [[ rm_unknown = "YES" ]]
+then
+        ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.wholemask_no_unknown.fa
+else
+        ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.wholemask.fa
+fi
 
