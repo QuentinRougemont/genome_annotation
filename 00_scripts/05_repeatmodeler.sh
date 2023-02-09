@@ -119,8 +119,8 @@ cd ../03_genome
 
 if [[ $rm_unknown = "YES" ]]
 then
-        ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.wholemask_no_unknown.fa
+        ln -s ../05_TE/$FOLDER4/$base.masked.masked.masked.masked genome.wholemask_no_unknown.fa
 else
-        ln -s ../$FOLDER4/$base.masked.masked.masked.masked genome.wholemask.fa
+        ln -s ../05_TE/$FOLDER4/$base.masked.masked.masked.masked genome.wholemask.fa
 fi
 
