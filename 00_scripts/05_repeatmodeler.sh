@@ -95,7 +95,7 @@ then
         echo "removing Unknown TE Repeats ..."
         awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
         sed -e '/Unknown/,+1d' |\
-        cat $lib3 - > $base.repbase.fa
+        cat $lib3 - > $base.no_unknown.repbase.fa
 	lib3cat="$base".no_unknown.repbase.fa
 else
 	#with known repeat
