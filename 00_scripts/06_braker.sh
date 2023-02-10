@@ -4,13 +4,15 @@
 #Date: 01-01-2023
 
 #external data
-if [ $# -ne 1  ]; then
-    echo "USAGE: $0 reference_genome database name rm_unknwon(yes/no)"
-    echo -e "Expecting the reference_genome as input\n"
+if [ $# -ne 2  ]; then
+    echo "USAGE: $0 reference_genome species"     # database name rm_unknwon(yes/no)"
+    echo -e "Expecting the reference_genome as input and a species name for braker\n"
     exit 1
 else
     genome=$1
-    echo -e "reference genome is $genome \n"
+    species=$2
+    echo -e "reference genome is $genome \n
+    species will be $species"
     echo " "
 fi
 
@@ -21,12 +23,13 @@ alnBAM="04_mapped/Aligned.out.ss.bam"
 NCPUS=8
 relatProt="/path/to/closely_related/protein.fa" 
 
+rm -r 06_braker/ 2>/dev/null
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
 #Run braker with RNAseq 
 #round 1:
 wd=06_braker/rnaseq
 mkdir -p $wd
-braker.pl --species="$base" --fungus --genome="$genome" --cores="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+braker.pl --species="$species" --fungus --genome="$genome" --cores="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
 
 
 ##  --------- step 2 : BRAKER WITH REFERENCE DATABASE USING THREE ROUNDS --------- ## 
@@ -42,7 +45,7 @@ mkdir -p $FOLDER1 $FOLDER2 $FOLDER3 $FOLDER4 $FOLDER5 2>/dev/null
 
 # ---- round 1 : ----- #
 wd=${FOLDER1}
-braker.pl --species=$base"_refprot" --fungus --genome="$genome" --cores="$NCPUS" --prot_seq=$relatProt --workingdir=$wd --softmasking  
+braker.pl --species=$species"_refprot" --fungus --genome="$genome" --cores="$NCPUS" --prot_seq=$relatProt --workingdir=$wd --softmasking  
 
 # ---- round 2 : ----- #
 wd=${FOLDER2}
