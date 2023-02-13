@@ -20,6 +20,65 @@ for now it is designed for microbotryum as some custom fungus database are neces
 
 **braker2** and all of its dependencies available [here](https://github.com/Gaius-Augustus/BRAKER)
 
+
+#### minimal braker dependencies:
+
+**Protint** 
+
+wget https://github.com/gatech-genemark/ProtHint/releases/download/v2.6.0/ProtHint-2.6.0.tar.gz 
+
+then add to ~/.bashrc
+
+**Diamond**
+
+wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
+
+then add to ~.bashrc
+
+**cdbfasta**:
+
+```
+git clone https://github.com/gpertea/cdbfasta.git`
+cd cdbfasta
+make all 
+```
+
+
+**Augustus**
+
+see details at https://github.com/Gaius-Augustus/Augustus
+with a bit of luck this could work:
+
+```
+git clone https://github.com/Gaius-Augustus/Augustus.git
+cd Augustus
+make augustus
+```
+
+For augustus I also had to install bamtools: 
+bamtools : https://github.com/pezmaster31/bamtools
+some change may be necessary to install bamtools properly....
+
+the rest was OK but you may need to carrefully read the Readme of Augustus to make it work
+
+**genemark** 
+
+wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
+
+the gm_key is necessary
+wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gm_key_64.gz
+
+it must be copied to your home
+```sh
+gunzip gm_key_64.gz 
+mv gm_key_64 ~/.gm_key
+``
+
+Note: you must register [online](http://exon.gatech.edu/GeneMark/license_download.cgi) for genemark
+
+
+#Other dependencies: 
+
 **TSEBRA** available [here](https://github.com/Gaius-Augustus/TSEBRA)
 
 **trimmomatic** software available [here](http://www.usadellab.org/cms/?page=trimmomatic)
@@ -33,6 +92,10 @@ for now it is designed for microbotryum as some custom fungus database are neces
 **transeq** to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq)
 
 **optional: BUSCO** for quality assesment
+
+**[agat](https://agat.readthedocs.io/en/latest/index.html)** for statistics etc
+
+**interproscan** for annotation
 
 
 # Steps 
@@ -181,3 +244,7 @@ interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 ```
 
 Note: I had to install libdw1 (without root). 
+
+
+## ACKNOWLEDGMENTS:
+
