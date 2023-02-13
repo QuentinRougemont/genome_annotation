@@ -3,24 +3,30 @@
 #AUTHOR: QR
 #Date: 01-01-2023
 
-#external data
-if [ $# -ne 2  ]; then
-    echo "USAGE: $0 reference_genome species"     # database name rm_unknwon(yes/no)"
-    echo -e "Expecting the reference_genome as input and a species name for braker\n"
-    exit 1
+#  ---- external data required arguments --------------- #
+if [ $# -ne 3 ] ; then
+        echo "USAGE: $0 reference_genome species RNAseq(YES/NO)" 
+        echo -e "Expecting the following parameters:\n
+                1 - the reference genome\n
+                2 - a species name\n
+                3 - a string YES/NO for wether RNAseq should be considered or not\n\n"
+        exit 1
 else
-    genome=$1
+    genome=$1 #the reference genome here! "genome.wholemask.fa"
     species=$2
-    echo -e "reference genome is $genome \n
-    species will be $species"
-    echo " "
+    RNAseq=$3 #YES/NO
+    NCPUS=$4
 fi
 
 base=$(basename $genome )
 
+if [[ -z "$NCPU" ]]
+then
+    NCPU=8
+fi
+
 TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
-alnBAM="04_mapped/Aligned.out.ss.bam"
-NCPUS=8
+alnBAM="04_mapped/RNAseq.bam"
 relatProt="/path/to/closely_related/protein.fa" 
 
 rm -r 06_braker/ 2>/dev/null
@@ -29,7 +35,11 @@ rm -r 06_braker/ 2>/dev/null
 #round 1:
 wd=06_braker/rnaseq
 mkdir -p $wd
-braker.pl --species="$species" --fungus --genome="$genome" --cores="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+
+if [[ $NRAseq = "YES" ]]
+then
+    braker.pl --species="$species" --fungus --genome="$genome" --cores="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+fi 
 
 
 ##  --------- step 2 : BRAKER WITH REFERENCE DATABASE USING THREE ROUNDS --------- ## 
