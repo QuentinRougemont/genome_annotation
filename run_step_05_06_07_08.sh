@@ -1,14 +1,41 @@
 #!/bin/bash
 #Date:13-02-23
 #Author QR
+# WARNING STILL BETA #! 
 
-genome=$1 #
-species=$2
-mask=YES
-RNAseq=NO
+##  ------------------------ general parameters --------------------------------  ##
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
+    -s | --species) species="$2" ;echo "the species name will be $species" >&2;;
+    -m | --mask) Mask="$2" ;echo "TE will be mask $Mask" >&2;;
+    -r | --rnaseq) RNAseq="$2" ;echo "are RNAseq data provided? $RNAseq" >&2;;
+    -h | --help) echo -e "Option required:
+    -g/--genome \t the reference genome file 
+    -s/--species\t the species name (used for database building and basename in several steps)
+    Optional:
+    -m/--mask\t a string stating wether TE should be mask (YES/NO) -- default: YES
+    -r/--ref \t a string stating wether RNAseq data should be used (YES/NO) -- default: NO
+    " >&2;exit 1;;
+    esac
+    shift
+done
+
+if [ -z "$genome" ] || [ -z "$species" ] ; then
+        echo >&2 "Fatal error: Ref genome, and species name not defined"
+exit 2
+fi
+
+#optional parameters:
+if [ -z "$Mask" ] ; then
+    Mask=YES
+fi
+if [ -z "$RNAseq" ] ; then 
+  RNAseq=NO
+fi
 
 # ------------------ run RepeatModeler and RepeatMasker ------------------  ##
-./00_scripts/05_repeatmodeler.sh "$genome" "$species" "$mask" 2>&1 |tee log_rm
+./00_scripts/05_repeatmodeler.sh "$genome" "$species" "$Mask" 2>&1 |tee log_rm
 
 #here test if the genome should be mask or not, then test its existence
 #if it does not exist then exit
@@ -56,7 +83,7 @@ cat ./07_tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.
 ./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/genome.wholemask_no_unknown.fa 
 
 exit 
-#Further stuff that is done:
+#Further stuff that will be add:
 #1 - evaluate final quality with busco
 #2 - run several of the agat module to check quality
 #3 - run interproscan
