@@ -33,7 +33,7 @@ then add to ~/.bashrc
 
 wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
 
-then add to ~.bashrc
+then add to ~/.bashrc
 
 **cdbfasta**:
 
@@ -72,7 +72,7 @@ it must be copied to your home
 ```sh
 gunzip gm_key_64.gz 
 mv gm_key_64 ~/.gm_key
-``
+```
 
 Note: you must register [online](http://exon.gatech.edu/GeneMark/license_download.cgi) for genemark
 
