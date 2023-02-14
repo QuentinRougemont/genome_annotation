@@ -17,7 +17,7 @@ else
 fi
 
 run1=06_braker/rnaseq
-run2=06_braker/$best_run #round2_braker_on_refprot_2023-01-29_21h27m06s round3_braker_on_refprot_2023-01-17_17h34m03s
+run2=06_braker/$best_run 
 
 b1=$run1/braker.gtf
 b2=$run2/braker.gtf

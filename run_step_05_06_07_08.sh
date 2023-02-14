@@ -65,7 +65,7 @@ best_round=$(grep "C:" round*/busco*/short*txt |\
 
 cd ../
 
-if [[ $NRAseq = "NO" ]] ; then
+if [[ $RNAseq = "NO" ]] ; then
 	echo "work is finished "
 	echo best_round is $best_round
 else
