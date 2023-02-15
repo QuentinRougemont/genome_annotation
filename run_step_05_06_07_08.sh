@@ -42,7 +42,7 @@ fi
 #it it exist run braker with the appropriate parameter
 
 # -------------------- run Braker  ---------------------------- #
-./00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $species $RNAseq 2>&1 |tee braker_log  #NO for no rnaseq  
+./00_scripts/06_braker.sh 03_genome/"$species".genome.wholemask_no_unknown.fa $species $RNAseq 2>&1 |tee braker_log  #NO for no rnaseq  
 
 
 # -------------------- run Busco  ---------------------------- #
@@ -52,7 +52,7 @@ conda activate busco_env #activate conda
 cd 06_braker
 for i in round* ; do cd $i ;  ~/busco.sh augustus.hints.aa ; cd ../ ; done
 
-if [[ $RNAseq = YES]] ; then
+if [[ $RNAseq = "YES" ]] ; then
     cd rnaseq ;
     ~/busco.sh augustus.hints.aa 
     cd ../
@@ -80,7 +80,8 @@ fi
 cat ./07_tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07_tsebra_results/${species}.combined.fixed.gtf
 
 
-./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/genome.wholemask_no_unknown.fa 
+./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
+
 
 exit 
 #Further stuff that will be add:

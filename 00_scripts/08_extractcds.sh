@@ -24,8 +24,4 @@ gffread -w $output -g $genome $gtf
 
 #then convert also the file to its cds:
 input=$output
-transeq -sequence $input -outseq ${input%.fa}.prot
-
-exit
-exemple:
-gffread -w M.superbum.A1.combined.renamed.cds.fa -g ../../MvDp-1065-A1.contigs.fasta.masked.masked.masked.masked.simpl.fa  M.superbum.A1.combined.renamed.gtf 
+transeq -sequence $input -outseq ${input%.fa**}.prot

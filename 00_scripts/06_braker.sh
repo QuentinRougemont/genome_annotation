@@ -20,9 +20,9 @@ fi
 
 base=$(basename $genome )
 
-if [[ -z "$NCPU" ]]
+if [[ -z "$NCPUS" ]]
 then
-    NCPU=8
+    NCPUS=8
 fi
 
 TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
