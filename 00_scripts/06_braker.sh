@@ -36,7 +36,7 @@ rm -r 06_braker/ 2>/dev/null
 wd=06_braker/rnaseq
 mkdir -p $wd
 
-if [[ $NRAseq = "YES" ]]
+if [[ $RNAseq = "YES" ]]
 then
     braker.pl --species="$species" --fungus --genome="$genome" --cores="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
 fi 
