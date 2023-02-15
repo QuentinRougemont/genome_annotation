@@ -30,6 +30,7 @@ base=$(basename $genome)
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 SCRIPT=$0
 NAME=$(basename $0)
+NCPUS=12
 LOG_FOLDER="99_log_files"
 #create log folder
 mkdir $LOG_FOLDER 2>/dev/null
