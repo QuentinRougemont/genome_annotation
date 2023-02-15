@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in *.fa** ; 
+do
+	awk -v var=$i '!/^>/' {len += length($0)}END{print var"\t"len}' ; 
+done 

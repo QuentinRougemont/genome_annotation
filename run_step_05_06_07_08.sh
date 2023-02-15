@@ -8,8 +8,6 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
     -s | --species) species="$2" ;echo "the species name will be $species" >&2;;
-    -m | --mask) Mask="$2" ;echo "TE will be mask $Mask" >&2;;
-    -r | --rnaseq) RNAseq="$2" ;echo "are RNAseq data provided? $RNAseq" >&2;;
     -h | --help) echo -e "Option required:
     -g/--genome \t the reference genome file 
     -s/--species\t the species name (used for database building and basename in several steps)
@@ -22,7 +20,8 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ -z "$genome" ] || [ -z "$species" ] ; then
-        echo >&2 "Fatal error: Ref genome, and species name not defined"
+	echo >&2 "Fatal error: Ref genome (-g), and species name (-s) not defined\n
+	see manual with -h or --help"
 exit 2
 fi
 
