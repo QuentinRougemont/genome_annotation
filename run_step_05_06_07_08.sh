@@ -49,7 +49,7 @@ eval "$(conda shell.bash hook)"
 conda activate busco_env #activate conda
 
 cd 06_braker
-for i in round* ; do cd $i ;  ~/busco.sh augustus.hints.aa ; cd ../ ; done
+for i in round* ; do cd $i ;  00_scripts/utility_scripts/busco.sh augustus.hints.aa ; cd ../ ; done
 
 if [[ $RNAseq = "YES" ]] ; then
     cd rnaseq ;
@@ -60,7 +60,7 @@ fi
 #choose the best round
 best_round=$(grep "C:" round*/busco*/short*txt |\
 	sed -e 's/%//g' -e 's/\[/,/g' -e 's/]//g' -e 's/:/\t/g' -e  's/,/\t/g' |\
-	LC_ALL=C sort -nr -k3 -k5 -k7 -k9 -k11 |sed -n 1p |cut -f 1 )
+	LC_ALL=C sort -nr -k3 -k5 -n -k7 -k9 -k11  |sed -n 1p |cut -f 1 )
 
 cd ../
 
