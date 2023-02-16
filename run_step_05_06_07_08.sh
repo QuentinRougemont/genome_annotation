@@ -67,20 +67,22 @@ cd ../
 if [[ $RNAseq = "NO" ]] ; then
 	echo "work is finished "
 	echo best_round is $best_round
+	exit 1
 else
 	echo "now combining RNAseq and Protein with TSEBRA"
 	#to do
 	#now combine tesbra best_round and RNAseq
 	./00_scripts/07_tsebra.sh $species $best_round 
+	
+	## Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
+	# Fix lack of gene_id and transcript_id tags in gtf file column 9
+	
+	cat ./07_tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07_tsebra_results/${species}.combined.fixed.gtf
+
+
+	./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
+	
 fi
-
-## Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
-# Fix lack of gene_id and transcript_id tags in gtf file column 9
-cat ./07_tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07_tsebra_results/${species}.combined.fixed.gtf
-
-
-./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
-
 
 exit 
 #Further stuff that will be add:
