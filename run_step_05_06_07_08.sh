@@ -49,13 +49,14 @@ eval "$(conda shell.bash hook)"
 conda activate busco_env #activate conda
 
 cd 06_braker
-for i in round* ; do cd $i ;  00_scripts/utility_scripts/busco.sh augustus.hints.aa ; cd ../ ; done
+for i in round* ; do cd $i ;  ../00_scripts/utility_scripts/busco.sh augustus.hints.aa ; cd ../ ; done
 
 if [[ $RNAseq = "YES" ]] ; then
     cd rnaseq ;
-    ~/busco.sh augustus.hints.aa 
+    ../../00_scripts/utility_scripts/busco.sh augustus.hints.aa 
     cd ../
 fi
+conda deactivate busco_env #activate conda
 
 #choose the best round
 best_round=$(grep "C:" round*/busco*/short*txt |\
@@ -77,11 +78,16 @@ else
 	## Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 	# Fix lack of gene_id and transcript_id tags in gtf file column 9
 	
-	cat ./07_tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07_tsebra_results/${species}.combined.fixed.gtf
+	cat ./07-tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07-tsebra_results/${species}.combined.fixed.gtf
 
 
-	./00_scripts/08_extractcds.sh ./07_tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
+	./00_scripts/08_extractcds.sh ./07-tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
 	
+	eval "$(conda shell.bash hook)"
+	conda activate busco_env #activate conda
+	cd 07-tsebra_results
+	#running busco
+	 ../00_scripts/utility_scripts/busco.sh ${species}.combined.fixed.cds.prot 
 fi
 
 exit 
