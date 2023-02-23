@@ -31,7 +31,9 @@ then add to ~/.bashrc
 
 **Diamond**
 
-wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
+#wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
+
+wget wget https://github.com/bbuchfink/diamond/releases/download/v0.9.24/diamond-linux64.tar.gz
 
 then add to ~/.bashrc
 
@@ -59,7 +61,20 @@ For augustus I also had to install bamtools:
 bamtools : https://github.com/pezmaster31/bamtools
 some change may be necessary to install bamtools properly....
 
+** boost ** was also necessary on some cluster ....
+
+
 the rest was OK but you may need to carrefully read the Readme of Augustus to make it work
+
+
+### add augsutus script/config/bin to the .bashrc ###
+
+```
+export AUGUSTUS_CONFIG_PATH=/home/path/to/augustus/config
+export AUGUSTUS_BIN_PATH=/home/path/to/augustus/bin/
+export AUGUSTUS_SCRIPTS_PATH=/home/path/to/augustus_scripts
+```
+
 
 **genemark** 
 
