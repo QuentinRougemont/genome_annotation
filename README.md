@@ -104,11 +104,15 @@ Note: you must register [online](http://exon.gatech.edu/GeneMark/license_downloa
 
 **ffread** to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
 
-**transeq** to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq)
+**transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq)
 
-**optional: BUSCO** for quality assesment
+**BUSCO** for quality assesment (https://busco.ezlab.org/)
 
-**[agat](https://agat.readthedocs.io/en/latest/index.html)** for statistics etc
+
+**optional:**
+
+
+**[agat](https://agat.readthedocs.io/en/latest/index.html)** for statistics, quality assesment, errors
 
 **interproscan** for annotation
 
@@ -160,6 +164,8 @@ and compare it to the number of trimmed reads to evaluate the quality of the dat
 
 
 ## 5 - TE discovery and masking
+
+## Note: It is possible to run step 05-06-07-08 with ```run_step_05_06_07_08.sh``` but read everything before !
 
 We will identify denovo repeat (from our genome) using *RepeatModeler* and mask the genome using known TE Library using *Repeatmasker* 
 
