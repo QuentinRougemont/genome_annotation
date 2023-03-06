@@ -8,11 +8,13 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
     -s | --species) species="$2" ;echo "the species name will be $species" >&2;;
+    -m | --mask )   Mask="$2" ; echo "unknown TE will be removed after repeatemasking" >&2;;
+    -r | --rna )    RNAseq="$2" ; echo "No RNAseq provided" >&2;; 
     -h | --help) echo -e "Option required:
     -g/--genome \t the reference genome file 
     -s/--species\t the species name (used for database building and basename in several steps)
     Optional:
-    -m/--mask\t a string stating wether TE should be mask (YES/NO) -- default: YES
+    -m/--mask\t a string stating wether unknown TE should be removed for genome annotation (YES/NO) -- default: YES
     -r/--ref \t a string stating wether RNAseq data should be used (YES/NO) -- default: NO
     " >&2;exit 1;;
     esac
@@ -62,6 +64,8 @@ conda deactivate busco_env #activate conda
 best_round=$(grep "C:" round*/busco*/short*txt |\
 	sed -e 's/%//g' -e 's/\[/,/g' -e 's/]//g' -e 's/:/\t/g' -e  's/,/\t/g' |\
 	LC_ALL=C sort -nr -k3 -k5 -n -k7 -k9 -k11  |sed -n 1p |cut -f 1 )
+
+#note: you may wan to change the sorting to pick a better run
 
 cd ../
 
