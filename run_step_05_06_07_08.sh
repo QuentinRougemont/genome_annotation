@@ -56,6 +56,9 @@ for i in round* ; do cd $i ;  ../00_scripts/utility_scripts/busco.sh augustus.hi
 if [[ $RNAseq = "YES" ]] ; then
     cd rnaseq ;
     ../../00_scripts/utility_scripts/busco.sh augustus.hints.aa 
+
+    #also generate a report here using braker scripts:
+    ../../00_scripts/utility_scripts/GenerateReport.py augustus.hints.gtf hintsfile.gff reportRNAseq.$species.pdf
     cd ../
 fi
 conda deactivate busco_env #activate conda
@@ -72,6 +75,10 @@ cd ../
 if [[ $RNAseq = "NO" ]] ; then
 	echo "work is finished "
 	echo best_round is $best_round
+
+	cd 06_braker/
+	cd $best_round
+	../../00_scripts/utility_scripts/GenerateReport.py augustus.hints.gtf hintsfile.gff report.proteinDB.$species.pdf
 	exit 1
 else
 	echo "now combining RNAseq and Protein with TSEBRA"
@@ -85,7 +92,7 @@ else
 
 	## Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 	# Fix lack of gene_id and transcript_id tags in gtf file column 9
-	cat ./07-tsebra_results/${species}.renamed.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07-tsebra_results/${species}.renamed.fixed.gtf
+	cat ./07-tsebra_results/${species}.renamed.gtf | ./00_scripts/utility_scripts/Fix_Augustus_gtf.pl > ./07-tsebra_results/${species}.renamed.fixed.gtf
 
 
 	./00_scripts/08_extractcds.sh ./07-tsebra_results/${species}.renamed.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
