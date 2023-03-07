@@ -79,19 +79,22 @@ else
 	#now combine tesbra best_round and RNAseq
 	./00_scripts/07_tsebra.sh $species $best_round 
 	
+	#rename the gene id in the gtf:
+	rename_gtf.py --gtf ./07-tsebra_results/${species}.combined.gtf --prefix $species --translation_tab 07-tsebra_results/translation_tab --out 07-tsebra_results/$species.renamed.gtf 
+
+
 	## Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 	# Fix lack of gene_id and transcript_id tags in gtf file column 9
-	
-	cat ./07-tsebra_results/${species}.combined.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07-tsebra_results/${species}.combined.fixed.gtf
+	cat ./07-tsebra_results/${species}.renamed.gtf | ./00_scripts/Fix_Augustus_gtf.pl > ./07-tsebra_results/${species}.renamed.fixed.gtf
 
 
-	./00_scripts/08_extractcds.sh ./07-tsebra_results/${species}.combined.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
+	./00_scripts/08_extractcds.sh ./07-tsebra_results/${species}.renamed.fixed.gtf 03_genome/"$species".genome.wholemask_no_unknown.fa 
 	
 	eval "$(conda shell.bash hook)"
 	conda activate busco_env #activate conda
 	cd 07-tsebra_results
 	#running busco
-	 ../00_scripts/utility_scripts/busco.sh ${species}.combined.fixed.cds.prot 
+	 ../00_scripts/utility_scripts/busco.sh ${species}.renamed.fixed.cds.prot 
 fi
 
 exit 
