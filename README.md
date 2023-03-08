@@ -114,7 +114,8 @@ Note: you must register [online](http://exon.gatech.edu/GeneMark/license_downloa
 
 **[agat](https://agat.readthedocs.io/en/latest/index.html)** for statistics, quality assesment, errors
 
-**interproscan** for annotation
+**interproscan** for [annotation](https://interproscan-docs.readthedocs.io/en/latest/index.html):  
+
 
 
 # Steps 
@@ -265,6 +266,119 @@ interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 ```
 
 Note: I had to install libdw1 (without root). 
+
+
+## ------   Under Construction ------------ ##
+## Running with long-reads PacBio IsoSeq 
+
+
+Here's some exploratory stuff combining long-reads from PacBio + RNAseq from short + Protein data
+I've followed the protocol from braker with some modifications: https://github.com/Gaius-Augustus/BRAKER/blob/master/docs/long_reads/long_read_protocol.md
+
+
+
+# ----- dependencies ---- 
+## new braker :  
+change braker to long read mode by cloning another version in a separate directory
+
+```
+git clone https://github.com/Gaius-Augustus/BRAKER
+cd BRAKER/
+git checkout long_reads
+```
+
+export it to your $PATH
+
+## new tsebra:
+
+```
+git clone https://github.com/Gaius-Augustus/TSEBRA
+
+
+cd TSEBRA/
+git checkout long_reads
+```
+
+export it to your $PATH 
+
+
+## GeneMark ST: 
+
+download GeneMark ST http://exon.gatech.edu/GeneMark/license_download.cgi 
+
+export ```gmst.pl``` 
+
+## Minimap:
+
+see [here](https://github.com/lh3/minimap2)
+```
+git clone https://github.com/lh3/minimap2
+cd minimap2 && make
+```
+
+
+## Cupcake :
+
+```
+mamba create -n anaCogent 
+mamba activate anaCogent
+mamba install -c anaconda biopython
+
+source activate anaCogent
+
+git clone https://github.com/Magdoll/cDNA_Cupcake.git
+cd cDNA_Cupcake
+python setup.py build
+python setup.py install
+
+```
+
+run scripts:
+
+```
+00_scripts/long_reads/isoseqv2_minimap_target_species.sh
+```
+
+For species different from the reference genome I've added the `asm20` parameter in minimap. Need to check if this affect the mapping of such reads
+
+```
+00_scripts/long_reads/isoseqv2_minimap_asm20.sh
+```
+
+the resulting protein from the outgroup were combined to a database of external protein:
+cat 07_isoseq/*mRNA protein.fa >> all.proteins.fa
+
+## then run braker
+
+```
+genome=$1
+protein="all.proteins.fa"
+wd=08_braker_long_read/protein
+mkdir -p $wd
+braker.pl --genome=$genome --softmasking --cpu="$NCPUS" --epmode --prot_seq="$protein"  --workingdir="$wd" 2> $wdir/braker2.log
+```
+
+then use RNAseq (see script ```00_scripts/06_braker.sh``` )
+
+
+## Combine dataset with TSEBRA
+
+
+```sh
+name=$1 #specie name
+LR=07_isoseq_mapped/
+wd=08_braker_long_read/protein
+
+tsebra.py -g 06_braker/rnaseq/augustus.hints.gtf, $wd/augustus.hints.gtf -e 06_braker/rnaseq/hintsfile.gff,$wd/hintsfile.gff -l $LR/gmst."$name".gtf -c long_reads.cfg -o tsebra."$name".gtf
+```
+
+## then perform all the quality check as described above for classical data:
+
+1 - busco
+2 - proportion of correct annotation (missing start/stop codon, length of transcript, length of intron, number of exon per genes, etc)
+3 - blast all protein against each other
+4 - blast against uniprot
+5 - annotate with Inter-pro
 
 
 ## ACKNOWLEDGMENTS:
