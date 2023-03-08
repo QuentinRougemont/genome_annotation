@@ -268,7 +268,7 @@ interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 Note: I had to install libdw1 (without root). 
 
 
-## ------   Under Construction ------------ ##
+# ------   Under Construction ------------ ##
 ## Running with long-reads PacBio IsoSeq 
 
 
@@ -277,8 +277,8 @@ I've followed the protocol from braker with some modifications: https://github.c
 
 
 
-# ----- dependencies ---- 
-## new braker :  
+## ----- dependencies ---- 
+### new braker :  
 change braker to long read mode by cloning another version in a separate directory
 
 ```
@@ -289,7 +289,7 @@ git checkout long_reads
 
 export it to your $PATH
 
-## new tsebra:
+### new tsebra:
 
 ```
 git clone https://github.com/Gaius-Augustus/TSEBRA
@@ -302,13 +302,13 @@ git checkout long_reads
 export it to your $PATH 
 
 
-## GeneMark ST: 
+### GeneMark ST: 
 
 download GeneMark ST http://exon.gatech.edu/GeneMark/license_download.cgi 
 
 export ```gmst.pl``` 
 
-## Minimap:
+### Minimap:
 
 see [here](https://github.com/lh3/minimap2)
 ```
@@ -317,7 +317,7 @@ cd minimap2 && make
 ```
 
 
-## Cupcake :
+### Cupcake :
 
 ```
 mamba create -n anaCogent 
@@ -331,6 +331,9 @@ cd cDNA_Cupcake
 python setup.py build
 python setup.py install
 
+
+
+## then run the script for IsoSeq: 
 ```
 
 run scripts:
@@ -346,9 +349,14 @@ For species different from the reference genome I've added the `asm20` paramete
 ```
 
 the resulting protein from the outgroup were combined to a database of external protein:
-cat 07_isoseq/*mRNA protein.fa >> all.proteins.fa
 
-## then run braker
+```cat 07_isoseq/*mRNA protein.fa >> all.proteins.fa```
+
+Note: Running pbmm2 + Isoseq3 seems to provide fairly similar results
+
+
+
+## then run braker on the protein database from external evidence + long read outgroups
 
 ```
 genome=$1
@@ -374,11 +382,15 @@ tsebra.py -g 06_braker/rnaseq/augustus.hints.gtf, $wd/augustus.hints.gtf -e 06_b
 
 ## then perform all the quality check as described above for classical data:
 
-1 - busco
-2 - proportion of correct annotation (missing start/stop codon, length of transcript, length of intron, number of exon per genes, etc)
-3 - blast all protein against each other
-4 - blast against uniprot
-5 - annotate with Inter-pro
+1 - busco   
+
+2 - proportion of correct annotation (missing start/stop codon, length of transcript, length of intron, number of exon per genes, etc)  
+
+3 - blast all protein against each other  
+
+4 - blast against uniprot  
+
+5 - annotate with Inter-pro  
 
 
 ## ACKNOWLEDGMENTS:
