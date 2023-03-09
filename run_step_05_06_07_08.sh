@@ -66,7 +66,7 @@ conda deactivate busco_env #activate conda
 #choose the best round
 best_round=$(grep "C:" round*/busco*/short*txt |\
 	sed -e 's/%//g' -e 's/\[/,/g' -e 's/]//g' -e 's/:/\t/g' -e  's/,/\t/g' |\
-	LC_ALL=C sort -nr -k3 -k5 -n -k7 -k9 -k11  |sed -n 1p |cut -f 1 )
+	LC_ALL=C sort -nr -k3 -k5 -n -k7 -k9 -k11  |sed -n 1p |cut -d "/" -f 1 )
 
 #note: you may wan to change the sorting to pick a better run
 
