@@ -1,7 +1,14 @@
 #!/bin/bash
-#script to run braker
+#PURPOSE: script to run braker
 #AUTHOR: QR
-#Date: 01-01-2023
+#Date updated: 10-03-2023
+set -e
+
+# keep track of the last executed command
+trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
+# echo an error message before exiting
+trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
+
 
 #  ---- external data required arguments --------------- #
 if [ $# -ne 3 ] ; then
