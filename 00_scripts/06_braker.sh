@@ -29,7 +29,11 @@ TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 alnBAM="04_mapped/RNAseq.bam"
 relatProt="/path/to/closely_related/protein.fa" 
 
-rm -r 06_braker/ 2>/dev/null
+if [[ -d 06_braker ]] 
+then
+	echo "WARNING directory 06_braker already exists! check its content first"
+	exit 1
+fi
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
 #Run braker with RNAseq 
 #round 1:
