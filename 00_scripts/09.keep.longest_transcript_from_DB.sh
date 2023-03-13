@@ -4,6 +4,7 @@
 #Purpose:
 #script to extract the longest transcript and evaluate the final quality with busco
 #Note that AGAT can do the same probably better, but this does not require any supplementary installation.
+
 if [ $# -ne 1 ] ; then
 	echo "USAGE: $0 data_type  (optional :protein file name)" 
         echo -e "Expecting the following parameters:\n
@@ -50,6 +51,7 @@ if [[ $data_type == "DB" ]] ; then
 	grep -A1 -Ff longest.transcript augustus.hints.aa.lin.fasta > longest_transcript.fa
 
 	cp longest_transcript.fa ../../
+	cd ../../
 
 else
 
@@ -73,12 +75,14 @@ else
 	grep -A1 -Ff longest.transcript "$protein_file_name".lin.fasta  > longest_transcript.fa
 
 	cp longest_transcript.fa ../
+        cd ../
 
-       fi
-       
+        fi
+   
+fi
+
 #then run busco
 eval "$(conda shell.bash hook)"
 conda activate busco_env #activate conda
-cd ../../
 00_scripts/utility_scripts/busco.sh longest_transcript.fa 
 
