@@ -5,7 +5,7 @@
 #script to extract the longest transcript and evaluate the final quality with busco
 #Note that AGAT can do the same probably better, but this does not require any supplementary installation.
 
-if [ $# -ne 1 ] ; then
+if (( $# < 1 )) ; then
 	echo "USAGE: $0 data_type  (optional :protein file name)" 
         echo -e "Expecting the following parameters:\n
 	1 - the type of data: (i) either TSEBRA or (ii)  DB\n
