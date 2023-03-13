@@ -8,7 +8,7 @@ if [ $# -ne 1 ] ; then
 	echo "USAGE: $0 data_type  (optional :protein file name)" 
         echo -e "Expecting the following parameters:\n
 	1 - the type of data: (i) either TSEBRA or (ii)  DB\n
-        2 - if data type == DB then a name for the protein file should be provided\n"
+        2 - if data type == TSBEBRA then a name for the protein file should be provided\n"
         exit 1
 else
     data_type=$1 #the reference genome here! "genome.wholemask.fa"
@@ -64,8 +64,8 @@ else
 
 	cd 07-tsebra_results
 
-	samtools faidx $input
-	awk -F "." '{print $1"\t"$0}' $input.fai |\
+	samtools faidx $protein_file_name
+	awk -F "." '{print $1"\t"$0}' $protein_file_name.fai |\
 	awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript
 
 	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $protein_file_name > "$protein_file_name".lin.fasta
