@@ -55,10 +55,10 @@ for i in round* ; do cd $i ;  ../00_scripts/utility_scripts/busco.sh augustus.hi
 
 if [[ $RNAseq = "YES" ]] ; then
     cd rnaseq ;
-    ../../00_scripts/utility_scripts/busco.sh augustus.hints.aa 
+    ../00_scripts/utility_scripts/busco.sh augustus.hints.aa 
 
     #also generate a report here using braker scripts:
-    ../../00_scripts/utility_scripts/GenerateReport.py augustus.hints.gtf hintsfile.gff reportRNAseq.$species.pdf
+    ../00_scripts/utility_scripts/GenerateReport.py augustus.hints.gtf hintsfile.gff reportRNAseq.$species.pdf
     cd ../
 fi
 conda deactivate busco_env #activate conda
