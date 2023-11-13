@@ -46,6 +46,9 @@ newgtf=${newname}.ok.gtf
 echo -e " new name is $newname \n"
 echo "-----------------------"
 #test if tig is present or directly replacr the start of the chromosome in chromosome 1 by the new pattern
+awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > "$newgtf"
+
+exit
 awk -v val1=$newname  'BEGIN{FS=OFS="\t"}
         {$1=val1"_"$1; print $0}' $gtf |\
         awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }'  > "$newgtf"
