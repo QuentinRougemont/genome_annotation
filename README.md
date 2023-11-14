@@ -31,9 +31,9 @@ then add to ~/.bashrc
 
 **Diamond**
 
-#wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
+`wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz`
 
-wget wget https://github.com/bbuchfink/diamond/releases/download/v0.9.24/diamond-linux64.tar.gz
+`wget https://github.com/bbuchfink/diamond/releases/download/v0.9.24/diamond-linux64.tar.gz`
 
 then add to ~/.bashrc
 
@@ -102,7 +102,7 @@ Note: you must register [online](http://exon.gatech.edu/GeneMark/license_downloa
 
 [repeatmodeler](https://www.repeatmasker.org/RepeatModeler/) and [repeatmasker](https://www.repeatmasker.org/)
 
-**ffread** to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
+**gffread** to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
 
 **transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq)
 
@@ -121,6 +121,12 @@ Note: you must register [online](http://exon.gatech.edu/GeneMark/license_downloa
 # Steps 
 
 your genome should be in the `03_genome` folder!  
+
+## 0 - rename the contigs/scaffold/chromosome ID in your reference genome. 
+
+We recommand to use very short name with simple separator such as `_`. 
+Long name tend to cause bug with paml.
+In the rest of the pipeline, we will insert the contigs/scaffold ID in the gene ID, so they are easier to track.
 
 
 ## 1 - trimmomatic: trim the reads  
