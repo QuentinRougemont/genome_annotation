@@ -76,12 +76,10 @@ bed2 <- read.table(bedB) %>%
 all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
     filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
    mutate(fill = 'cccccc') %>%
-  as.data.frame()
-#note: this could actually  be done in one go
-all <- all %>%  mutate(Species_1 = dense_rank(contig1)) %>%
+  as.data.frame() %>%
+  mutate(Species_1 = dense_rank(contig1)) %>%
   mutate(Species_2 = dense_rank(contig2)) %>% 
-  select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
-  as.data.frame(.)
+    as.data.frame(.)
 
 
 #here it would be important to check that the order of the genes in one or the two species is identical
@@ -96,7 +94,7 @@ all <- all %>%  mutate(Species_1 = dense_rank(contig1)) %>%
 #create pseudo-index1/
 index1 <- read.table(indexA)  %>% 
     select(V1,V2) %>%
-    filter(V1 %in% bed12$contig1) %>% 
+    filter(V1 %in% all$contig1) %>% 
     mutate(Chr = V1, Start = 0, End = V2, fill = 969696,species = sp1, size = 12, color = 252525) %>%
     select(-V1, -V2)
   
@@ -104,7 +102,7 @@ index1 <- read.table(indexA)  %>%
 #create pseudo-index2
 index2 <- read.table(indexB)  %>% 
     select(V1,V2) %>%
-    filter(V1 %in% bed12$contig2) %>% 
+    filter(V1 %in% all$contig2) %>% 
     mutate(Chr = V1, Start = 0,  End = V2, fill = 969696, species = sp2, size = 12, color = 252525) %>%
     select(-V1, -V2)
 
@@ -128,6 +126,9 @@ small  <- data.frame(Chr = "none",
                      color = 25252525) 
 #small
 karyo <- rbind(karyo, small)
+karyo <- karyo[order(karyo$species),]  
+
+all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
 
 ideogram(karyotype = karyo, synteny = all, output=paste0(sp1,sp2,'.svg'))
 convertSVG(paste(sp1,sp2,'.svg', sep=''), file = paste0(sp1,sp2,'.pdf'), device = "pdf")
