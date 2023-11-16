@@ -26,7 +26,7 @@ Help()
 
 
 ############################################################
-# genera parameters arguments                              #
+# general parameters arguments                             #
 ############################################################
 
 while [ $# -gt 0 ] ; do
@@ -40,10 +40,6 @@ while [ $# -gt 0 ] ; do
     shift
 done
 
-#protfile=$1  #Msco-A1.fa #proteinfile
-#refgenome=$2 #Msco-A2.fa
-#PRinPROT=$3  #Mscorzo-A1_tig00000006_g6796.t1
-#gff_file=$4  #the gff file on which we want to add the PR! 
 if [ -z "$refgenome" ] || [ -z "$protfile" ] || [ -z "$PRinPROT" ] || [ -z "$gff_file" ]; then
 	Help	
 	exit 2
@@ -85,6 +81,7 @@ grep -A1 "$PRinPROT" whole."$protbase"_on_"$refbase".gff |\
 
 
 #here test if the results was sucessul else exit with error 1
+
 if [ ! -s "PR.${refbase%.fa}.gff" ]; then
     echo "Error: File is empty"
     echo "minimap did not align the PR on your genome - ckeck parameters"
@@ -96,12 +93,6 @@ else
 	cat $gff_file PR.${refbase%.fa}.gff > 09_gff_final/"$base"
 	
 	#-------------------------------- step 3 ---------------------------------------"
-	#note: here we wante to run the ancient code to remove duplicate genes etc ----!
-	# 		TO DO
-	#
-	#
-
-	#--------------------------------step 4 ---------------------------------------#
 	#extract spliced CDS:
 	gffread -g $refgenome -w 09_gff_final/${base%.gtf}_cds.fa 09_gff_final/$base
 
@@ -121,12 +112,3 @@ else
   	cd ../	
 
 fi
-
-exit
-#note: here we wante to run the ancient code to remove duplicate genes etc ----!
-
-#extract spliced CDS:
-gffread -g $refgenome -w ${base%.gtf}_cds.fa new.$base
-
-#extract Proteins!!
-gffread -g $refgenome -y ${base%.gtf}_prot.fa new.$base
