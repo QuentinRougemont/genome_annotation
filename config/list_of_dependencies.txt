@@ -1,0 +1,21 @@
+
+list of software that needs to be installed:
+
+* braker and all its machinery
+* busco
+* samtools
+* repeatmodeller
+* repeatmasker
+* busco
+* gffread
+* transeq
+* diamond
+
+# for rnaseq:
+* gsnap/gmap
+* trimmomatic
+
+
+# optional:
+miniprot
+
