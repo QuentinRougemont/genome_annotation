@@ -1,28 +1,41 @@
 #!/bin/bash
+
 #DATE: 19-10-23
 #Author: QR
 #Purpose: run miniprot and extract PR
-#optionally: add PR to the existing filtered gtf and extract the corresponding protein so we get a cleaned dataset! 
+
+#
+############################################################
+# Help                                                     #
+############################################################
+Help()
+{
+   # Display Help
+   echo -e "script to run miniprot aligning a genome against a reference protein file.\n This allow to find important protein present in the reference genome but not predicted in the previous step\n in details this will allow to: \n 1 - allign the genome against prot \n 2 - search for the missing protein \n 3 - add it to the gtf file "
+   echo " "
+   echo "Usage: $0 [-g|p|r|f|]"
+   echo "options:"
+   echo "-h|--help: Print this Help."
+   echo "-g|--genomes: the name of the reference genome for the target species missing the genes of interest"
+   echo "-r|--pr    : the name of the gene of interest that is missing (e.g. name of PR gene)"
+   echo "-p|--prot  : the name of the protein file from which the gene of interest (e.g. PR) will be extracted"
+   echo "-f|--gff   : the gff file in which the gene of interest is missing"
+   echo " "
+   echo "dependancies: TSEBRA, samtools, gffread, transeq "
+}
 
 
-#to do:
-#make a parser and test if all argument have been provided, otherwise exti
-##  ------------------------ general parameters --------------------------------  ##
+############################################################
+# genera parameters arguments                              #
+############################################################
+
 while [ $# -gt 0 ] ; do
   case $1 in
     -g | --genome) refgenome="$2" ;echo "the genome file of the target speices  is: $genome" >&2;;
     -p | --prot)   protfile="$2" ;echo "the protein file from the outgroup species containing PR with be $protfile" >&2;;
     -r | --pr )    PRinPROT="$2" ; echo "the PR gene in the protein file will be $PRinPROT" >&2;;
     -f | --gff )   gff_file="$2" ; echo "gff_file missing the PR will be $gff_file" >&2;; 
-    -h | --help) echo -e "Option required:
-    -g/--genome \t the reference genome of the species without PR
-    -p/--prot \t the name of the protein file from which PR will be extracted
-    -r/--pr \t   the name of PR
-    -f/--gff \t  the gff file of the species lacking PR
-    #optional: 
-    #-s/--species \t the species name (used for database building and basename in several steps)
-    #-r/--ref \t a string stating wether RNAseq data should be used (YES/NO) -- default: NO
-    " >&2;exit 1;;
+    -h | --help) Help ; exit 2;;
     esac
     shift
 done
@@ -32,9 +45,8 @@ done
 #PRinPROT=$3  #Mscorzo-A1_tig00000006_g6796.t1
 #gff_file=$4  #the gff file on which we want to add the PR! 
 if [ -z "$refgenome" ] || [ -z "$protfile" ] || [ -z "$PRinPROT" ] || [ -z "$gff_file" ]; then
-	echo >&2 "Fatal error: Ref genome (-g), proteinfile (-p) PRgene (-r) and gff file (-f) not defined\n
-	see manual with -h or --help"
-exit 2
+	Help	
+	exit 2
 fi
 
 protbase=$(basename $protfile )
