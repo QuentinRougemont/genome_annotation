@@ -20,16 +20,27 @@ invisible(lapply(libs, library, character.only = TRUE))
 
 sco <- read.table("single.copy.orthologs") %>% select(-V1, -V2) 
 
-#to do here: make an option to test if the HD and PR or any link to be colorred is provided or not:
-#all <- read.table("all.HD.PR.txt") %>% select(-V1, -V2, -V3, -V4) %>%
-#	set_colnames(., c("gene1", "gene2", "status"))
-
 #read species name from the 
 argv <- commandArgs(T)
 
-sp1 <- argv[1] #only the basename is needed !
-sp2 <- argv[2] #only the basename is needed !
+# test if there is at least one argument: if not, return an error
+if (length(argv)==0) {
+	  stop("At least the name of 2 species to compare must be supplied.n", call.=FALSE)
+} else if (length(argv)==2) {
+	  print("assuming no particular link to be highlighted")
+	sp1 <- argv[1] #only the basename is needed !
+	sp2 <- argv[2] #only the basename is needed !
+} else {
+	print("links provided in the links file will be displayed in colors")
+	print("link file must contain name of gene for species1, name of ortholog for species2 and a status that will be used for coloring the gene")
+	#to do: add option to provide a coordinate file with status instead of gene file 
 
+	sp1 <- argv[1] #only the basename is needed !
+	sp2 <- argv[2] #only the basename is needed !
+       	link <- argv[3] 
+	links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
+	#we will create a vector of color according to the number of status
+}
 
 #bed files
 bedA <- paste0("bed/" , sp1, ".bed")
@@ -41,7 +52,6 @@ indexA <- paste0("../02_Genome/", sp1, ".fa.fai" )
 
 #species 2 path to index:
 indexB <- paste0("../02_Genome/", sp2, ".fa.fai" )
-
 
 #read bed files
 #they will be use to create the jointed file:
@@ -59,27 +69,39 @@ bed2 <- read.table(bedB) %>%
     mutate(species2  = sp2 ) %>%
     select(species2, gene2, contig2, Start_2, End_2) 
 
-#allHD <- filter(all, status == "HD")
-#allPR <- filter(all, status == "PR")
-
-#all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
-#    filter(n()>2) %>% group_by(contig2) %>% filter(n()>2) %>%
-#   mutate(fill = 
-#   ifelse(gene2 %in% allHD$gene2 , '064e60', #& all$status == "HD" 
-#  ifelse(gene2 %in% allPR$gene2 , '6a3d9a', #& all$status == "PR" 
-#  'cccccc'))) 
 
 #-------------- merging bed1 and bed2 - fill colors - create rank to match RIdeogram weird requirement 
 #---- rename the rank as species
 #---- select wanted columns to match RIdeogram requirements: 
 #we will merge the bed1 and bed2 
+
+
+if (length(argv)==2) {
 all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
     filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
    mutate(fill = 'cccccc') %>%
-  as.data.frame() %>%
-  mutate(Species_1 = dense_rank(contig1)) %>%
+  as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
   mutate(Species_2 = dense_rank(contig2)) %>% 
+  #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
+  as.data.frame(.)
+} else {
+
+    all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
+    filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
+    mutate(fill = 'cccccc') %>%
+    as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
+    mutate(Species_2 = dense_rank(contig2)) %>% 
+    #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
     as.data.frame(.)
+
+    #assuming we have a link file that is provided
+    #some cols:
+    colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","d67236")
+    col_pal <- c("#2b8cbe","#de2d26", "#fc9272", "#fee0d2" , "#edf8b1" ,"#636363" )
+    links$fill <- rep(colS[1:length(levels(links$status))], c(data.frame(table(links$status))[,2]))
+    #finally we use matching of gene to have it all together:
+    all$fill[match(links$gene1,all$gene1)] <- links$fill
+}
 
 
 #here it would be important to check that the order of the genes in one or the two species is identical
@@ -126,9 +148,16 @@ small  <- data.frame(Chr = "none",
                      color = 25252525) 
 #small
 karyo <- rbind(karyo, small)
-karyo <- karyo[order(karyo$species),]  
 
-all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
+#/!\/!\
+#bits of code to rework depending on wether species 1 or species 2 is the one with the smallest genome size 
+#if not ordered properly the script will fail
+karyo <- karyo[c(1,3,2),]
+#karyo <- karyo[order(karyo$species),]
+
+
+
+all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) 
 
 ideogram(karyotype = karyo, synteny = all, output=paste0(sp1,sp2,'.svg'))
 convertSVG(paste(sp1,sp2,'.svg', sep=''), file = paste0(sp1,sp2,'.pdf'), device = "pdf")
