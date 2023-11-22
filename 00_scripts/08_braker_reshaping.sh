@@ -20,8 +20,70 @@ Help()
    echo "-s|--species: the name of the focal species\t will be used to rename the genes"
    echo "-r|--RNAseq: a float YES/NO stating whether RNAseq was used to annotate the genome "
    echo " "
-   echo "dependancies: TSEBRA, samtools, gffread, transeq "
+   echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
 }
+
+
+## --------------- TEST THAT ALL DEPENDENCIES ARE HERE --------------------------------- ##
+## for the section above; insert test at each command to verify that installations were successfull 
+## else exit the code
+
+command='gffread'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    git clone https://github.com/gpertea/gffread
+    cd gffread
+    make release
+    #if command was successfull then add to path:
+    if [ $? -eq 0 ]; then
+        echo gffread installation worked successfully
+        path=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../
+
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
+fi
+
+command='transeq'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through conda/mamba"
+    #use mamba here
+    # conda install -c bioconda emboss
+    #make release
+    #if command was successfull then add to path:
+    #if [ $? -eq 0 ]; then
+    #    echo gffread installation worked successfully
+    #    path=$(pwd)
+    #    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    #    source ~/.bashrc  
+    #    cd ../
+
+    #else
+    #   echo installation failed\nmake sur to have git, make and gclib
+    #   exit 1
+    #fi
+fi
+
+#samtools: 
+# conda install -c bioconda samtools
+
+
+#tsebra:
+#git clone https://github.com/Gaius-Augustus/TSEBRA + export path
+
+#to add also: perl script
+#rename_gtf.py
+
+#busco : 
+# conda install -c bioconda busco
 
 ############################################################
 # Process the input options.                               #
@@ -163,7 +225,7 @@ source /local/env/envemboss-6.6.0.sh
 transeq -sequence 08_best_run/01_species_cds/$output -outseq 08_best_run/02_species_prot/$species.prot
 
 eval "$(conda shell.bash hook)"
-conda activate /home/genouest/cnrs_umr5175/qrougemont/mes_envs/samtools1.18/
+#conda activate /home/genouest/cnrs_umr5175/qrougemont/mes_envs/samtools1.18/
 samtools faidx 08_best_run/02_species_prot/$species.prot
 
 echo -e "\n-----------------------------------------------------------------"
