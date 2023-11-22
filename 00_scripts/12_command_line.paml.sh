@@ -1,24 +1,56 @@
 #!/bin/bash
 
-#to run me: ./10.command_line.paml.sh species1.cds.fa species2.cds.fa  2>&1 |tee log
-###############################################################
+#purpose: compute ds based on paml using yn00 model
+#to run me: ./12.command_line.paml.sh haplo1.cds.fa haplo2.cds.fa scaffold ancestral_genome 2>&1 |tee log
 
-#To Do: here insert a help file with command lines ####################
-#To Do: capture error and exit code at putative error places
+############################################################
+# Help                                                     #
+############################################################
+Help()
+{
+   # Display Help
+   echo -e "master script to: \n run translatorX and paml "
+   echo " "
+   echo "Usage: $0 [-h1|-h2|-s|-a|-h|]"
+   echo "options:"
+   echo " -h|--help: Print this Help."
+   echo " -h1|--haplo1: the name of the first  focal haplotype\t "
+   echo " -h2|--haplo2: the name of the second focal haplotype\t "
+   echo " -a |--ancestral_genome: the name of the ancestral haplo to infer orthology and plot gene order"
+   echo " -s |--scaffold: the name of scaffold of interest"
+   echo " "
+   echo "dependancies: paml (yn00), translatorX "
+}
 
-species1=$1 #name of species1 
-species2=$2 #name of species2 
-scaffold=$3 #list of scaffold on the ancestral species 
-###########################################################
+############################################################
+# Process the input options.                               #
+############################################################
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -h1 | --haplo1) haplo1="$2" ; echo -e "haplotype 1 Name is ***${haplo1}*** \n" >&2;;
+    -h2 | --haplo2) haplo2="$2" ; echo -e "haplotype 2 Name is ***${haplo2}*** \n" >&2;;
+    -a  | --ancestral_genome) ancestral_genome="$2" ; echo -e "ancestral haplo  Name is ***${ancestral_genome}*** \n" >&2;;
+    -s  | --scaffold) scaffold="$2"  ; echo -e "target scaffold is ${scaffold} \n" >&2;;
+    -h  | --help ) Help ; exit 2 ;;
+   esac
+   shift
+done 
+
+if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${ancestral_genome}" ]  || [ -z "${scaffold}" ]    ; then
+	Help
+	exit 2
+fi
+
+#------------------------------ step 1 prepare input files  -------------------------------------#
+#haplo1=$1 	#name of haplo1 
+#haplo2=$2 	#name of haplo2 
+#scaffold=$3 	#list of scaffold on the ancestral haplo 
+#ancestral_genome=$4 #ancestral genome 
 
 #cds file:
-cdsfile1=$species1/08_best_run/$species1.spliced_cds.fa
-cdsfile2=$species2/08_best_run/$species2.spliced_cds.fa
+cdsfile1=$haplo1/08_best_run/$haplo1.spliced_cds.fa
+cdsfile2=$haplo2/08_best_run/$haplo2.spliced_cds.fa
 
-#species1=$(basename ${species2%.spliced_cds.fa})
-#echo species2 base name is $species1
-#species2=$(basename ${species1%.spliced_cds.fa})
-#echo species1 base name is $species2
 
 #remove the CDS length info that is introduced by gffread:
 sed -i 's/ CDS=.*$//g' $cdsfile1
@@ -26,36 +58,36 @@ sed -i 's/ CDS=.*$//g' $cdsfile2
 
 
 #-- get single copy orthologs from orthofinder ---
-#-- criteria: we want 1:1:1 orthologs between the ancestralspecies:species1:species2
-#awk 'NF==4 && (( $2 ~/contig_8/ || $2 ~/contig_11/ ))  && $3 !~/lag/ ' orthofinder/Results_*/Orthogroups/Orthogroups.txt > single.copy.orthologs
-#may be also add a $2 /ancestral_species/ in awk ?
+#-- criteria: we want 1:1:1 orthologs between the ancestralhaplo:haplo1:haplo2
+#single copy path:
+scopy=$(echo "genespace/orthofinder/Results_*/Orthogroups/Orthogroups_SingleCopyOrthologues.txt" ) 
+ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
+ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
 
-#awk -v s1="$species1" -v s2="$species2" 'NF==4 && ( $3 ~ s2  && $4 s1 || NF==4 && $3 ~ s1  && $4 s2) ' orthofinder/Results_*/Orthogroups/Orthogroups.txt > single.copy.orthologs
+pwd
 
-#strong assumption: species were provided alphabetically. 
-#in orthofinder the speices appears in each column alphabetically 
-#awk -v s1="$species1" -v s2="$species2" '{if (NF==4 &&  $3 ~ s1  && $4 s2 ){print $0}else if(NF==4 && $3 ~ s2  && $4 s1 ){print $1,$2,$4,$3}} ' genespace/orthofinder/Results_*/Orthogroups/Orthogroups.txt | \
-#	grep -Ff $scaffold - > paml/single.copy.orthologs
-grep -Ff genespace/orthofinder/Results_*/Orthogroups/Orthogroups_SingleCopyOrthologues.txt genespace/orthofinder/Results_*/Orthogroups/Orthogroups.txt |grep -Ff $scaffold - > paml/single.copy.orthologs
+paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
+	grep -Ff $scaffold - |\
+	awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
 
-
-#correct the output that seemed to have bugs sometimes:
-dos2unix paml/single.copy.orthologs
+#correct the output that seemed to be MAC formatted with ^M :
+#dos2unix paml/single.copy.orthologs
+sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
 rm HD_and_PR* 2>/dev/null
 
-cut -d " " -f3 paml/single.copy.orthologs > paml/HD_and_PR.$species1.txt
-cut -d " " -f4 paml/single.copy.orthologs > paml/HD_and_PR.$species2.txt
+cut  -f3 paml/single.copy.orthologs > paml/HD_and_PR.$haplo1.txt
+cut  -f4 paml/single.copy.orthologs > paml/HD_and_PR.$haplo2.txt
 
 
 ##---  linearise the cds file ---#
 cat "${cdsfile2}" | \
-	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$species2".linearised.cds
+	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo2".linearised.cds
 cat "$cdsfile1" | \
-	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$species1".linearised.cds
+	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo1".linearised.cds
 
 
-##---- recover the wanted sequence HD and PR for in and species1 #
+##---- recover the wanted sequence HD and PR for in and haplo1 #
 cd paml
 
 #all is run from paml folder now
@@ -63,13 +95,13 @@ cd paml
 rm sorted* 2>/dev/null
 while read -r pattern ; 
 do 
-    grep -w -A1 "$pattern" "$species2".linearised.cds  >> sorted."$species2".wanted_cds.fa ;
-done < HD_and_PR.$species2.txt 
+    grep -w -A1 "$pattern" "$haplo2".linearised.cds  >> sorted."$haplo2".wanted_cds.fa ;
+done < HD_and_PR.$haplo2.txt 
 #
 while read -r pattern ; 
 do 
-    grep -w -A1 "$pattern" "$species1".linearised.cds >> sorted."$species1".wanted_cds.fa ; 
-done < HD_and_PR.$species1.txt 
+    grep -w -A1 "$pattern" "$haplo1".linearised.cds >> sorted."$haplo1".wanted_cds.fa ; 
+done < HD_and_PR.$haplo1.txt 
 #
 
 ### ---- then run paml and dnds.sh  ----- #
@@ -77,8 +109,8 @@ done < HD_and_PR.$species1.txt
 #to do here
 
 #------ part specific to PAML --------------------- #
-fasta1=sorted."$species1".wanted_cds.fa  
-fasta2=sorted."$species2".wanted_cds.fa
+fasta1=sorted."$haplo1".wanted_cds.fa  
+fasta2=sorted."$haplo2".wanted_cds.fa
 
 f1=$(basename $fasta1)
 f2=$(basename $fasta2)
