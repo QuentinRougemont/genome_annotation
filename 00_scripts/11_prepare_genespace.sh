@@ -299,6 +299,8 @@ Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 minimap2 -cx asm5 $haplo1/03_genome/"$haplo1".fa $haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
 
 #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
+Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+#NOTE: script to be enriched for further analysis of target scaffold
 
 #we can also run Rideogram here
 
