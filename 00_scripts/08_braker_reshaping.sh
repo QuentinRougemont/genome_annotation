@@ -17,7 +17,7 @@ Help()
    echo "Usage: $0 [-s|r|]"
    echo "options:"
    echo "-h|--help: Print this Help."
-   echo "-s|--species: the name of the focal species\t will be used to rename the genes"
+   echo "-s|--haplo: the name of the focal haplo\t will be used to rename the genes"
    echo "-r|--RNAseq: a float YES/NO stating whether RNAseq was used to annotate the genome "
    echo " "
    echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
@@ -56,41 +56,87 @@ then
     echo "$command could not be found"
     echo "will try a manual installation through conda/mamba"
     #use mamba here
-    # conda install -c bioconda emboss
-    #make release
+    mambe create -p braker_env emboss=6.6.0
     #if command was successfull then add to path:
-    #if [ $? -eq 0 ]; then
-    #    echo gffread installation worked successfully
-    #    path=$(pwd)
-    #    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-    #    source ~/.bashrc  
-    #    cd ../
+    if [ $? -eq 0 ]; then
+        echo emboss and transeq installation successfull
 
-    #else
-    #   echo installation failed\nmake sur to have git, make and gclib
-    #   exit 1
-    #fi
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
 fi
 
 #samtools: 
-# conda install -c bioconda samtools
+command='samtools'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through conda/mamba"
+    #use mamba here
+    eval "$(conda shell.bash hook)"
+    mamba activate braker_env 
+    mamba install -c bioconda samtools samtools=1.18
+    #if command was successfull then add to path:
+    if [ $? -eq 0 ]; then
+        echo samtools installation successfull
+
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
+fi
+
+command='busco'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through conda/mamba"
+    #use mamba here
+    eval "$(conda shell.bash hook)"
+    mamba activate braker_env 
+    mamba install -c bioconda busco=5.5.0
+
+    #if command was successfull then add to path:
+    if [ $? -eq 0 ]; then
+        echo busco installation successfull
+
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
+fi
 
 
 #tsebra:
-#git clone https://github.com/Gaius-Augustus/TSEBRA + export path
+#git clone https://github.com/Gaius-Augustus/TSEBRA + export path to bin
+command='tsebra'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through conda/mamba"
+    git clone https://github.com/Gaius-Augustus/TSEBRA 
+    #+ export path to bin
+    cd TSEBRA/bin
+    if [ $? -eq 0 ]; then
+        echo tsebra installation worked successfully
+        path=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../
 
-#to add also: perl script
-#rename_gtf.py
-
-#busco : 
-# conda install -c bioconda busco
+    else
+       echo installation failed\nmake sur to have git,
+       exit 1
+    fi
+fi
 
 ############################################################
 # Process the input options.                               #
 ############################################################
 while [ $# -gt 0 ] ; do
   case $1 in
-    -s | --species ) species="$2" ; echo -e "Species Name is ***${species}*** \n" >&2;;
+    -s | --haplo ) haplo="$2" ; echo -e "haplotype Name is ***${haplo}*** \n" >&2;;
     -r | --rnaseq  ) RNAseq="$2"  ; echo -e "annotation was performed with RNAseq ? ${RNAseq} \n" >&2;;
     -h | --help ) Help ; exit 2 ;;
    esac
@@ -98,7 +144,7 @@ while [ $# -gt 0 ] ; do
 done 
 
 
-if [ -z "${species}" ] || [ -z "${RNAseq}" ]  ; then
+if [ -z "${haplo}" ] || [ -z "${RNAseq}" ]  ; then
 	Help
 	exit 2 
 fi
@@ -108,7 +154,7 @@ echo -e  "\n-----------------------------------------------------------------"
 echo -e "\nfinding best run \n" 
 echo -e  "-----------------------------------------------------------------\n"
 
-cd 06_braker
+cd $haplo/06_braker
 
 #there is a bit of variance between braker run train on a protein database,
 #therefore we perform a few replicate run and choose the 'best run' where best is defined as the run providing 
@@ -143,13 +189,13 @@ then
 	fi
 
 	#then run tsebra:
-	./00_scripts/09_tsebra.sh $species $best_round
+	./00_scripts/09_tsebra.sh $haplo $best_round
 
 	mkdir 08_best_run
 	cd 08_best_run
-	ln -s ../07-tsebra_results/$species.combined.gtf $species.gtf
+	ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
 	cd ../
-	file=08_best_run/$species.gtf
+	file=08_best_run/$haplo.gtf
 	nb_genes=$(awk '$3=="gene" ' $file |wc -l)
 	echo -e "\nthere is $nb_genes genes after running tsebra\n" 
 
@@ -160,15 +206,15 @@ else
 	#DEPRCETATED :
 	#run_id=${best_round%_braker_on_refprot} 
 	#mkdir 08_best_run"$run_id"
-	#cp 06_braker/$best_round/braker.gtf 08_best_run"$run_id"/$species.gtf
-	#sed -i 's/_pilon//g' 08_best_run"$run_id"/$species.gtf
-	#file=08_best_run$run_id/$species.gtf
+	#cp 06_braker/$best_round/braker.gtf 08_best_run"$run_id"/$haplo.gtf
+	#sed -i 's/_pilon//g' 08_best_run"$run_id"/$haplo.gtf
+	#file=08_best_run$run_id/$haplo.gtf
 	
 	echo "running on protein only - not running tsebra" 
 
 	mkdir 08_best_run
-	cp 06_braker/$best_round/braker.gtf 08_best_run/$species.gtf
-	file=08_best_run/$species.gtf
+	cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.gtf
+	file=08_best_run/$haplo.gtf
 
 	nb_genes=$(awk '$3=="gene" ' $file |wc -l)
         echo -e "\nthere is $nb_genes in the best protein run\n"
@@ -180,18 +226,18 @@ echo -e  "\n------------renaming and fixing braker output now------------\n"
 echo -e  "-----------------------------------------------------------------\n"
 
 #then this is a part common to both RNAseq + Proteins or Proteins only:
-rename_gtf.py --gtf ${file} --prefix ${species} --translation_tab translation_tab.$species --out 08_best_run/${species}.renamed.gtf 
+rename_gtf.py --gtf ${file} --prefix ${haplo} --translation_tab translation_tab.$haplo --out 08_best_run/${haplo}.renamed.gtf 
 
 # Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 # Fix lack of gene_id and transcript_id tags in gtf file column 9
-cat 08_best_run/${species}.renamed.gtf | Fix_Augustus_gtf.pl > 08_best_run/${species}.renamed.fixed.gtf
+cat 08_best_run/${haplo}.renamed.gtf | ../00_scripts/Fix_Augustus_gtf.pl > 08_best_run/${haplo}.renamed.fixed.gtf
 
 
 #------------------------------ step 4 --------------------------------------------------------#
-#rename the gene/cds/transcript/exons/ ID in the gtf so they contain the chromosome and species name (easier to parse)
+#rename the gene/cds/transcript/exons/ ID in the gtf so they contain the chromosome and haplo name (easier to parse)
 #1 - declare the gtf:
-gtf=08_best_run/${species}.renamed.fixed.gtf #current gtf
-newgtf=${species}.ok.gtf #future gtf
+gtf=08_best_run/${haplo}.renamed.fixed.gtf #current gtf
+newgtf=${haplo}.ok.gtf #future gtf
 
 #2 - renaming with a simple command: 
 awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > 08_best_run/"$newgtf"
@@ -205,44 +251,44 @@ echo -e  "\n-----------------------------------------------------------------"
 echo "extract protein and cds from the renamed gtf" 
 echo -e  "-----------------------------------------------------------------\n"
 
-mkdir 08_best_run/01_species_cds 2>/dev/null
-mkdir 08_best_run/02_species_prot 2>/dev/null
+mkdir 08_best_run/01_haplo_cds 2>/dev/null
+mkdir 08_best_run/02_haplo_prot 2>/dev/null
 
 gtf=$newgtf
 gtffull=08_best_run/$gtf
 
 #extract the cds and protein from it:
-output="$species"_cds.fa
+output="$haplo"_cds.fa
 echo output cds is $output
-gffread -w 08_best_run/01_species_cds/$output -g 03_genome/"${species}".fa $gtffull
+gffread -w 08_best_run/01_haplo_cds/$output -g 03_genome/"${haplo}".fa $gtffull
 
 #here capture error if genome and gtf do not match and exit with error 1 
 #here if any error occurs capture it!
 
 #then convert also the file to its cds:
 echo "translate CDS into amino acid "
-source /local/env/envemboss-6.6.0.sh
-transeq -sequence 08_best_run/01_species_cds/$output -outseq 08_best_run/02_species_prot/$species.prot
+transeq -sequence 08_best_run/01_haplo_cds/$output -outseq 08_best_run/02_haplo_prot/$haplo.prot
 
-eval "$(conda shell.bash hook)"
-#conda activate /home/genouest/cnrs_umr5175/qrougemont/mes_envs/samtools1.18/
-samtools faidx 08_best_run/02_species_prot/$species.prot
+samtools faidx 08_best_run/02_haplo_prot/$haplo.prot
+#note: will replace this by awk code to remove samtools dependency here
 
 echo -e "\n-----------------------------------------------------------------"
 echo "extract longest transcript" 
 echo -e  "-----------------------------------------------------------------\n"
 
-cd 08_best_run/02_species_prot
+cd 08_best_run/02_haplo_prot
 #assumption : all transcript finishes by ".t1, .t2, .t3 so the dot (.) iis the delimiter
-awk -F "." '{print $1"\t"$0}' $species.prot.fai |\
+
+#note to do: change code to relax the assumption of a single dot delimiter
+awk -F "." '{print $1"\t"$0}' $haplo.prot.fai |\
         awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
 
 #linearize file so that the next command will work:
-awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$species".prot > "$species".prot.lin.fasta
+awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$haplo".prot > "$haplo".prot.lin.fasta
 
-grep -A1 -Ff longest.transcript.tmp "$species".prot.lin.fasta > "$species".longest_transcript.fa
+grep -A1 -Ff longest.transcript.tmp "$haplo".prot.lin.fasta > "$haplo".longest_transcript.fa
 rm longest.transcript.tmp
-rm $species.prot.fai
+rm $haplo.prot.fai
 cd ../../
 
 
@@ -267,8 +313,8 @@ echo " there is $loss fragmented gene"
 
 
 #  declare full path to input:
-protpath=02_species_prot
-prot="$protpath"/"$species".longest_transcript.fa
+protpath=02_haplo_prot
+prot="$protpath"/"$haplo".longest_transcript.fa
 echo -e "there is $(wc -l $gtf |awk '{print $1}') lines in $gtf" 
 
 #----------------------------------------------------
@@ -284,12 +330,12 @@ grep -f wanted.gene.tmp  <(awk '$3=="gene" ' $gtf)  > p3
 
 #ideally I want to sort on the gene, then transcript, then CDS, then exon as well
 #concatenate gene and cds/etc:
-cat p1 p3 |LC_ALL=C sort -k1,1 -k4,4n -k5,5n > "$species".longest_transcript.gtf
+cat p1 p3 |LC_ALL=C sort -k1,1 -k4,4n -k5,5n > "$haplo".longest_transcript.gtf
 
-echo -e there is $(wc -l "$species".longest_transcript.gtf |awk '{print $1}' ) lines in "$species".longest_transcript.gtf 
+echo -e there is $(wc -l "$haplo".longest_transcript.gtf |awk '{print $1}' ) lines in "$haplo".longest_transcript.gtf 
 
 #declare new gtf for new work:
-gtf="$species".longest_transcript.gtf
+gtf="$haplo".longest_transcript.gtf
 
 # now removing fully overlapping CDS 
 #create an ID of the type chromosome_start and chromosome_end to filter :
@@ -312,10 +358,9 @@ echo "re-extracting protein and CDS from the final non-redundan gtf"
 echo "-----------------------------------------------------------------\n"
 
 
-gffread -w "$species".spliced_cds.fa -g ../03_genome/$species.fa "$species".longest_transcript.gtf
+gffread -w "$haplo".spliced_cds.fa -g ../03_genome/$haplo.fa "$haplo".longest_transcript.gtf
 echo "translate CDS into amino acid "
-source /local/env/envemboss-6.6.0.sh
-transeq -sequence "$species".spliced_cds.fa -outseq "$species"_prot.fa
+transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.fa
 
 #now run busco to validate. the score should be close to the initial score 
 #insert call to busco here
