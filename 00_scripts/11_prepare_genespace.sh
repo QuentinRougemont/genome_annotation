@@ -22,7 +22,7 @@ Help()
    echo " -a |--ancestral_sp: the name of the ancestral haplo to infer orthology and plot gene order"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " "
-   echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX "
+   echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
 
 
@@ -129,6 +129,18 @@ then
     exit 1
 fi
 
+command='minimap2'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a download and manual installation through wget"
+    curl -L https://github.com/lh3/minimap2/releases/download/v2.26/minimap2-2.26_x64-linux.tar.bz2 | tar -jxvf -
+    cd ./minimap2-2.26_x64-linux 
+    path=$(pwd)
+    echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    cd ../
+fi
 
 echo "all dependencies succeffuly checked"
 
@@ -275,16 +287,18 @@ samtools faidx $haplo2/03_genome/"$haplo2".fa
 Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 
 
-# -- step6 -- create circos plot
+# ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-#Rscript ..... args args args 
+#Rscript ../00_scripts/Rscripts/05_plot_circos.R ..... args args args 
+#script to be constructed by Lorelei :)
 
 
 #-- step7 -- run minimap between the genomes 
 #run minimap on the genome 
 #assumption : each genome MUST BE located in folder 03-genome
-
+minimap2 -cx asm5 $haplo1/03_genome/"$haplo1".fa $haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
 
 #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
 
+#we can also run Rideogram here
 
