@@ -103,6 +103,8 @@ all <- cbind(bed1, bed2) %>% group_by(contig1) %>%
     all$fill[match(links$gene1,all$gene1)] <- links$fill
 }
 
+#export the joint bed:
+write.table(all, paste0("joint_", sp1, "_" , sp2, ".bed" ) , sep="\t", row.names =F, col.names=T, quote = F)
 
 #here it would be important to check that the order of the genes in one or the two species is identical
 #to the order of the genes in the sco! 
@@ -171,7 +173,6 @@ karyo <- rbind(index1, small, index2)
 #if not ordered properly the script will fail
 #karyo <- karyo[c(1,3,2),]
 #karyo <- karyo[order(karyo$species),]
-
 
 all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) 
 
