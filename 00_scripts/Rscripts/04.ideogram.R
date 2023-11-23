@@ -2,7 +2,12 @@
 
 #Purpose:
 #script to run rideogram plot 
-#input required: list of single copy orthologs for the target species pairs
+#input required:  
+   # 1 - a list of single copy orthologs for the target species pairs
+   # 2 - the two bed files for the target species 
+   # 3 - the genomes indexes
+   # 4 - optionally: a link file of the type "gene1\tgene2\tstatus" with the gene being the single copy orthologs and a status that will be used for colors
+	#to do: add option for position based links 
 
 #--------------- check if library are installed -------------------------------#
 if("dplyr" %in% rownames(installed.packages()) == FALSE)

@@ -3,6 +3,9 @@
 #Author QR
 # WARNING STILL BETA #! 
 
+#deprecated -- this needs to be fully updated
+
+
 ##  ------------------------ general parameters --------------------------------  ##
 while [ $# -gt 0 ] ; do
   case $1 in
