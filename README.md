@@ -2,7 +2,13 @@
 genome annotation (RNAseq and TE) pipeline (draft)
 
 # Purpose:
-##  sets of scripts to perform de-novo TE detection, genome annotation using braker2 and plot Ds along the genome using ancestral genomes
+##  sets of scripts to : 
+ 1 - perform de-novo TE detection, 
+ 2 - genome annotation using braker2
+ 3 - run GeneSpace 
+ 4 - plot Ds along the genome using ancestral genomes
+ 5 - identify rearrangements
+ 6 - plot ideograms  
 
 in details these scripts will: 
 * trim RNAseq reads
@@ -20,16 +26,29 @@ This code has been tested with linux.
 
 **Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
 
-## Dependencies: 
+
+# Dependencies: 
 
 **braker2** and all of its dependencies available [here](https://github.com/Gaius-Augustus/BRAKER)
 
-
 very basic requirements: **git**, **gcc** , **R** 
-conda or better **mamba** can be used to install several dependencies, especially without root access 
- 
 
-#### minimal braker dependencies:
+conda or better **mamba** can be used to install several dependencies, especially without root access 
+
+# First thing is to get mamba or conda. 
+
+I recommand mamba for linux: 
+
+```
+curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge-pypy3-Linux-x86_64.sh
+bash Miniforge-pypy3-Linux-x86_64.sh
+#note: see here for other verions of mamba: https://github.com/conda-forge/miniforge
+```
+
+
+then you can install everyting directly using the file "requirements.txt" of scroll through all details below to manually install missing deps:
+
+#### minimal dependencies:
 
 **Protint** 
 
