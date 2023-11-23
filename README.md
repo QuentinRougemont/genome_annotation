@@ -4,11 +4,16 @@ genome annotation (RNAseq and TE) pipeline (draft)
 # Purpose:
 ##  sets of scripts to : 
  1 - perform de-novo TE detection, 
- 2 - genome annotation using braker2
- 3 - run GeneSpace 
- 4 - plot Ds along the genome using ancestral genomes
- 5 - identify rearrangements
- 6 - plot ideograms  
+
+ 2 - genome annotation using braker2  
+
+ 3 - run GeneSpace  
+
+ 4 - plot Ds along the genome using ancestral genomes  
+
+ 5 - identify rearrangements  
+
+ 6 - plot ideograms   
 
 in details these scripts will: 
 * trim RNAseq reads
