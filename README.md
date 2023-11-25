@@ -105,11 +105,12 @@ cd 02_trimmed ../00_scripts/utility_scripts/count_read_fastq.sh *fq >> read_coun
 ## 2 - create database for gsnap
 
 ```sh
-./00_scripts/01_gmap.sh 03_genome/your_genome.fa
+cd haplo1
+./00_scripts/01_gmap.sh 03_genome/your_genome.fa.gz
+cd ../haplo2
+./00_scripts/01_gmap.sh 03_genome/your_genome.fa.gz
+cd ../
  ```
-
-Note: only works with uncompressed genome  
- 
 
 ## 3 - alignment with gsnap:
 
@@ -117,10 +118,20 @@ for a given genome located in the folder `03_genome` and a set of input in `02_t
 simply loop over files:
 
 ```sh
+cd haplo1
 for i in 02_trimmed/*R1.paired.fastq.gz ; 
 do 
-./00_scripts/02_gsnap.sh 03_genome/M_inter_1389.PBcR.20160424.quiver.finished.fasta $i ; 
+./00_scripts/02_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
 done
+
+#mapping against haplo2:
+cd ../haplo2
+for i in 02_trimmed/*R1.paired.fastq.gz ; 
+do 
+./00_scripts/02_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
+done
+cd ../
+
 ```
 
 ## 4 - count the number of well mapped reads
@@ -162,37 +173,6 @@ Here I use 3 custom libraries + online data you may have more or less of these, 
 
 make sure to have all the dependencies installed as indicated on [braker](https://github.com/Gaius-Augustus/BRAKER#installation)
 
-install all perl-dependencies! 
-like so:
-
-```
-conda install -c anaconda perl biopython
-conda install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
-    perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
-    perl-exception-class perl-test-pod perl-file-which  perl-mce \
-    perl-threaded perl-list-util perl-math-utils cdbtools \
-    perl-list-moreutils
-
-#additional install:
-conda install -c bioconda perl-file-homedir
-```
-
-install [Augustus](https://github.com/Gaius-Augustus/Augustus) and [Bamtools](https://github.com/pezmaster31/bamtools). 
-
-Note: Without root privilege I had to find some tricks for Bamtools and Augustus. 
-In case of bugs with Augustus see details [here](https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md)  
-
-export augustus ```config/bin/script```  path (add them to your ~/.bashrc):  
-
-```
-export AUGUSTUS_CONFIG_PATH=/home/path/to/augustus/config
-export AUGUSTUS_BIN_PATH=/home/path/to/augustus/bin/
-export AUGUSTUS_SCRIPTS_PATH=/home/path/to/augustus_scripts
-```
-
-
-
-
 #### when all is ok:
 
 Run: 
@@ -200,12 +180,10 @@ Run:
 
 This will run Braker separately for RNAseq and the protein database.   
 
-
 I use 5 runs for the proteiinDB and choose the one with best Busco score 
 
 
-
-## 7 -  Combining different run with TSEBRA
+## 7 - Evaluate quality with busco - combine different run with TSEBRA - reshape braker output 
 
 ### /!\ WARNING /!\
 
@@ -214,19 +192,14 @@ set the parameter of tsebra accordingly
 
 then run:
 ```sh
-./00_scripts/07_tsebra.sh species_name best_database_run 
+./00_scripts/08_braker_reshaping.sh -s species_name -r YES/NO
+
+#with -s the haplotype_name 
+# -r a YES/NO string stating whether RNEseq was used (YES) or NOT (NO)
+ 
 ```
 
 ## 8 - Write a report -- quality assesment and extraction of CDS
-
-* When using TSEBRA we no longer have a consensus file for amino-acid (`augustus.hints.aa` nor the coding seq `augustus.hints.codingseq`),   
-  so we extract them again from the fasta using gffread and convert them with transeq.
-  
-See exemple script ```00_scripts/08_extractcds.sh```  to do this
-
-* run busco
-
-* run braker script to obtain a report
 
 * annotate further with [interproscan](https://interproscan-docs.readthedocs.io/en/latest/index.html):  
 
@@ -236,6 +209,14 @@ interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 
 Note: I had to install libdw1 (without root). 
 
+
+## 9 - Run GeneSpace and compute Ds on haplo1/haplo2 and using the ancestral genome 
+
+
+
+
+
+# DEPRECATED PART FOR NOW: 
 
 # ------   Under Construction ------------ ##
 ## Running with long-reads PacBio IsoSeq 
