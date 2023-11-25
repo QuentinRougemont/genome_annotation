@@ -61,7 +61,7 @@ then you can install everyting directly using the file "requirements.txt" of scr
 #### minimal dependencies:  
  
 
-see [here](https://github.com/QuentinRougemont/genome_annotation/.infos/install.md) to have a list of all dependencies or run directly : 
+see [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies or run directly : 
 
 
 ```./requirements.sh``` 
@@ -72,7 +72,8 @@ to attempt to install all dependencies...
 
 # minimal input data needed: 
 
-* 2 genomes to annotate OR 2 genome already annotated with their corresponding gff files
+* 2 genomes to annotate OR 2 genomes already annotated with their corresponding gff files
+these must correspond to each haplotype you'd like to compare
 
 * 1 ancestral genome with its annotation in gff format. 
 
@@ -210,8 +211,20 @@ interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 Note: I had to install libdw1 (without root). 
 
 
-## 9 - Run GeneSpace and compute Ds on haplo1/haplo2 and using the ancestral genome 
+## 9 - Run GeneSpace - compute and plot Ds - plot ideogram - plot arrangement 
 
+* input needed: haplo1/haplo2 + the ancestral genome 
+
+## 10 - Plot circos
+
+to do 
+
+
+## 11 - perform changepoint analyses
+
+to o
+
+## 12 - minimap alignements and plots of target region
 
 
 
