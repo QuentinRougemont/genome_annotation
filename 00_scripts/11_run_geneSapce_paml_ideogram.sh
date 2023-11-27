@@ -290,7 +290,6 @@ Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
 #Rscript ../00_scripts/Rscripts/05_plot_circos.R ..... args args args 
-#script to be constructed by Lorelei :)
 
 
 #-- step7 -- run minimap between the genomes 

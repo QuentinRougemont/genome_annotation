@@ -69,15 +69,23 @@ to attempt to install all dependencies...
 
 # minimal input data needed: 
 
-* 2 genomes to annotate OR 2 genomes already annotated with their corresponding gff files
+* 2 genomes to annotate :
+
+	* with OR without RNAseq
+
+* OR 2 genomes already annotated with their corresponding gff files
+
 these must correspond to each haplotype you'd like to compare
 
-* 1 ancestral genome with its annotation in gff format. 
+* optional:  1 ancestral genome with its annotation in gff format. 
 
-If your provide annotated genome please make sur to filter and keep a single transcript per gene.  
+If your provide annotated genome please make sur to filter and keep a single transcript per gene. (we will checked that anyway) 
 
 Here we used the longest transcript.
 
+#### note on input naming: 
+
+we recommend to use short name for each haplotype and avoid any special characters appart from underscore.  
 
 # Steps 
 
