@@ -55,9 +55,6 @@ bash Miniforge-pypy3-Linux-x86_64.sh
 #note: see here for other verions of mamba: https://github.com/conda-forge/miniforge
 ```
 
-
-then you can install everyting directly using the file "requirements.txt" of scroll through all details below to manually install missing deps:
-
 ### minimal dependencies:  
  
 

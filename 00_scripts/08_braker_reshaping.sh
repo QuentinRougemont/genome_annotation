@@ -269,8 +269,6 @@ gffread -w 08_best_run/01_haplo_cds/$output -g 03_genome/"${haplo}".fa $gtffull
 echo "translate CDS into amino acid "
 transeq -sequence 08_best_run/01_haplo_cds/$output -outseq 08_best_run/02_haplo_prot/$haplo.prot
 
-samtools faidx 08_best_run/02_haplo_prot/$haplo.prot
-#note: will replace this by awk code to remove samtools dependency here
 
 echo -e "\n-----------------------------------------------------------------"
 echo "extract longest transcript" 
@@ -278,10 +276,10 @@ echo -e  "-----------------------------------------------------------------\n"
 
 cd 08_best_run/02_haplo_prot
 #assumption : all transcript finishes by ".t1, .t2, .t3 so the dot (.) iis the delimiter
-
-#note to do: change code to relax the assumption of a single dot delimiter
-awk -F "." '{print $1"\t"$0}' $haplo.prot.fai |\
-        awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
+#
+awk '/^>/ {if (seqlen){print seqlen}; printf(">%s\t",substr($0,2)) ;seqlen=0;next; } { seqlen += length($0)}END{print seqlen}' $fasta  |\
+	awk -F ".t[0-9]_1 " '{print $1"\t"$0}'  |\
+	awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
 
 #linearize file so that the next command will work:
 awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$haplo".prot > "$haplo".prot.lin.fasta
