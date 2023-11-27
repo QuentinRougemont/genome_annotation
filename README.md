@@ -41,11 +41,11 @@ This code has been tested with linux.
 
 **braker2** and all of its dependencies available [here](https://github.com/Gaius-Augustus/BRAKER)
 
-very basic requirements: **git**, **gcc** , **R**, **make**, **cmake**, **wget** or **curl** 
+basic requirements: **git**, **gcc** , **R**, **make**, **cmake**, **wget** or **curl** , **java** 
 
-conda or better **mamba** can be used to install several dependencies, especially without root access 
+conda or **mamba** can be used to install several dependencies, especially without root access 
 
-# First thing is to get mamba or conda. 
+### First thing is to get mamba or conda. 
 
 I recommand mamba for linux: 
 
@@ -58,7 +58,7 @@ bash Miniforge-pypy3-Linux-x86_64.sh
 
 then you can install everyting directly using the file "requirements.txt" of scroll through all details below to manually install missing deps:
 
-#### minimal dependencies:  
+### minimal dependencies:  
  
 
 see [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies or run directly : 

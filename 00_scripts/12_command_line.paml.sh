@@ -133,8 +133,8 @@ grep ">"  $newf1 > ID1
 grep ">"  $newf2 > ID2
 paste ID1 ID2 |sed 's/>//g' > wanted_sequence
 
-while IFS=$'\t' read -r -a line 
-do 
+while IFS=$'\t' read -r -a line
+do
 	mkdir sequence_files/tmp.${line[0]}.vs.${line[1]}
 
 	grep -A1 ${line[0]}  $newf1 > sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta

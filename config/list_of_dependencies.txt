@@ -1,21 +1,34 @@
 
 list of software that needs to be installed:
 
+basic stuff:
+* gcc/make/cmake/git/curl/wget
+
+
 * braker and all its machinery
 * busco
 * samtools
-* repeatmodeller
+* repeatmodeller and dependancies
 * repeatmasker
 * busco
 * gffread
 * transeq
 * diamond
+* paml
+
+
+* GeneSapce with:
+* orthofinder
+* MCscanX
+
 
 # for rnaseq:
 * gsnap/gmap
 * trimmomatic
 
+* R
 
 # optional:
 miniprot
-
+minimap
+pafR

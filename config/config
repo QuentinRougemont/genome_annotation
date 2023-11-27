@@ -1,0 +1,7 @@
+# config file
+
+ancestralgenome= #name or : YES/NO
+haplotype1=  #name1
+haplotype2=  #name2
+RNAseq=   #YES/NO
+annotate= #YES/NO

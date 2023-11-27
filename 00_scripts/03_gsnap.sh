@@ -62,3 +62,12 @@ gsnap --gunzip -t "$NCPUS" -A sam \
     rm $DATAOUTPUT/"$base".nomapping*
     rm $DATAOUTPUT/"$base".paired*
     rm $DATAOUTPUT/"$base".unpaired*
+
+#counting the number of mapped reads :
+cd $DATAOUTPUT
+
+samtools view -c "$base".sorted.bam |awk -v var=$base 'END {print var"\t"$1}' > comptage_brute.${base%.bam}.txt
+samtools view -F 0x4 $base | cut -f 1 | sort | uniq | wc -l |\
+            awk -v var="$base" 'END {print var"\t"$1}' > comptage_F04.${base%.bam}.txt ;
+
+
