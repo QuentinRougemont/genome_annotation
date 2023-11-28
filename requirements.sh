@@ -66,8 +66,6 @@ mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
     perl-list-moreutils
 mamba install -c bioconda perl-file-homedir
 
-echo "mamba activate $path/braker_env" > activate_braker.txt
-
 
 #----------- a few tools to install directly with mamba :---------------------- 
 #**samtools**
@@ -428,9 +426,6 @@ if ! command -v $command &> /dev/null
 then
    #direct install - a new env must be created: 
    mamba create -p busco_env -c bioconda busco=5.5.0
-   #store the path for later:
-   path=$(pwd)
-   echo "mamba activate $path/busco_env" > activate_busco.txt
 fi 
 
 cd ../
