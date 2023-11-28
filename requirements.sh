@@ -34,7 +34,7 @@ then
     exit 1
 fi
 
-ommand='cmake'
+command='cmake'
 if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
@@ -53,17 +53,49 @@ then
 fi
 
 mamba create -p braker_env  -c anaconda perl biopython
+path=$(pwd)
+mamba activate $path/braker_env
 mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
     perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
     perl-exception-class perl-test-pod perl-file-which  perl-mce \
     perl-threaded perl-list-util perl-math-utils cdbtools \
     perl-list-moreutils
-
-mamba activate braker_env
 mamba install -c bioconda perl-file-homedir
 
-# test each command one by one and install them if necessary:
+echo "mamba activate $path/braker_env" > activate_braker.txt
 
+
+#----------- a few tools to install directly with mamba :---------------------- 
+#**samtools**
+#direct install: 
+command='samtools'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   mamba install -c bioconda samtools samtools=1.18
+fi 
+
+#**R** with several packages 
+command='R'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   mamba install -c conda-forge r-base
+fi 
+
+#**transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq) 
+#direct install: 
+command='transeq'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   mambe create -p braker_env emboss=6.6.0
+fi
+ 
+mamba deactivate
+
+#---------------------- OTHER TOOLS ---------------------------------------#
+# test each command one by one and install them if necessary:
 mkdir softs
 cd softs 
 
@@ -385,53 +417,23 @@ then
 fi
 
 
-#**samtools**
-#direct install: 
-command='samtools'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mamba activate braker_env 
-   mamba install -c bioconda samtools samtools=1.18
-fi 
 
-
-#**R** with several packages 
-command='R'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mamba activate braker_env 
-   mamba install -c conda-forge r-base
-fi 
-
-#**transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq) 
-#direct install: 
-command='transeq'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mamba activate braker_env 
-   mambe create -p braker_env emboss=6.6.0
-fi
- 
 #**BUSCO** for quality assesment (https://busco.ezlab.org/)
 command='busco'
 if ! command -v $command &> /dev/null
 then
-   #direct install: 
-   mamba activate braker_env 
-   mamba install -c bioconda busco=5.5.0
+   #direct install - a new env must be created: 
+   mamba create -p busco_env -c bioconda busco=5.5.0
+   #store the path for later:
+   path=$(pwd)
+   echo "mamba activate $path/busco_env" > activate_busco.txt
 fi 
 
 cd ../
 
-exit 
-
-
 # ----- part for RepeatModeller and RepeatMasker to be completed later ------#
 #repeatModeller
-#git clone https://github.com/Dfam-consortium/RepeatModeler
+git clone https://github.com/Dfam-consortium/RepeatModeler
 #install all deps:
 
 wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz
@@ -458,7 +460,7 @@ make
 if [ $? -eq 0 ]; then
     echo repeatscout installation worked successfully
     path=$(pwd)
-    echo -e "\n#Path to repeatsout\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    echo -e "\n#Path to repeatscout\nexport PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../
 else

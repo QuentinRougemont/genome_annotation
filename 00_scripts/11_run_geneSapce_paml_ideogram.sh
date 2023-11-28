@@ -286,6 +286,22 @@ samtools faidx $haplo2/03_genome/"$haplo2".fa
 
 Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 
+#
+## --------------------------------Make Synteny table -----------------------------------------------
+is_anc='TRUE'
+if [ -n ${ancestral_sp} ] ; then
+	is_anc='TRUE'
+else
+
+	is_anc='FALSE'
+fi
+	
+path_orthofinder='genespace/orthofinder/Results_*/'
+path_bed='genespace/bed/'
+
+python3 ../00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
+
+
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
