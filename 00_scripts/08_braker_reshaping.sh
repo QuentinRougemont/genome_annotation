@@ -236,15 +236,16 @@ cat 08_best_run/${haplo}.renamed.gtf | ../00_scripts/Fix_Augustus_gtf.pl > 08_be
 #------------------------------ step 4 --------------------------------------------------------#
 #rename the gene/cds/transcript/exons/ ID in the gtf so they contain the chromosome and haplo name (easier to parse)
 #1 - declare the gtf:
-gtf=08_best_run/${haplo}.renamed.fixed.gtf #current gtf
-newgtf=${haplo}.ok.gtf #future gtf
+cd 08_best_run/
+gtf=${haplo}.renamed.fixed.gtf #current gtf
+#newgtf=${haplo}.ok.gtf #future gtf
 
 #2 - renaming with a simple command: 
-awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > 08_best_run/"$newgtf"
+#awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > "$newgtf"
+../00_scripts/utility_scripts/01.recode_braker_output.py ${gtf} ${haplo}
+cd ../
 
-#awk -v val1=$newname  'BEGIN{FS=OFS="\t"}
-#        {$1=val1"_"$1; print $0}' $gtf |\
-#        awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }'  > "$newgtf"
+gtf=08_best_run/${haplo}.IDchecked.gtf
 
 #------------------- step 5 extracting prot and cds from new files  ---------------------------#
 echo -e  "\n-----------------------------------------------------------------"
