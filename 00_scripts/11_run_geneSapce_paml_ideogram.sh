@@ -238,7 +238,7 @@ Rscript ../../00_scripts/Rscripts/01.run_geneSpace.R
 if [ $? -eq 0 ]; then
     echo genespace worked successfully
 else
-    echo paml failed
+    echo genespace failed
     exit 1
 fi
 
@@ -297,9 +297,34 @@ Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 #assumption : each genome MUST BE located in folder 03-genome
 minimap2 -cx asm5 $haplo1/03_genome/"$haplo1".fa $haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
 
-#then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
-Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-#NOTE: script to be enriched for further analysis of target scaffold
+if [ -n ${ancestral_sp} ] ; then
+    minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa $haplo2/03_genome/"$haplo2".fa > aln."$ancestral_sp"_"$haplo2".paf 
+    minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa $haplo1/03_genome/"$haplo1".fa > aln."$ancestral_sp"_"$haplo1".paf 
+    #preparing scaffold to highlight in dotplot:
+    #awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > sub.scaff.txt
+    awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo1.txt
+    awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
+    awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
+    #awk '{print $1"\t"$2"\t"$3}' sub.scaff.txt > scaff.anc.haplo1.txt 
+    #awk '{print $1"\t"$2"\t"$4}' sub.scaff.txt > scaff.anc.haplo2.txt 
+    #awk '{print $1"\t"$3"\t"$4}' sub.scaff.txt > scaff.haplo1.haplo2.txt 
+
+    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo1".paf 
+    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo2".paf 
+
+    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
+    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
+    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+
+else 
+    awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt
+    
+    #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
+    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+
+fi
+
 
 #we can also run Rideogram here
-
