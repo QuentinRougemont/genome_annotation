@@ -9,6 +9,7 @@
 #cmake
 #make 
 #mamba 
+#java
 
 command='wget'
 if ! command -v $command &> /dev/null
@@ -39,6 +40,8 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    echo "this can be done with mamba - see below"
+    echo "once mamba is installed use: mamba install -c conda-forge cmake" 
     exit 1
 fi
 
@@ -54,7 +57,8 @@ fi
 
 mamba create -p braker_env  -c anaconda perl biopython
 path=$(pwd)
-mamba activate $path/braker_env
+eval "$(conda shell.bash hook)"
+conda activate $path/braker_env
 mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
     perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
     perl-exception-class perl-test-pod perl-file-which  perl-mce \
@@ -92,7 +96,7 @@ then
    mambe create -p braker_env emboss=6.6.0
 fi
  
-mamba deactivate
+conda deactivate
 
 #---------------------- OTHER TOOLS ---------------------------------------#
 # test each command one by one and install them if necessary:
@@ -100,7 +104,7 @@ mkdir softs
 cd softs 
 
 #braker: 
-command='brakerl.pl'
+command='braker.pl'
 if ! command -v $command &> /dev/null
 then
     echo "$command could not be found"
