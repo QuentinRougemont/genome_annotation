@@ -301,13 +301,9 @@ if [ -n ${ancestral_sp} ] ; then
     minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa $haplo2/03_genome/"$haplo2".fa > aln."$ancestral_sp"_"$haplo2".paf 
     minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa $haplo1/03_genome/"$haplo1".fa > aln."$ancestral_sp"_"$haplo1".paf 
     #preparing scaffold to highlight in dotplot:
-    #awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > sub.scaff.txt
     awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo1.txt
     awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
     awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
-    #awk '{print $1"\t"$2"\t"$3}' sub.scaff.txt > scaff.anc.haplo1.txt 
-    #awk '{print $1"\t"$2"\t"$4}' sub.scaff.txt > scaff.anc.haplo2.txt 
-    #awk '{print $1"\t"$3"\t"$4}' sub.scaff.txt > scaff.haplo1.haplo2.txt 
 
     Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
     Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo1".paf 

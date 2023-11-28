@@ -76,7 +76,8 @@ then
     git clone https://github.com/Gaius-Augustus/BRAKER
     cd BRAKER/scripts 
     chmod a+x *.pl *.py
-    echo -e "\n#Path to ProtHint\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi
@@ -91,7 +92,8 @@ then
     tar zxvf ProtHint-2.6.0.tar.gz
     cd ProtHint-2.6.0/bin 
     #then add to ~/.bashrc
-    echo -e "\n#Path to ProtHint\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi
@@ -107,7 +109,8 @@ then
     wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
     tar zxvf diamond-linux64.tar.gz
     #then add to ~/.bashrc
-    echo -e "\n#Path to diamond\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../ 
 
@@ -185,7 +188,7 @@ then
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
         path=$(pwd)
-	echo -e "path to AUGUSTUS:" >> ~/.bashrc 
+	echo -e "#path to AUGUSTUS:" >> ~/.bashrc 
         echo -e "export AUGUSTUS_CONFIG_PATH=$path/config " >> ~/.bashrc
         echo -e "export AUGUSTUS_BIN_PATH=$path/bin/ " >> ~/.bashrc
         echo -e "export AUGUSTUS_SCRIPTS_PATH=/$path/augustus_scripts " >> ~/.bashrc
@@ -200,7 +203,7 @@ fi
 
 
 #**genemark** 
-wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
+#wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
 echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
 echo "the gm_key is necessary" 
 echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
@@ -311,7 +314,7 @@ if ! command -v $command &> /dev/null
 then
    #direct install: 
    git clone https://github.com/wyp1125/MCScanX
-   cd MSCanX ; make -j 8
+   cd MCScanX ; make -j 8
    #if command was successfull then add to path:
    if [ $? -eq 0 ]; then
         echo $command installation worked successfully
@@ -337,7 +340,7 @@ then
    ln -s muscle5.1.linux_intel64 muscle
    chmod +x muscle
    path=$(pwd)
-   echo -e "\n#Path to muscle\n export PATH=\$PATH:$path" >> ~/.bashrc 
+   echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
    source ~/.bashrc  
    cd ../
 fi
@@ -351,7 +354,7 @@ then
    tar zxvf paml-4.10.7-linux-X86_64.tgz
    cd paml-4.10.7/bin
    path=$(pwd)
-   echo -e "\n#Path to paml\n export PATH=\$PATH:$path" >> ~/.bashrc 
+   echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
    source ~/.bashrc  
    cd ../../
 fi
@@ -480,3 +483,13 @@ cd ../
 
 #repeatModeller & repeatMasker dependancies: 
 #see : 
+
+
+#**genemark** 
+#wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
+echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
+echo "the gm_key is necessary" 
+echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
+echo "it must be copied to your home"
+echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "
+
