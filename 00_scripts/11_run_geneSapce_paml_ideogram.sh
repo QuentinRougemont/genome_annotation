@@ -305,7 +305,8 @@ python3 ../00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-#Rscript ../00_scripts/Rscripts/05_plot_circos.R ..... args args args 
+Rscript ../00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
+Rscript ../00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
 
 
 #-- step7 -- run minimap between the genomes 
