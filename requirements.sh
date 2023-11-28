@@ -9,7 +9,7 @@
 #cmake
 #make 
 #mamba 
-#java
+#java (OpenJDK)
 
 command='wget'
 if ! command -v $command &> /dev/null
@@ -118,7 +118,7 @@ fi
 
 #**Protint** 
 #direct install: 
-command='ProtHint'
+command='prothint.py'
 if ! command -v $command &> /dev/null
 then
     echo "$command could not be found"
@@ -431,53 +431,71 @@ fi
 cd ../
 
 # ----- part for RepeatModeller and RepeatMasker to be completed later ------#
+cd softs
 #repeatModeller
 git clone https://github.com/Dfam-consortium/RepeatModeler
 #install all deps:
 
-wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz
-tar zxvf RECON-1.08.tar.gz
-cd RECON-1.08/src
-make 
-make install
-cd ../bin
-if [ $? -eq 0 ]; then
-    echo recon installation worked successfully
-    path=$(pwd)
-    echo -e "\n#Path to Recon\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-    source ~/.bashrc  
-    cd ../
-else
-   echo installation failed\nmake sur to have make and wget
-   exit 1
-fi
+command='recon.pl'
+if ! command -v $command &> /dev/null
+then
+   wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz
+   tar zxvf RECON-1.08.tar.gz
+   cd RECON-1.08/src
+   make 
+   make install
+   cd ../bin
+   if [ $? -eq 0 ]; then
+     echo recon installation worked successfully
+     path=$(pwd)
+     echo -e "\n#Path to Recon\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+     source ~/.bashrc  
+     cd ../scripts
+     path=$(pwd)
+     echo -e "\n#Path to Recon\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+     source ~/.bashrc  
+
+  else
+     echo installation failed\nmake sur to have make and wget
+     exit 1
+  fi
+fi 
 
 #repeatscout:
-wget http://www.repeatmasker.org/RepeatScout-1.0.6.tar.gz
-tar zxvf RepeatScout-1.0.6.tar.gz
-make
-if [ $? -eq 0 ]; then
-    echo repeatscout installation worked successfully
-    path=$(pwd)
-    echo -e "\n#Path to repeatscout\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-    source ~/.bashrc  
-    cd ../
-else
-   echo installation failed\nmake sur to have make and wget
-   exit 1
+command='RepeatScout'
+if ! command -v $command &> /dev/null
+then
+    wget http://www.repeatmasker.org/RepeatScout-1.0.6.tar.gz
+    tar zxvf RepeatScout-1.0.6.tar.gz
+    cd RepeatScout-1.0.6
+    make
+    if [ $? -eq 0 ]; then
+        echo repeatscout installation worked successfully
+        path=$(pwd)
+        echo -e "\n#Path to repeatscout\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../
+    else
+       echo installation failed\nmake sur to have make and wget
+       exit 1
+    fi
 fi
 
 #trf:
-mkdir trf 
-cd trf
-wget https://github.com/Benson-Genomics-Lab/TRF/releases/download/v4.09.1/trf409.linux64
-ln -s trf409.linux64 trf
-chmod +x trf
-path=$(pwd)
-echo -e "\n#Path to trf\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-source ~/.bashrc  
-#other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
-cd ../
+command='RepeatScout'
+if ! command -v $command &> /dev/null
+then
+    mkdir trf 
+    cd trf
+    wget https://github.com/Benson-Genomics-Lab/TRF/releases/download/v4.09.1/trf409.linux64
+    ln -s trf409.linux64 trf
+    chmod +x trf
+    path=$(pwd)
+    echo -e "\n#Path to trf\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    #other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
+    cd ../
+fi
 
 #repeatMasker:
 #wget https://www.repeatmasker.org/RepeatMasker/RepeatMasker-4.1.5.tar.gz
