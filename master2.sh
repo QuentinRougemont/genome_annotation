@@ -13,25 +13,102 @@ source ./config/config
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
 echo "*** ancestral genome is ${anestral_genome} ***"
+echo "*** fasta for genome1 is ${genome1} **** "
+echo "*** fasta for genome2 is ${genome2} **** "
 echo "*** haplotype1 is ${haplotype1} ***"
 echo "*** haplotype2 is ${haplotype2}"
 echo "*** RNAseq? $rnaseq ***"
 echo "*** gtf ? $gtf ***" 
 echo "*** TE database is : $TEdatabase ***"
 echo "*** lineage for busco analyses will be:  $busco_lineage ***"
+echo "*** annotate? $annotate" 
 echo -e "------------------------------------------------------------\n"
 
+############################################################
+# Help                                                     #
+############################################################
+Help()
+{
+   # Display Help
+   echo " "
+   echo "Usage: $0 [-h]"
+   echo "-h|--help: Print this Help."
+   echo " "
+   echo "TO BE FILLED LATER"
+}
 
+###########################################################
+#a few minore chek here:
+###########################################################
 # if no TE database then exit
+# if no lineage for busco then exit and ask for it 
+if [ -z "${TEdatabase}" ] && [ $annotate = YES ] ;
+then
+	echo "WARNING NO Database for TE is provided "
+	echo "I will not be able to assess mask TE prior to the genome annotation step "
+	echo "this is very bad" 
+	exit
+	Help
+fi
+
 
 # if no lineage for busco then exit and ask for it 
+if [ -z "${busco_lineage}" ] ;
+then
+	echo "WARNING NO lineage provided for busco" 
+	echo "I will not be able to assess the quality of the runs, which is compulsory for these anaylses"
+	exit
+	Help
+fi
+
+
+############################################################
+# Generate architecture:
+############################################################
+
+mkdir -p haplo1/03_genome 
+
+# ----- check compression of fasta  ------ ##
+#check compression
+if file --mime-type "$genome1" | grep -q gzip$; then
+   echo "$genome1 is gzipped"
+   gunzip "$genome1"
+   genome1=${genome1%.gz}
+   cd haplo1/03_genome 
+   cp $genome1 $haplo1.fa
+else
+   echo "$genome1 is not gzipped"
+   genome1=$genome1
+   cd haplo1/03_genome 
+   cp $genome1 $haplo1.fa
+fi
+
+if [ -z "$haplotype2"] && [ -z "$genome2" ]  ; then mkdir -p haplo2/03_genome ; fi
+
+#check genome compression:
+# ----- check compression of fasta  ------ ##
+#check compression
+if file --mime-type "$genome2" | grep -q gzip$; then
+   echo "$genome2 is gzipped"
+   gunzip "$genome2"
+   genome2=${genome%.gz}
+   cd haplo2/03_genome 
+   cp $genome2 $haplo2.fa
+
+else
+   echo "$genome2 is not gzipped"
+   cd haplo2/03_genome 
+   cp $genome2 $haplo2.fa
+   genome2=$genome
+fi
+
+if [ -z "$ancestral_genome"] ; then mkdir ancestralsp ; fi
+
+#artchitecture should be OK to proceed
 
 ############################################################
 # Process the input options.                               #
 ############################################################
-#a closely related lineage for busco inference is also needed!
-#for TE: a database of TE is needed!
-#to do: revoir le script de TE pour faire juste de-novo + one database
 
 if [ -z "${haplotype1}" ]  || [ -z "${haplotype2}" ] ; then #|| [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
 	echo "Error! provide the genome of at least one species"
