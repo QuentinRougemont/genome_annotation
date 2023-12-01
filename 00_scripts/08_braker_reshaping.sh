@@ -77,7 +77,8 @@ then
 
 	#2 -- run tsebra
 	#test if default.cfg can be found:
-	tsebraconf=config/default.cfg
+	tsebraconf=default.cfg
+	cp ../config/$tsebraconf .
 	#[ -f $tsebraconf ] && { echo " $tsebraconf exist";  cp "$tsebraconf" . } || {echo "no config file for tsebra"; exit } 
 	if [ -f $tsebraconf ] ; then 
 		echo " $tsebraconf exist";  cp "$tsebraconf" . 
@@ -89,8 +90,12 @@ then
 	#then run tsebra:
 	./00_scripts/09_tsebra.sh $haplo $best_round
 
+	#remove any existing folder:
+	rm -rf 08_best_run 2>/dev/null
+
 	mkdir 08_best_run
 	cd 08_best_run
+
 	ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
 	cd ../
 	file=08_best_run/$haplo.gtf
@@ -128,7 +133,7 @@ rename_gtf.py --gtf ${file} --prefix ${haplo} --translation_tab translation_tab.
 
 # Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 # Fix lack of gene_id and transcript_id tags in gtf file column 9
-cat 08_best_run/${haplo}.renamed.gtf | ../00_scripts/Fix_Augustus_gtf.pl > 08_best_run/${haplo}.renamed.fixed.gtf
+cat 08_best_run/${haplo}.renamed.gtf | ../00_scripts/utility_scripts/Fix_Augustus_gtf.pl > 08_best_run/${haplo}.renamed.fixed.gtf
 
 
 #------------------------------ step 4 --------------------------------------------------------#

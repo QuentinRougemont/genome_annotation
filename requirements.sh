@@ -55,10 +55,9 @@ then
     exit 1
 fi
 
-mamba create -p braker_env  -c anaconda perl biopython
-path=$(pwd)
+mamba create -n braker_env  -c anaconda perl biopython
 eval "$(conda shell.bash hook)"
-conda activate $path/braker_env
+conda activate braker_env
 mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
     perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
     perl-exception-class perl-test-pod perl-file-which  perl-mce \
@@ -425,7 +424,7 @@ command='busco'
 if ! command -v $command &> /dev/null
 then
    #direct install - a new env must be created: 
-   mamba create -p busco_env -c bioconda busco=5.5.0
+   mamba create -n busco_env -c bioconda busco=5.5.0
 fi 
 
 cd ../

@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+
 import sys
+
 input_file=sys.argv[1]
 species_name=sys.argv[2]
 w1=open(f'{species_name}.IDchecked.gtf','w')
