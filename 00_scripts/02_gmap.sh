@@ -13,6 +13,8 @@ else
     echo " "
 fi
 
+#source config/config
+
 GENOMEFOLDER="03_genome/"
 base=$(basename $FASTA )
 GENOME=gmap_"${base%.fa**}"  # "gmap_genome_MspDse1_assembly.fa"

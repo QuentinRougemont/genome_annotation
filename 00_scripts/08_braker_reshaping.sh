@@ -23,11 +23,12 @@ Help()
    echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
 }
 
+source config/config
+
 #should activate braker_env here certainly
 path=$(pwd)
 eval "$(conda shell.bash hook)"
 conda activate $path/braker_env
-source ../config/config
 
 ############################################################
 # Process the input options.                               #

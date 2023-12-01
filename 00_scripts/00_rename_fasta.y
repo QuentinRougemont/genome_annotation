@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 ##RENAME THE FASTA ID IN THE GENOME##
 import sys
 from Bio import SeqIO
@@ -11,7 +13,7 @@ print(species_name)
 species_name=''.join(species_name)
 print(species_name)
 
-output_file=f'{species_name}_recoded.fa'
+output_file=f'{species_name}.fa'
 
 w1=open(f'{output_file}','w')
 #reads the fasta file

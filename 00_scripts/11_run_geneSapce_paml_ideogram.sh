@@ -25,6 +25,8 @@ Help()
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
 
+# 
+source config/config
 
 ###########################################################
 ## to do: add more support to handle the ancestral haplo: it could be either only the genome + gtf or directly a bed + protein file for instance

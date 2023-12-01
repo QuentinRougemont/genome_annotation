@@ -18,6 +18,8 @@ else
 fi
 
 # Global variables
+#source config/config
+
 DATAOUTPUT="04_mapped/"
 DATAINPUT="02_trimmed"
 mkdir -p $DATAOUTPUT 2>/dev/null

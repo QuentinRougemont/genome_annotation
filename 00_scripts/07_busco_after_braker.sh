@@ -4,7 +4,6 @@
 lineage=$1 #~/basidiomycota_odb10 #to be passed as an argument #
 RNASeq=$2  #YES/NO
 
-#source /local/env/envbusco-5.2.2.sh 
 #activate busco:
 eval "$(conda shell.bash hook)"
 conda activate busco_env

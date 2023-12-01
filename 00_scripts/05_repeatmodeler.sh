@@ -6,7 +6,7 @@
 
 
 #------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
-source ~/config/config
+source config/config
 
 echo TEdatabase is $TEdatabase
 echo "NCBI species is $ncbi_species"
