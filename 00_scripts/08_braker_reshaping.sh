@@ -23,113 +23,11 @@ Help()
    echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
 }
 
-
-## --------------- TEST THAT ALL DEPENDENCIES ARE HERE --------------------------------- ##
-## for the section above; insert test at each command to verify that installations were successfull 
-## else exit the code
-
-command='gffread'
-if ! command -v $command &> /dev/null
-then
-    echo "$command could not be found"
-    echo "will try a manual installation through git"
-    git clone https://github.com/gpertea/gffread
-    cd gffread
-    make release
-    #if command was successfull then add to path:
-    if [ $? -eq 0 ]; then
-        echo gffread installation worked successfully
-        path=$(pwd)
-        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-        source ~/.bashrc  
-        cd ../
-
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
-fi
-
-command='transeq'
-if ! command -v $command &> /dev/null
-then
-    echo "$command could not be found"
-    echo "will try a manual installation through conda/mamba"
-    #use mamba here
-    mambe create -p braker_env emboss=6.6.0
-    #if command was successfull then add to path:
-    if [ $? -eq 0 ]; then
-        echo emboss and transeq installation successfull
-
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
-fi
-
-#samtools: 
-command='samtools'
-if ! command -v $command &> /dev/null
-then
-    echo "$command could not be found"
-    echo "will try a manual installation through conda/mamba"
-    #use mamba here
-    eval "$(conda shell.bash hook)"
-    mamba activate braker_env 
-    mamba install -c bioconda samtools samtools=1.18
-    #if command was successfull then add to path:
-    if [ $? -eq 0 ]; then
-        echo samtools installation successfull
-
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
-fi
-
-command='busco'
-if ! command -v $command &> /dev/null
-then
-    echo "$command could not be found"
-    echo "will try a manual installation through conda/mamba"
-    #use mamba here
-    eval "$(conda shell.bash hook)"
-    mamba activate braker_env 
-    mamba install -c bioconda busco=5.5.0
-
-    #if command was successfull then add to path:
-    if [ $? -eq 0 ]; then
-        echo busco installation successfull
-
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
-fi
-
-
-#tsebra:
-#git clone https://github.com/Gaius-Augustus/TSEBRA + export path to bin
-command='tsebra'
-if ! command -v $command &> /dev/null
-then
-    echo "$command could not be found"
-    echo "will try a manual installation through conda/mamba"
-    git clone https://github.com/Gaius-Augustus/TSEBRA 
-    #+ export path to bin
-    cd TSEBRA/bin
-    if [ $? -eq 0 ]; then
-        echo tsebra installation worked successfully
-        path=$(pwd)
-        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-        source ~/.bashrc  
-        cd ../
-
-    else
-       echo installation failed\nmake sur to have git,
-       exit 1
-    fi
-fi
+#should activate braker_env here certainly
+path=$(pwd)
+eval "$(conda shell.bash hook)"
+conda activate $path/braker_env
+source ../config/config
 
 ############################################################
 # Process the input options.                               #
@@ -363,3 +261,9 @@ transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.fa
 
 #now run busco to validate. the score should be close to the initial score 
 #insert call to busco here
+path=$(pwd)
+eval "$(conda shell.bash hook)"
+conda deactivate
+conda activate $path/busco_env
+busco -c8 -o busco_final -i "$haplo"_prot.fa -l $lineage -m protein #--updata-data #to update the database if there's a warning
+
