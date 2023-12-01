@@ -148,7 +148,7 @@ gtf=${haplo}.renamed.fixed.gtf #current gtf
 ../00_scripts/utility_scripts/01.recode_braker_output.py ${gtf} ${haplo}
 cd ../
 
-gtf=08_best_run/${haplo}.IDchecked.gtf
+gtf=${haplo}.IDchecked.gtf
 
 #------------------- step 5 extracting prot and cds from new files  ---------------------------#
 echo -e  "\n-----------------------------------------------------------------"
@@ -158,7 +158,6 @@ echo -e  "-----------------------------------------------------------------\n"
 mkdir 08_best_run/01_haplo_cds 2>/dev/null
 mkdir 08_best_run/02_haplo_prot 2>/dev/null
 
-gtf=$newgtf
 gtffull=08_best_run/$gtf
 
 #extract the cds and protein from it:
@@ -180,8 +179,8 @@ echo -e  "-----------------------------------------------------------------\n"
 
 cd 08_best_run/02_haplo_prot
 #assumption : all transcript finishes by ".t1, .t2, .t3 so the dot (.) iis the delimiter
-#
-awk '/^>/ {if (seqlen){print seqlen}; printf(">%s\t",substr($0,2)) ;seqlen=0;next; } { seqlen += length($0)}END{print seqlen}' $fasta  |\
+
+awk '/^>/ {if (seqlen){print seqlen}; printf(">%s\t",substr($0,2)) ;seqlen=0;next; } { seqlen += length($0)}END{print seqlen}' "${haplo}".prot |\
 	awk -F ".t[0-9]_1 " '{print $1"\t"$0}'  |\
 	awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
 
@@ -190,7 +189,6 @@ awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequ
 
 grep -A1 -Ff longest.transcript.tmp "$haplo".prot.lin.fasta > "$haplo".longest_transcript.fa
 rm longest.transcript.tmp
-rm $haplo.prot.fai
 cd ../../
 
 
@@ -270,5 +268,5 @@ path=$(pwd)
 eval "$(conda shell.bash hook)"
 conda deactivate
 conda activate $path/busco_env
-busco -c8 -o busco_final -i "$haplo"_prot.fa -l $lineage -m protein #--updata-data #to update the database if there's a warning
+busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein #--updata-data #to update the database if there's a warning
 
