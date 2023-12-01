@@ -88,7 +88,7 @@ then
 	fi
 
 	#then run tsebra:
-	./00_scripts/09_tsebra.sh $haplo $best_round
+	../00_scripts/09_tsebra.sh $haplo $best_round
 
 	#remove any existing folder:
 	rm -rf 08_best_run 2>/dev/null
@@ -267,6 +267,6 @@ transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.fa
 path=$(pwd)
 eval "$(conda shell.bash hook)"
 conda deactivate
-conda activate $path/busco_env
+conda activate busco_env
 busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein #--updata-data #to update the database if there's a warning
 
