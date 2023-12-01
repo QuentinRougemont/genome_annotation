@@ -26,9 +26,8 @@ Help()
 source config/config
 
 #should activate braker_env here certainly
-path=$(pwd)
 eval "$(conda shell.bash hook)"
-conda activate $path/braker_env
+conda activate braker_env
 
 ############################################################
 # Process the input options.                               #
@@ -146,7 +145,7 @@ gtf=${haplo}.renamed.fixed.gtf #current gtf
 
 #2 - renaming with a simple command: 
 #awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > "$newgtf"
-../00_scripts/utility_scripts/01.recode_braker_output.py ${gtf} ${haplo}
+../../00_scripts/utility_scripts/01.recode_braker_output.py ${gtf} ${haplo}
 cd ../
 
 gtf=${haplo}.IDchecked.gtf
