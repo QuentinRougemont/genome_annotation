@@ -18,7 +18,7 @@ gtf2=""
 
 #RNASeq data ?
 RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
-RNAseqlist=" "
+RNAseqlist="rnaseq.list.txt" #list of rnaseq data 
 
 #TE INFO:
 TEdatabase="" #a full path to a custom database of species/genus species TE

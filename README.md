@@ -145,14 +145,25 @@ cat rnaseq.list.txt
 
 ## step2 - run the master script 
 
+once the config file is ready with your path and dataset correctly simply run 
+
+```shell
+./master.sh
+```
+
+this script should handle automatically the different use cases 
+
+for more details run: 
+
+```shell
+./master.sh --help
+```
 
 
 
 
 
-
-#--------------------------------------------------------------------------------------------#
-### detailed step by step guide: 
+# detailed step by step guide: --------------------------------------------------------------------------------------------#
 ###  Steps 
 
 your genomes should be in the `haplo1/03_genome` and `haplo2/03_genome` folders for each haplotype!  
