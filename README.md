@@ -151,7 +151,7 @@ once the config file is ready with your path and dataset correctly simply run
 ./master.sh
 ```
 
-this script should handle automatically the different use cases 
+this script should handle automatically the different use cases (annotation only, annotation and plot, etc):
 
 for more details run: 
 
@@ -163,7 +163,7 @@ for more details run:
 
 
 
-# detailed step by step guide: --------------------------------------------------------------------------------------------#
+# detailed step by step guide: ------------------------------------------------------------------#
 ###  Steps 
 
 your genomes should be in the `haplo1/03_genome` and `haplo2/03_genome` folders for each haplotype!  

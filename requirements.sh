@@ -63,8 +63,8 @@ mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
     perl-exception-class perl-test-pod perl-file-which  perl-mce \
     perl-threaded perl-list-util perl-math-utils cdbtools \
     perl-list-moreutils
-mamba install -c bioconda perl-file-homedir perl-devel-size
-
+mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
+mamba install -c conda-forge json5
 
 
 #----------- a few tools to install directly with mamba :---------------------- 
