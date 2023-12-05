@@ -42,7 +42,7 @@ Help()
 ###########################################################
 # if no TE database then exit
 # if no lineage for busco then exit and ask for it 
-if [ -z "${TEdatabase}" ] && [ $annotate = YES ] ;
+if [ -z "$TEdatabase" ] && [[ $annotate = YES ]] ;
 then
 	echo "WARNING NO Database for TE is provided "
 	echo "I will not be able to assess mask TE prior to the genome annotation step "
@@ -266,6 +266,8 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "YES" ]]  
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+
 
 elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_sp" ]  ; then
 	echo "we will perform all analyses with annotations performed without rnaseq "
@@ -297,7 +299,9 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "NO" ]] &&
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh  #args....
 
+	
 elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_sp" ]   ; then
 	echo "we will perform all analyses including annotation with rnaseq"
 	echo "genomes are $haplotype1 and $haplotype2"
@@ -342,6 +346,7 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "YES" ]] 
 	
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
 
 fi
 

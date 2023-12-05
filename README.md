@@ -36,7 +36,6 @@ This code has been tested with linux.
 
 **Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
 
-
 # Dependencies: 
 
 **braker2** and all of its dependencies available [here](https://github.com/Gaius-Augustus/BRAKER)
@@ -56,17 +55,15 @@ bash Miniforge-pypy3-Linux-x86_64.sh
 ```
 
 ### minimal dependencies:  
- 
 
 see [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies or run directly : 
 
-
-```./requirements.sh``` 
-
-to attempt to install all dependencies...
-
-
-
+```shell 
+git clone https://github.com/QuentinRougemont/genome_annotation
+cd genome annotation
+./requirements.sh #will work with mamba. alternatively replace by conda (sed -i 's/mamba/conda/g' requirements.sh) 
+``` 
+ 
 # minimal input data needed: 
 
 * 2 genomes to annotate :
@@ -77,17 +74,86 @@ to attempt to install all dependencies...
 
 these must correspond to each haplotype you'd like to compare
 
-* optional:  1 ancestral genome with its annotation in gff format. 
+* optional:  1 ancestral genome with its annotation in gff format.  
 
-If your provide annotated genome please make sur to filter and keep a single transcript per gene. (we will checked that anyway) 
+	     keep a single transcript per gene.  
 
-Here we used the longest transcript.
-
-#### note on input naming: 
+### note on input naming: 
 
 we recommend to use short name for each haplotype and avoid any special characters appart from underscore.  
 
-# Steps 
+# Quick start:
+
+***before running the pipeline make sure to have ALL dependencies installed***
+
+***make sure to have the correct input data***
+
+### step1 - edit the config file and set the correct path 
+
+the config file is here: ./confi/config
+
+the file is as follows:
+
+```shell
+cat config/config
+# config file
+#--- COMPULSORY MINIMAL LEVEL OF INFORMATION REQUIRED -----
+genome1=""     #full path to current genome1 assembly (haplotype1 - compressed or not)
+haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
+
+#----- optional --------
+ancestral_genome=""
+genome2=""     #full path to current genome2 assembly (haplotype2)
+haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
+
+#--- annotate or not #
+annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed
+             #else gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
+
+#if annotate = NO then gtf should be provided: 
+gtf1=""
+gtf2=""
+
+#RNASeq data ?
+RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
+RNAseqlist=" "
+
+#TE INFO:
+TEdatabase="" #a full path to a custom database of species/genus species TE
+#NCBI species for de-novo TE:
+ncbi_species=""
+
+#BUSCO SPECIFIC ARGUMENTS:
+#busco_lineage name:
+busco_lineage=""
+```
+
+set all variables accordingly, provide full path when needed
+
+list the RNAseq reads if available in a file called "rnaseq.list.txt"
+this file is as follows:
+
+```shell
+cat rnaseq.list.txt
+/path/to/data/rnaseq/rnaseq1.R1.fq.gz
+/path/to/data/rnaseq/rnaseq2.R1.fq.gz
+/path/to/data/rnaseq/rnaseq3.R1.fq.gz
+/path/to/data/rnaseq/rnaseq4.R1.fq.gz
+```
+
+
+
+## step2 - run the master script 
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------------------#
+### detailed step by step guide: 
+###  Steps 
 
 your genomes should be in the `haplo1/03_genome` and `haplo2/03_genome` folders for each haplotype!  
 
@@ -112,9 +178,9 @@ cd 02_trimmed ../00_scripts/utility_scripts/count_read_fastq.sh *fq >> read_coun
 
 ```sh
 cd haplo1
-./00_scripts/01_gmap.sh 03_genome/your_genome.fa.gz
+./00_scripts/02_gmap.sh 03_genome/your_genome.fa.gz
 cd ../haplo2
-./00_scripts/01_gmap.sh 03_genome/your_genome.fa.gz
+./00_scripts/02_gmap.sh 03_genome/your_genome.fa.gz
 cd ../
  ```
 
@@ -127,27 +193,28 @@ simply loop over files:
 cd haplo1
 for i in 02_trimmed/*R1.paired.fastq.gz ; 
 do 
-./00_scripts/02_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
+./00_scripts/03_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
 done
 
 #mapping against haplo2:
 cd ../haplo2
 for i in 02_trimmed/*R1.paired.fastq.gz ; 
 do 
-./00_scripts/02_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
+./00_scripts/03_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
 done
 cd ../
 
 ```
 
+#### DEPRECATED STEP (ALREADY DONE IN GSNAP )
 ## 4 - count the number of well mapped reads
-
-use the script:
-```
-./00_scripts/03_count_mapped_read.sh 
-```
-
-and compare it to the number of trimmed reads to evaluate the quality of the data
+#
+#use the script:
+#```
+#./00_scripts/04_count_mapped_read.sh 
+#```
+#
+#and compare it to the number of trimmed reads to evaluate the quality of the data
 
 
 ## 5 - TE discovery and masking

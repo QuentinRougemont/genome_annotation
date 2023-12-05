@@ -1,27 +1,33 @@
 # config file
-
-#--- COMPULSORY MINIMAL LEVEL OF INFORMATIO REQUIRER -----
-#general information related to name of data:
-genome1=     #full path to current genome1 assembly (haplotype1)
-haplotype1=  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
+#--- COMPULSORY MINIMAL LEVEL OF INFORMATION REQUIRED -----
+genome1=""     #full path to current genome1 assembly (haplotype1 - compressed or not)
+haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
 
 #----- optional --------
-ancestal_genome=
-genome2=     #full path to current genome2 assembly (haplotype2)
-haplotype2=  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
+ancestral_genome=""
+genome2=""     #full path to current genome2 assembly (haplotype2)
+haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
 
-#--- annotation or not #
-annotate= #YES/NO? if not annotation then gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
+#--- annotate or not #
+annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed
+             #else gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
 
-#RNSeq data
-RNAseq=   #YES/NO a string stating wether rnaseq data is available or not
+#if annotate = NO then gtf should be provided: 
+gtf1=""
+gtf2=""
+
+#RNASeq data ?
+RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
+RNAseqlist=" "
 
 #TE INFO:
-TEdatabase= #a full path to a custom database of species/genus species TE
+TEdatabase="" #a full path to a custom database of species/genus species TE
 #NCBI species for de-novo TE:
-ncbi_species=
+ncbi_species=""
 
 #BUSCO SPECIFIC ARGUMENTS:
 #busco_lineage name:
-busco_lineage=
+busco_lineage=""
+
+
 
