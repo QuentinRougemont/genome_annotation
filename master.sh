@@ -4,11 +4,94 @@
 #Date: 11-2023
 #Author: QR
 
+#---- set colors and font ---------
+RED='\033[0;31m'
+BLU='\033[0;34m'
+GRE='\033[0;32m'
+NC='\033[0m' # No Color
+bold='\e[1m'
+italic='\e[3m'
+bolditalic='\e[3m\e[1m'
+underline='\e[4m'
+#bold=$(tput bold)
+normal=$(tput sgr0 )
+underline=$(tput smul )
+nounderline=$(tput rmul )
+#-------------------------------------
+
+############################################################
+# Help                                                     #
+############################################################
+Help()
+{
+   # Display Help
+   echo " "
+   echo "Usage: $0 [-h]"
+   echo "-h|--help: Print this Help."
+   echo -e "Main script to launch all subsequent analyses\n"
+   echo -e "${RED}----ALL RECQUIRED PARAMETERS MUST BE PROVIDED IN THE CONFIG FILE (see ./config/config) ----${NC}\n"
+   echo -e "use cases:
+
+   	1 - already annotated pairs of genome: \n
+
+	In the config file :
+	1.1 Provide the two genomes assemblies ${underline}(fasta files)${normal} and their respective ${underline}gtf${normal} ;
+
+		${bolditalic} - Analyses that will be performed: ${normal} single copy orthologs inference, genespace, Dsplot, ideogram, circos, dotplot
+
+	2 - only one genome to be annotated : \n
+	In the config file :
+		2.1  Provide the genome assembly ${underline}(fasta file)${normal} in the config file ; 
+		2.2  Provide the name of the busco lineage for the species ;
+		2.3. Provide a database for TE  ;
+		2.4. Provide a ncbi species name for TE step ;
+		2.5. Provide a database of protein for genome annotations ;
+		#optional:
+	        2.6. Provide rnaseq if available \n
+		${bolditalic} - Analyses that will be performed: ${normal} genome annotation, single copy orthologs inference, genespace, Dsplot, ideogram, circos, dotplot
+
+	3 - a pair of genome to annotate : \n
+	In the config file :
+		3.1 Provide the 2 genomes assemblies${underline}(fasta files)${normal} ; 
+		3.2  Provide the name of the busco lineage for the species ;
+		3.3. Provide a database of TE if available ;
+		3.4. Provide a ncbi species name for TE step;
+		3.5. Provide a database of protein for genome annotations ;
+		#optional:
+	        3.6. Provide rnaseq if available \n
+		${bolditalic} - Analyses that will be performed: ${normal} genome annotation, single copy orthologs inference, genespace, Dsplot, ideogram, circos, dotplot
+
+	4 - a pair of genome to annotate and ancestral genome : \n
+	In the config file :
+		4.1  Provide the 2 genomes assemblies ${underline}(fasta files)${normal} ;
+		4.2  Provide the ancestral species and its gtf file ;
+		4.3  Provide the name of the busco lineage for the species ;
+		4.4. Provide a database of TE if available ;
+		4.5. Provide a database of protein for genome annotations ;
+		4.6. Provide a ncbi species name for TE step ;
+		#optional:
+	        4.7. Provide rnaseq if available \n
+		${bolditalic} - Analyses that will be performed: ${normal} genome annotation, single copy orthologs inference, genespace, Dsplot, Rideogram, dotplot, circos, changepoint analysis
+
+		"
+}
+############################################################
+# Process the input options.                               #
+############################################################
+while [ $# -gt 0 ] ; do
+  case $1 in
+    -h  | --help ) Help ; exit 2 ;;
+   esac
+   shift
+done 
+
+
 ########################################
 ## Global variables
 ########################################
-echo "source config file..."
-source ./config/config 
+#if [ -z --help ] ; then 
+	echo "source config file..."
+	source ./config/config 
 
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
@@ -24,18 +107,7 @@ echo "*** lineage for busco analyses will be:  $busco_lineage ***"
 echo "*** annotate? $annotate" 
 echo -e "------------------------------------------------------------\n"
 
-############################################################
-# Help                                                     #
-############################################################
-Help()
-{
-   # Display Help
-   echo " "
-   echo "Usage: $0 [-h]"
-   echo "-h|--help: Print this Help."
-   echo " "
-   echo "TO BE FILLED LATER"
-}
+#fi 
 
 ###########################################################
 #a few minore chek here:
@@ -44,7 +116,7 @@ Help()
 # if no lineage for busco then exit and ask for it 
 if [ -z "$TEdatabase" ] && [[ $annotate = YES ]] ;
 then
-	echo "WARNING NO Database for TE is provided "
+	echo "Error NO Database for TE is provided "
 	echo "I will not be able to assess mask TE prior to the genome annotation step "
 	echo "this is very bad" 
 	exit
@@ -55,7 +127,7 @@ fi
 # if no lineage for busco then exit and ask for it 
 if [ -z "${busco_lineage}" ] ;
 then
-	echo "WARNING NO lineage provided for busco" 
+	echo "Error NO lineage provided for busco analyses" 
 	echo "I will not be able to assess the quality of the runs, which is compulsory for these anaylses"
 	exit
 	Help
