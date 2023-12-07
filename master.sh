@@ -199,10 +199,6 @@ fi
 
 echo -e "\ntesting cases\n"
 
-echo "debug"
-echo "genome1 is $genome1"
-echo "genome2 is $genome2" 
-
 if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then #|| [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
 	echo "Error! provide the genome of at least one species"
 	Help
@@ -247,7 +243,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	    echo "only the genome of one species was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
 	    echo "genome is ${genome1} "
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype1}
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
@@ -276,7 +272,8 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
 	    echo "only the genome of one species was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
 	    echo "genome is ${genome2} "
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype2}
+
 	   
             #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -342,7 +339,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype1}
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
@@ -363,7 +360,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 
 	cd haplo2/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype2}
+
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
@@ -429,7 +427,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype1}
+
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
@@ -451,7 +450,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	cd haplo2/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../run_step_rnaseq.sh
+	    ../run_step_rnaseq.sh ${haplotype2}
+
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
