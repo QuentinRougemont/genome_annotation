@@ -147,15 +147,27 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome 
-   cp $genome1 $haplo1.fa
+   cp $genome1 $haplotype1.fa
+   cd ../../
 else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome 
-   cp $genome1 $haplo1.fa
+   cp $genome1 $haplotype1.fa
+   cd ../../
 fi
 
-if [ -z "$haplotype2"] && [ -z "$genome2" ]  ; then mkdir -p haplo2/03_genome ; fi
+if [[ -z "${haplotype1}" ]] ; then
+	haplotype1="haplo1"
+fi
+
+if [[ -n "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
+	mkdir -p haplo2/03_genome ; 
+fi
+if [[ -z "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
+	haplotype2="haplo2"
+	mkdir -p haplo2/03_genome ; 
+fi
 
 #check genome compression:
 # ----- check compression of fasta  ------ ##
@@ -165,16 +177,19 @@ if file --mime-type "$genome2" | grep -q gzip$; then
    gunzip "$genome2"
    genome2=${genome%.gz}
    cd haplo2/03_genome 
-   cp $genome2 $haplo2.fa
-
+   cp $genome2 $haplotype2.fa
+   cd ../../
 else
    echo "$genome2 is not gzipped"
    cd haplo2/03_genome 
-   cp $genome2 $haplo2.fa
+   cp $genome2 $haplotype2.fa
    genome2=$genome
+   cd ../../
 fi
 
-if [ -z "$ancestral_genome"] ; then mkdir ancestralsp ; fi
+if [[ -n "${ancestral_genome}" ]] ; then 
+	mkdir ancestralsp  
+fi
 
 #artchitecture should be OK to proceed
 
@@ -182,16 +197,18 @@ if [ -z "$ancestral_genome"] ; then mkdir ancestralsp ; fi
 # Process the input options.                               #
 ############################################################
 
-if [ -z "${haplotype1}" ]  || [ -z "${haplotype2}" ] ; then #|| [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
+echo -e "\ntesting cases\n"
+
+if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then #|| [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
 	echo "Error! provide the genome of at least one species"
 	Help
 	exit 2
-elif [ -n "${haplotype1}" ] && [ -z "${haplotype2}" ]  && [ $rnaseq = "NO"]   ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
 	cd haplo1
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	echo "only the genome of one species or was provided" 
 	echo "we will only perform TE detection and genome annotation"
-	echo "genome is ${haplotype1} "
+	echo "genome is ${genome1} "
 	../run_script_05_to_08.sh
 	else
 		echo "error no fasta file in 03_genome"
@@ -200,12 +217,12 @@ elif [ -n "${haplotype1}" ] && [ -z "${haplotype2}" ]  && [ $rnaseq = "NO"]   ; 
 		exit 1
 	fi
 
-elif [ -z "${haplotype1}" ] && [ -n "${haplotype2}" ] && [ $rnaseq = "NO"]    ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
 	cd haplo2
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	echo "only the genome of one species or was provided" 
 	echo "we will only perform TE detection and genome annotation"
-	echo "genome is ${haplotype2} "
+	echo "genome is ${genome2} "
 	../run_script_05_to_08.sh
 	else
 		echo "error no fasta file in 03_genome"
@@ -214,12 +231,12 @@ elif [ -z "${haplotype1}" ] && [ -n "${haplotype2}" ] && [ $rnaseq = "NO"]    ; 
 		exit 1
 	fi
 
-elif [ -n "${haplotype1}" ] && [ -z "${haplotype2}" ] && [ $rnaseq = "YES"]  ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	cd haplo1/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    echo "only the genome of one species or was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
-	    echo "genome is ${haplotype1} "
+	    echo "genome is ${genome1} "
 	    ../run_step_rnaseq.sh
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -239,14 +256,15 @@ elif [ -n "${haplotype1}" ] && [ -z "${haplotype2}" ] && [ $rnaseq = "YES"]  ; t
 
 	
 	
-elif [ -z "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [ $rnaseq = "YES" ]   ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
 	cd haplo2/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    echo "only the genome of one species or was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
-	    echo "genome is ${haplotype2} "
+	    echo "genome is ${genome2} "
 	    ../run_step_rnaseq.sh
-	    #check that this script was sucessfull else kill:
+	   
+            #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
@@ -264,11 +282,13 @@ elif [ -z "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [ $rnaseq = "YES" ]   
 
 
 	#if both species are provided without RNAseq:
-elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "NO" ]]   ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; then
 	echo "we will perform TE detection - genome annotation - Ds computation and plots"
-	echo "genome are $haplotype1 and $haplotype2 "
+	echo "genome are $genome1 and $genome2 "
+	echo $(pwd)
 	cd haplo1
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	#partie en erreur à débuguer:
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
 
@@ -280,7 +300,7 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "NO" ]]  
 	fi
 
 	cd haplo2
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	     ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
 
@@ -295,11 +315,11 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "NO" ]]  
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
 
 
-elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "YES" ]]    ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; then
 	echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
-	echo "genomes are $haplotype1 and $haplotype2"
+	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_step_rnaseq.sh
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -318,7 +338,7 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "YES" ]]  
 	fi
 
 	cd haplo2/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_step_rnaseq.sh
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -341,12 +361,12 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "YES" ]]  
 	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
 
 
-elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_sp" ]  ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_sp" ]  ; then
 	echo "we will perform all analyses with annotations performed without rnaseq "
-	echo "genomes are $haplotype1 and $haplotype2"
+	echo "genomes are ${genome1} and ${genome2}"
 
 	cd haplo1
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
 
@@ -358,7 +378,7 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "NO" ]] &&
 	fi
 
 	cd haplo2
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	     ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
 
@@ -374,11 +394,11 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ] && [[ $rnaseq = "NO" ]] &&
 	../00_scripts/11_run_geneSapce_paml_ideogram.sh  #args....
 
 	
-elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_sp" ]   ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_sp" ]   ; then
 	echo "we will perform all analyses including annotation with rnaseq"
-	echo "genomes are $haplotype1 and $haplotype2"
+	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_step_rnaseq.sh
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -397,7 +417,7 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "YES" ]] 
 	fi
 
 	cd haplo2/
-	if ["$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_step_rnaseq.sh
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
@@ -415,10 +435,33 @@ elif [ -n "${haplotype1}" ] && [ -n "${haplotype2}" ]  && [[ $rnaseq = "YES" ]] 
 		exit 1
 	fi
 
-	
+        cd ../	
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
 	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+
+
+elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
+	echo "gtf and genomes file were provided" 
+	echo "we will run geneSpace, compute Ds and other kind of analyses"
+	mkdir haplo1/08_best_run -p 
+       	mkdir haplo2/08_best_run -p 
+	cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf	
+	cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf	
+
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+
+
+elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [ -n "$ancestral_sp" ]  ; then
+	echo "gtf and genomes file were provided" 
+	echo "we will run geneSpace, compute Ds and other kind of analyses"
+	mkdir haplo1/08_best_run -p 
+       	mkdir haplo2/08_best_run -p 
+	cp $gtf1 haplo1/08_best_run/$haplotype1.gtf	
+	cp $gtf2 haplo2/08_best_run/$haplotype2.gtf	
+
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+
 
 fi
 
