@@ -4,7 +4,9 @@ genome1=""     #full path to current genome1 assembly (haplotype1 - compressed o
 haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
 
 #----- optional --------
-ancestral_genome=""
+ancestral_genome="" #full path to the ancestral genome to be used whenever possible
+ancestral_gtf=" "   #full path to the associated gtf to be used whehever possible
+
 genome2=""     #full path to current genome2 assembly (haplotype2)
 haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
 
@@ -30,5 +32,6 @@ ncbi_species=""
 #busco_lineage name:
 busco_lineage=""
 
-
+#option for Dn/Ds, plot, etc:
+scaffold=" " #scaffold.txt #a set of scaffold in the ancestral species corresponding to the region of interest (X/Y chromosome, supergenes, etc)
 

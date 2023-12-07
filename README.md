@@ -110,6 +110,9 @@ haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome an
 annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed
              #else gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
 
+RelatedProt="/path/to/related_protein.fa" #a full path to a set of external protein data (fasta format) for braker
+
+
 #if annotate = NO then gtf should be provided: 
 gtf1=""
 gtf2=""
@@ -134,13 +137,21 @@ list the RNAseq reads if available in a file called "rnaseq.list.txt"
 this file is as follows:
 
 ```shell
-cat rnaseq.list.txt
+cat rnaseq.list_SE.txt
 /path/to/data/rnaseq/rnaseq1.R1.fq.gz
 /path/to/data/rnaseq/rnaseq2.R1.fq.gz
 /path/to/data/rnaseq/rnaseq3.R1.fq.gz
 /path/to/data/rnaseq/rnaseq4.R1.fq.gz
 ```
 
+with PAIRED END:
+```sh
+cat rnaseq.list_PE.txt
+/path/to/data/rnaseq/rnaseq1.R1.fq.gz	/path/to/data/rnaseq/rnaseq1.R2.fq.gz
+/path/to/data/rnaseq/rnaseq2.R1.fq.gz   /path/to/data/rnaseq/rnaseq2.R2.fq.gz
+/path/to/data/rnaseq/rnaseq3.R1.fq.gz   /path/to/data/rnaseq/rnaseq3.R2.fq.gz
+/path/to/data/rnaseq/rnaseq4.R1.fq.gz   /path/to/data/rnaseq/rnaseq4.R2.fq.gz
+```
 
 
 ## step2 - run the master script 
@@ -148,7 +159,7 @@ cat rnaseq.list.txt
 once the config file is ready with your path and dataset correctly simply run 
 
 ```shell
-./master.sh |tee log
+./master.sh 2>&1 |tee log
 ```
 
 this script should handle automatically the different use cases (annotation only, annotation and plot, etc):

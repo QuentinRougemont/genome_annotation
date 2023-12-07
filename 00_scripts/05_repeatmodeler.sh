@@ -69,10 +69,10 @@ cd 05_TE
 #--------------STEP1 : RUN REPEATMODELER  -----------------------#
 
 ##build db:
-#BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
 
 #de novo TE annotations:
-#RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
+RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#

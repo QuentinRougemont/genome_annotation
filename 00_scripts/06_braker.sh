@@ -113,8 +113,6 @@ else
     braker.pl --species="$species"_refprot --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd 
 fi
 
-exit 
-
 echo "----------- round 2 ------------" 
 wd=${FOLDER2}
 if [[ $fungus = "YES" ]]

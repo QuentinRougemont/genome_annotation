@@ -334,6 +334,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 
 	#if all is OK then run GeneSpace - paml etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 
 
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; then
@@ -383,7 +384,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 
 
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_sp" ]  ; then
@@ -420,7 +421,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh  #args....
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
 
 	
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_sp" ]   ; then
@@ -472,7 +473,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
 
 #here handle cases where already annotated genome with gtf are provided:
 elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
@@ -483,18 +484,23 @@ elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${geno
 	cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf	
 	cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf	
 
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
 
 
 elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [ -n "$ancestral_sp" ]  ; then
 	echo "gtf and genomes file were provided" 
 	echo "we will run geneSpace, compute Ds and other kind of analyses"
-	mkdir haplo1/08_best_run -p 
-       	mkdir haplo2/08_best_run -p 
-	cp $gtf1 haplo1/08_best_run/$haplotype1.gtf	
-	cp $gtf2 haplo2/08_best_run/$haplotype2.gtf	
+	mkdir -p haplo1/08_best_run  
+       	mkdir -p haplo2/08_best_run  
+	cp $gtf1 haplo1/08_best_run/$haplotype1.longest_transcript.gtf	
+	cp $gtf2 haplo2/08_best_run/$haplotype2.longest_transcript.gtf	
 
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....
+	gffread -g $genome1 -w haplo1/08_best_run/$haplotype1.spliced_cds.fa  $gtf1 
+	gffread -g $genome2 -w haplo2/08_best_run/$haplotype2.spliced_cds.fa  $gtf2 
+
+	transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
+	transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
+
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
 
 
 fi

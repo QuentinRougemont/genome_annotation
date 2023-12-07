@@ -161,9 +161,20 @@ while [ $# -gt 0 ] ; do
    shift
 done 
 
-if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
+if [ -z "${haplo1}" ] || [ -z "${haplo2}" ]  ; then
 	Help
 	exit 2
+fi
+
+#make folderpath optional:
+#to do :|| [ -z "${folderpath}" ]    
+
+#make ancestral species optional
+if [ ! -z "${ancestral_sp}" ] ; then
+	echo "ancestral_species is $ancestral_sp "
+	echo "will attempt to extract the CDS and PROT from it "
+	gffread -g $ancestral_sp/$ancestral_sp.fa -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  $ancestral_sp/$ancestral_sp.gtf 
+	transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq "$ancestral_sp"_prot.fa
 fi
 
 #------------------------------ step 1 prepare bed file for each haplo -------------------------------------#
