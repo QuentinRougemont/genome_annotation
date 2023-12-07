@@ -148,7 +148,7 @@ cat rnaseq.list.txt
 once the config file is ready with your path and dataset correctly simply run 
 
 ```shell
-./master.sh
+./master.sh |tee log
 ```
 
 this script should handle automatically the different use cases (annotation only, annotation and plot, etc):
@@ -156,7 +156,7 @@ this script should handle automatically the different use cases (annotation only
 for more details run: 
 
 ```shell
-./master.sh --help
+./master.sh --help or ./master -h
 ```
 
 
