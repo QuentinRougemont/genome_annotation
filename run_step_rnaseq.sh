@@ -32,7 +32,7 @@ if [[ $ncol = 2 ]] ; then
     echo "running trimmomatic" 
     while IFS=$'\t' read -r -a read ; 
     do 
-        ../00_scripts/01_trimmomatic_PE.sh ${read[0]} ${read2[1]}  
+        ../00_scripts/01_trimmomatic_PE.sh ${read[0]} ${read[1]}  
     done < $RNAseqlist #  file1file2.tmp 
 
     if [ $? -eq 0 ]; then
@@ -53,7 +53,7 @@ else
     echo "running trimmomatic" 
     while IFS=$'\t' read -r -a read ; 
     do 
-        ../00_scripts/01_trimmomatic_SE.sh ${read[0]} ${read2[1]}  
+        ../00_scripts/01_trimmomatic_SE.sh ${read[0]} #${read[1]}  
     done < $RNAseqlist #  file1file2.tmp 
     
     if [ $? -eq 0 ]; then
