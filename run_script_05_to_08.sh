@@ -12,7 +12,8 @@ while [ $# -gt 0 ] ; do
     -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
     -s | --haplotype) haplotype="$2" ;echo "the haplotype name will be $haplotype" >&2;;
     -m | --mask )   Mask="$2" ; echo "unknown TE will be removed after repeatemasking" >&2;;
-    -r | --rna )    RNAseq="$2" ; echo "No RNAseq provided" >&2;; 
+    -r | --rna )    RNAseq="$2" ; echo "Is RNAseq provided ? $RNAseq " >&2;; 
+    -f | --fungus ) fungus="$2" ; echo "Do species belong to fungi? $fungus" >&2;;
     -h | --help) echo -e "Option required:
     -g/--genome \t the reference genome file 
     -s/--haplotype\t the haplotype name (used for database building and basename in several steps)
@@ -39,16 +40,14 @@ if [ -z "$RNAseq" ] ; then
   RNAseq=NO
 fi
 
-#moove into the correct haplotype folder 
-
-cd $haplotype
 # ------------------ run RepeatModeler and RepeatMasker ------------------  ##
-../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+
+#../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
 if [ $? -eq 0 ]; then
     echo repeatmodeler run successfull
 else
     echo repeatmodeler failed. check the provided libraries and whether all software and dependancies are correctly installed   
-    exit 1
+    exit 
 fi
 
 #here test if the genome should be mask or not, then test its existence
@@ -56,9 +55,9 @@ fi
 #it it exist run braker with the appropriate parameter
 
 # -------------------- run Braker  ---------------------------- #
-../00_scripts/06_braker.sh 03_genome/"$haplotype".genome.wholemask_no_unknown.fa $haplotype $RNAseq 2>&1 |tee braker_log  #NO for no rnaseq  
+../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus 2>&1 |tee braker_log  #NO for no rnaseq  
 
-
+exit
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
 then

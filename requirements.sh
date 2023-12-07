@@ -127,7 +127,7 @@ then
     cd ProtHint-2.6.0/bin 
     #then add to ~/.bashrc
     path=$(pwd)
-    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport PROTHINT_PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi
@@ -163,7 +163,7 @@ then
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
         path=$(pwd)
-        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=\$PATH:$path" >> ~/.bashrc 
         source ~/.bashrc  
 	cd ../
     else
@@ -227,6 +227,8 @@ then
         echo -e "export AUGUSTUS_BIN_PATH=$path/bin/ " >> ~/.bashrc
         echo -e "export AUGUSTUS_SCRIPTS_PATH=/$path/augustus_scripts " >> ~/.bashrc
 	source ~/.bashrc
+	cd ../auxprogs/joingenes
+	make -j8
         cd ../
     else
 	    echo "installation of augustus failed, look at the logs ! "
@@ -237,12 +239,27 @@ fi
 
 
 #**genemark** 
+#OLD WAY - DEPRECATED:
 #wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
-echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
-echo "the gm_key is necessary" 
-echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
-echo "it must be copied to your home"
-echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "
+#echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
+#echo "the gm_key is necessary" 
+#echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
+#echo "it must be copied to your home"
+#echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "
+command="gms2hints.pl" 
+if ! command -v $command &> /dev/null
+    then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    git clone https://github.com/gatech-genemark/GeneMark-ETP/
+    cd GeneMark-ETP/
+    cd bin/
+    path=$(pwd)
+    echo -e "export GENEMARK_PATH=$path/ " >> ~/.bashrc
+    source ~/.bashrc  
+    cd ../ 
+fi
+
 
 #**TSEBRA** available [here](https://github.com/Gaius-Augustus/TSEBRA)
 #direct install: 
@@ -254,7 +271,7 @@ if ! command -v $command &> /dev/null
     git clone https://github.com/Gaius-Augustus/TSEBRA 
     cd TSEBRA/bin
     path=$(pwd)
-    echo -e "\n#Path to TSEBRA\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    echo -e "\n#Path to TSEBRA\nexport TSEBRA_PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi 

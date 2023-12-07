@@ -69,10 +69,10 @@ cd 05_TE
 #--------------STEP1 : RUN REPEATMODELER  -----------------------#
 
 ##build db:
-BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+#BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
 
 #de novo TE annotations:
-RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
+#RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
@@ -81,7 +81,7 @@ RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FO
 FOLDER1=FOLDER1_"${base}"_mask.$TIMESTAMP
 mkdir $FOLDER1
 lib1=$TEdatabase 
-RepeatMasker -threads 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIMESTAMP.log
+RepeatMasker -pa 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIMESTAMP.log
 
 
 # Based on de-novo repeat + database:
@@ -104,7 +104,7 @@ else
 fi
 
 #run repeatmasker:
-RepeatMasker -threads 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
+RepeatMasker -pa 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
 	tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIMESTAMP.log
 
 
@@ -114,7 +114,7 @@ FOLDER3=FOLDER3_"${base}"_mask.$TIMESTAMP
 mkdir "$FOLDER3"
 
 #run repeatmasker:
-RepeatMasker -threads 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
+RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
 	tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIMESTAMP.log
 
 cd ../03_genome
