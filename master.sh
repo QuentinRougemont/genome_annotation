@@ -183,7 +183,7 @@ else
    echo "$genome2 is not gzipped"
    cd haplo2/03_genome 
    cp $genome2 $haplotype2.fa
-   genome2=$genome
+   genome2=$genome2
    cd ../../
 fi
 
@@ -199,6 +199,10 @@ fi
 
 echo -e "\ntesting cases\n"
 
+echo "debug"
+echo "genome1 is $genome1"
+echo "genome2 is $genome2" 
+
 if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then #|| [ -z "${folderpath}" ]  || [ -z "${ancestral_sp}" ]    ; then
 	echo "Error! provide the genome of at least one species"
 	Help
@@ -210,6 +214,8 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
 	echo "we will only perform TE detection and genome annotation"
 	echo "genome is ${genome1} "
 	../run_script_05_to_08.sh
+
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -224,6 +230,8 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
 	echo "we will only perform TE detection and genome annotation"
 	echo "genome is ${genome2} "
 	../run_script_05_to_08.sh
+
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -242,6 +250,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
+	cd ../
 
 	    else
     	        echo ERROR - verfiy braker outputs!   
@@ -268,6 +277,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
+	cd ../
 
 	    else
     	        echo ERROR - verfiy braker outputs!   
@@ -289,9 +299,11 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 	cd haplo1
 	#partie en erreur à débuguer:
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../run_script_05_to_08.sh
-	    #verify that alll run correctly 
 
+		echo "running TE and gene prediction"
+	    ../run_script_05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES
+	    #verify that alll run correctly 
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -301,9 +313,10 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 
 	cd haplo2
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	     ../run_script_05_to_08.sh
-	    #verify that alll run correctly 
+	     ../run_script_05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES
 
+	    #verify that alll run correctly 
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -325,7 +338,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
-
+	cd ../
 	    else
     	        echo ERROR - verfiy braker outputs!   
     	        exit 1
@@ -344,7 +357,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
-
+	cd ../
 	    else
     	        echo ERROR - verfiy braker outputs!   
     	        exit 1
@@ -369,7 +382,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
-
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -381,7 +394,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	     ../run_script_05_to_08.sh
 	    #verify that alll run correctly 
-
+	cd ../
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
@@ -404,6 +417,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
+	cd ../
 
 	    else
     	        echo ERROR - verfiy braker outputs!   
@@ -423,6 +437,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        ../run_script_05_to_08.sh
+	cd ../
 
 	    else
     	        echo ERROR - verfiy braker outputs!   
@@ -435,7 +450,6 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 		exit 1
 	fi
 
-        cd ../	
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
 	../00_scripts/11_run_geneSapce_paml_ideogram.sh #args....

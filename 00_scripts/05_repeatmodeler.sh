@@ -6,7 +6,11 @@
 
 
 #------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
-source config/config
+source ../config/config
+
+eval "$(conda shell.bash hook)"
+conda activate repeatmodeler_env
+
 
 echo TEdatabase is $TEdatabase
 echo "NCBI species is $ncbi_species"
@@ -68,7 +72,7 @@ cd 05_TE
 BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
 
 #de novo TE annotations:
-RepeatModeler -pa 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
+RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
 
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
@@ -77,7 +81,7 @@ RepeatModeler -pa 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/
 FOLDER1=FOLDER1_"${base}"_mask.$TIMESTAMP
 mkdir $FOLDER1
 lib1=$TEdatabase 
-RepeatMasker -pa 24 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIMESTAMP.log
+RepeatMasker -threads 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIMESTAMP.log
 
 
 # Based on de-novo repeat + database:
@@ -100,7 +104,7 @@ else
 fi
 
 #run repeatmasker:
-RepeatMasker -pa 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
+RepeatMasker -threads 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
 	tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIMESTAMP.log
 
 
@@ -110,7 +114,7 @@ FOLDER3=FOLDER3_"${base}"_mask.$TIMESTAMP
 mkdir "$FOLDER3"
 
 #run repeatmasker:
-RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
+RepeatMasker -threads 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
 	tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIMESTAMP.log
 
 cd ../03_genome

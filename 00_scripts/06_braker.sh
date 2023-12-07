@@ -3,7 +3,10 @@
 #AUTHOR: QR
 #Date updated: 10-03-2023
 set -e
-source config/config
+source ../config/config
+
+eval "$(conda shell.bash hook)"
+conda activate braker_env
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
