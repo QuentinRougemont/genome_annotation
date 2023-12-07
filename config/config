@@ -20,8 +20,8 @@ gtf1=""
 gtf2=""
 
 #RNASeq data ?
-RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
-RNAseqlist="rnaseq.list.txt" #list of rnaseq data 
+rnaseq=""   #YES/NO a string stating wether rnaseq data is available or not
+RNAseqlist="/full/path/to/rnaseq.list.txt" #list of rnaseq data 
 
 #TE INFO:
 TEdatabase="" #a full path to a custom database of species/genus species TE
@@ -30,7 +30,7 @@ ncbi_species=""
 
 #BUSCO SPECIFIC ARGUMENTS:
 #busco_lineage name:
-busco_lineage=""
+busco_lineage="" #see busco lineage to have the list
 
 #option for Dn/Ds, plot, etc:
 scaffold=" " #scaffold.txt #a set of scaffold in the ancestral species corresponding to the region of interest (X/Y chromosome, supergenes, etc)

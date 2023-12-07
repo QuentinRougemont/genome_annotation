@@ -2,7 +2,7 @@
 
 source ../config/config
 
-echo rnaseqlist is $rnaseq
+echo rnaseqlist is $RNAseqlist 
 #microscriot to run all rnaseq steps from read trimming to read mapping and count
 #RNAseq=YES
 haplotype=$1

@@ -138,7 +138,12 @@ fi
 # Generate architecture:
 ############################################################
 
+echo "Generate Architecture"
 mkdir -p haplo1/03_genome 
+
+if [[ -z "${haplotype1}" ]] ; then
+	haplotype1="haplo1"
+fi
 
 # ----- check compression of fasta  ------ ##
 #check compression
@@ -157,9 +162,6 @@ else
    cd ../../
 fi
 
-if [[ -z "${haplotype1}" ]] ; then
-	haplotype1="haplo1"
-fi
 
 if [[ -n "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
 	mkdir -p haplo2/03_genome ; 
