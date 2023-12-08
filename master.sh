@@ -126,10 +126,10 @@ fi
 
 
 # if no lineage for busco then exit and ask for it 
-if [ -z "${busco_lineage}" ] ;
+if [ -z "${busco_lineage}" ]  && [[ $annotate = YES ]] ;
 then
 	echo "Error NO lineage provided for busco analyses" 
-	echo "I will not be able to assess the quality of the runs, which is compulsory for these anaylses"
+	echo "I will not be able to assess the quality of the annotation runs, which is compulsory for these anaylses"
 	exit
 	Help
 fi
@@ -271,7 +271,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 
@@ -301,7 +301,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 
@@ -322,7 +322,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 
@@ -336,7 +336,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 
@@ -365,7 +365,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 
@@ -387,7 +387,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	else
 		echo "error no fasta file in 03_genome"
 	        echo "please copy your genome here"	
-		help
+		Help
 		exit 1
 	fi
 

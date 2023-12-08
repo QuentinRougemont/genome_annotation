@@ -70,9 +70,25 @@ cd genome annotation
 
 	* with OR without RNAseq
 
-* OR 2 genomes already annotated with their corresponding gff files
+* OR **2 genomes** already annotated with their corresponding **gtf** files
 
 these must correspond to each haplotype you'd like to compare
+
+* If annotation is required then the following data are recquired:
+
+	* a lineage name for busco evaluation of the genome annotation quality.  
+
+The list of lineage can be obtained [here](https://busco-data.ezlab.org/v5/data/lineages/) or using :
+
+```shell
+busco --list-dataset
+``` 
+in the config/config file set the busco_lineage name that is closer to your study organism
+
+	* a list of protein from the same or closely related species in fasta format
+
+	* if possible a custom database of TE
+
 
 * optional:  1 ancestral genome with its annotation in gff format.  
 
