@@ -60,6 +60,6 @@ echo "Removing "$TMP"/"$base".bam"
 rm $DATAOUTPUT/"$base".concordant*
 rm $DATAOUTPUT/"$base".halfmapping*
 rm $DATAOUTPUT/"$base".nomapping*
-rm $DATAOUTPUT/"$base".paired*
+#rm $DATAOUTPUT/"$base".paired*
 rm $DATAOUTPUT/"$base".unpaired*
 

@@ -21,10 +21,7 @@ fi
 base=$(basename ${file1%[_.]*[._]f**gz} )
 
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
-SCRIPT=$0
-NAME=$(basename $0)
 LOG_FOLDER="99_log_files"
-cp $SCRIPT $LOG_FOLDER/"$TIMESTAMP"_"$NAME"
 
 #create folder if not existent:
 mkdir $LOG_FOLDER 2>/dev/null
@@ -49,5 +46,3 @@ java -jar -Xmx10G Trimmomatic-0.39/trimmomatic-0.39.jar PE \
         TRAILING:20 \
         SLIDINGWINDOW:30:30 \
         MINLEN:100 2> $LOG_FOLDER/log.trimmomatic.pe."$base"."$TIMESTAMP"
-
-

@@ -15,10 +15,7 @@ fi
 base=$(basename $file)
 
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
-SCRIPT=$0
-NAME=$(basename $0)
 LOG_FOLDER="99_log_files"
-cp $SCRIPT $LOG_FOLDER/"$TIMESTAMP"_"$NAME"
 
 #create folder if not existent:
 mkdir $LOG_FOLDER 2>/dev/null

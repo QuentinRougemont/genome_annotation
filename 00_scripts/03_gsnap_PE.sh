@@ -18,7 +18,6 @@ else
 fi
 
 # Global variables
-#source config/config
 
 DATAOUTPUT="04_mapped/"
 DATAINPUT="02_trimmed"
@@ -62,7 +61,7 @@ gsnap --gunzip -t "$NCPUS" -A sam \
     rm $DATAOUTPUT/"$base".concordant*
     rm $DATAOUTPUT/"$base".halfmapping*
     rm $DATAOUTPUT/"$base".nomapping*
-    rm $DATAOUTPUT/"$base".paired*
+#    rm $DATAOUTPUT/"$base".paired*
     rm $DATAOUTPUT/"$base".unpaired*
 
 #counting the number of mapped reads :

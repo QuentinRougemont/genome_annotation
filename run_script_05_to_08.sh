@@ -42,7 +42,7 @@ fi
 
 # ------------------ run RepeatModeler and RepeatMasker ------------------  ##
 
-#../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
 if [ $? -eq 0 ]; then
     echo repeatmodeler run successfull
 else
@@ -50,20 +50,15 @@ else
     exit 
 fi
 
-#here test if the genome should be mask or not, then test its existence
-#if it does not exist then exit
-#it it exist run braker with the appropriate parameter
-
 # -------------------- run Braker  ---------------------------- #
 ../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus 2>&1 |tee braker_log  #NO for no rnaseq  
 
-exit
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
 then
-    ../00_scripts/07_busco_after_braker.sh $lineage YES
+    ../00_scripts/07_busco_after_braker.sh $busco_lineage YES
 else
-   ../00_scripts/07_busco_after_braker.sh $lineage 
+   ../00_scripts/07_busco_after_braker.sh $busco_lineage 
 fi
 
 # ---------------------reshape Braker output ----------------- #

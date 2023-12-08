@@ -105,6 +105,7 @@ echo "*** gtf ? $gtf ***"
 echo "*** TE database is : $TEdatabase ***"
 echo "*** lineage for busco analyses will be:  $busco_lineage ***"
 echo "*** annotate? $annotate" 
+echo "*** is species a fungus? $fungus ****"
 echo -e "------------------------------------------------------------\n"
 
 #fi 
@@ -152,13 +153,17 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome 
-   cp $genome1 $haplotype1.fa
+   #cp $genome1 $haplotype1.fa
+   ./00_scripts/00_rename_fasta.py $genome1 $haplotype1
+
    cd ../../
 else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome 
-   cp $genome1 $haplotype1.fa
+   #cp $genome1 $haplotype1.fa
+   ./00_scripts/00_rename_fasta.py $genome1 $haplotype1
+
    cd ../../
 fi
 
@@ -179,12 +184,16 @@ if file --mime-type "$genome2" | grep -q gzip$; then
    gunzip "$genome2"
    genome2=${genome%.gz}
    cd haplo2/03_genome 
-   cp $genome2 $haplotype2.fa
+   #cp $genome2 $haplotype2.fa
+   ./00_scripts/00_rename_fasta.py $genome2 $haplotype2
+
    cd ../../
 else
    echo "$genome2 is not gzipped"
    cd haplo2/03_genome 
-   cp $genome2 $haplotype2.fa
+   #cp $genome2 $haplotype2.fa
+   ./00_scripts/00_rename_fasta.py $genome2 $haplotype2
+
    genome2=$genome2
    cd ../../
 fi

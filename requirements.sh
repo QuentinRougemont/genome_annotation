@@ -276,12 +276,6 @@ if ! command -v $command &> /dev/null
     cd ../../
 fi 
 
-#**trimmomatic** software available [here](http://www.usadellab.org/cms/?page=trimmomatic)
-#direct install:
-wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip
-unzip Trimmomatic-0.39.zip
-
-
 #**GSNAP** for read mappig available [here](http://research-pub.gene.com/gmap/)
 #direct install :
 command='gsnap'

@@ -14,7 +14,8 @@ haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome an
 annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed
              #else gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
 RelatedProt="/path/to/related_protein.fa" #a full path to a set of external protein data (fasta format) for braker
-
+fungus="" #YES or NO set to YES if species is a fungus
+ 
 #if annotate = NO then gtf should be provided: 
 gtf1=""
 gtf2=""

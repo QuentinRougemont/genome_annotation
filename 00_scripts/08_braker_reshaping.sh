@@ -23,11 +23,6 @@ Help()
    echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
 }
 
-source config/config
-
-#should activate braker_env here certainly
-eval "$(conda shell.bash hook)"
-conda activate braker_env
 
 ############################################################
 # Process the input options.                               #
@@ -52,7 +47,7 @@ echo -e  "\n-----------------------------------------------------------------"
 echo -e "\nfinding best run \n" 
 echo -e  "-----------------------------------------------------------------\n"
 
-cd $haplo/06_braker
+cd 06_braker
 
 #there is a bit of variance between braker run train on a protein database,
 #therefore we perform a few replicate run and choose the 'best run' where best is defined as the run providing 
@@ -68,7 +63,6 @@ LC_ALL=C sort -k3nr -k11n -k9n -k7n -k5  |head -n 1 |cut -d "/" -f 1 )
 echo -e "best_round is $best_round\n----------------------------------------------"
 
 cd ../
-
 #------------------------------ step 2 finding runs --------------------------------------------#
 
 if [[ $RNAseq = "YES" ]]
@@ -134,7 +128,6 @@ rename_gtf.py --gtf ${file} --prefix ${haplo} --translation_tab translation_tab.
 # Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 # Fix lack of gene_id and transcript_id tags in gtf file column 9
 cat 08_best_run/${haplo}.renamed.gtf | ../00_scripts/utility_scripts/Fix_Augustus_gtf.pl > 08_best_run/${haplo}.renamed.fixed.gtf
-
 
 #------------------------------ step 4 --------------------------------------------------------#
 #rename the gene/cds/transcript/exons/ ID in the gtf so they contain the chromosome and haplo name (easier to parse)
@@ -236,21 +229,24 @@ echo -e there is $(wc -l "$haplo".longest_transcript.gtf |awk '{print $1}' ) lin
 
 #declare new gtf for new work:
 gtf="$haplo".longest_transcript.gtf
+gtf2="gtf.tmp"                                      
+gtf3="$species".longest_transcript_dedup.gtf
 
-# now removing fully overlapping CDS 
-#create an ID of the type chromosome_start and chromosome_end to filter :
-sort -k1,1 -k4,4n  $gtf |cut -f 1-5,9 |awk '$3~"CDS" {print $1"_"$4"_"$5"\t"$1"_"$4"\t"$1"_"$5"\t"$0}' > tmp1
+# now removing fully overlapping CDS
+# rule  adopted here: 
+# we removed any CDS with identidical CDS chr-start or identical CDS chr-end
+# identical CHR-START:
+awk '$3=="transcript" {print $1"_"$4"_"$5"\t"$1"_"$4"\t"$1"_"$5"\t"$0}'  $gtf > tmp
+awk 'NR == FNR {count[$2]++; next} count[$2]>0 {print $2"\t"$7"\t"$8"\t"$13"\t"$8-$7}' tmp tmp |awk '$5>max[$1]{max[$1]=$5; row[$1]=$4} END{for (i in row) print row[i]}' > longest.to.keep.tmp                   
+grep -Ff longest.to.keep.tmp $gtf  > $gtf2                                                               
 
-#we remove any CDS that has identical chromosome and start 
-awk 'NR == FNR {count[$2]++; next} count[$2]>1' tmp1 tmp1 |cut -f 9 |cut -d ";" -f 1 |uniq |sed -e 's/transcript_id //' -e 's/"//g' -e 's/ //g' > toremove
-exact_overlap=$(wc -l toremove |awk '{print $1}' )
-echo -e "\nthere is $exact_overlap CDS with the exact same chromosome and start  "
+# identical CHR-END:
+awk '$3=="transcript" {print $1"_"$4"_"$5"\t"$1"_"$4"\t"$1"_"$5"\t"$0}'  $gtf2 > tmp2
+awk 'NR == FNR {count[$3]++; next} count[$3]>0 {print $3"\t"$7"\t"$8"\t"$13"\t"$8-$7}' tmp2 tmp2 |awk '$5>max[$1]{max[$1]=$5; row[$1]=$4} END{for (i in row) print row[i]}' > longest.to.keep.tmp2
 
-#we remove any CDS that has identical chromosome and end position:
-awk 'NR == FNR {count[$3]++; next} count[$3]>1' tmp1 tmp1 |cut -f 9 |cut -d ";" -f 1 |uniq |sed -e 's/transcript_id //' -e 's/"//g' -e 's/ //g' >> toremove
-exact_overlap=$(wc -l toremove |awk '{print $1}' )
-echo -e "\nthere is $exact_overlap CDS with the exact same chromosome and end  "
+grep -Ff longest.to.keep.tmp2 $gtf2  > $gtf3
 
+echo -e there is $(wc -l "$gtf3"|awk '{print $1}' ) lines in "$gtf3" that will be our final gtf
 
 #~~~~~~~~~~~~~~~~~~~~~~ step 7 : re-extracting the proteins ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 echo -e "\n-----------------------------------------------------------------"
@@ -258,15 +254,18 @@ echo "re-extracting protein and CDS from the final non-redundan gtf"
 echo "-----------------------------------------------------------------\n"
 
 
-gffread -w "$haplo".spliced_cds.fa -g ../03_genome/$haplo.fa "$haplo".longest_transcript.gtf
+gffread -w "$haplo".spliced_cds.fa -g ../03_genome/$haplo.fa $gtf3 #"$haplo".longest_transcript.gtf
 echo "translate CDS into amino acid "
 transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.fa
+
+echo -e "there is $( grep -c ">" "$haplo"_prot.fa |awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
 
 #now run busco to validate. the score should be close to the initial score 
 #insert call to busco here
 path=$(pwd)
+source ../../config/config
+
 eval "$(conda shell.bash hook)"
-conda deactivate
 conda activate busco_env
 busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein #--updata-data #to update the database if there's a warning
 
