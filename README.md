@@ -78,7 +78,7 @@ these must correspond to each haplotype you'd like to compare
 
 	* a list of protein from the same or closely related species in fasta format
 
-	* if possible a custom database of TE for the TE annotation steps
+	* if possible: a custom database of TE for the TE annotation steps
 
 	* a lineage name for busco evaluation of the genome annotation quality.  
 
@@ -88,12 +88,15 @@ The list of lineage can be obtained [here](https://busco-data.ezlab.org/v5/data/
 busco --list-dataset
 ``` 
 
-in the config/config file set the busco_lineage name that is closer to your study organism 
+in the config/config file set the **busco_lineage** by providing the name of the species that is closer to your study organism 
 
 
 * optional:  1 ancestral genome in **fasta** format with its annotation in **gtf** format.  
 
-	     keep a single transcript per gene.  
+
+**!keep a single transcript per gene!**  
+
+  
 
 ### note on input naming: 
 
