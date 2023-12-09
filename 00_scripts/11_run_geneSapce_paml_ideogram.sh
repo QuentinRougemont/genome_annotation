@@ -21,12 +21,13 @@ Help()
    echo " -s2|--haplo2: the name of the second focal haplotype\t "
    echo " -a |--ancestral_sp: the name of the ancestral haplo to infer orthology and plot gene order"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
+   echo " -c|--chromosome: a set of chromosomes corresponding to the target chromosome (e.g.: chrX and Y, supergene, etc)"
    echo " "
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
 
 # 
-source config/config
+source ../config/config
 
 ###########################################################
 ## to do: add more support to handle the ancestral haplo: it could be either only the genome + gtf or directly a bed + protein file for instance
@@ -155,7 +156,8 @@ while [ $# -gt 0 ] ; do
     -s1 | --haplo1) haplo1="$2" ; echo -e "haplotype 1 Name is ***${haplo1}*** \n" >&2;;
     -s2 | --haplo2) haplo2="$2" ; echo -e "haplotype 2 Name is ***${haplo2}*** \n" >&2;;
     -a  | --ancestral_sp) ancestral_sp="$2" ; echo -e "ancestral haplo  Name is ***${ancestral_sp}*** \n" >&2;;
-    -f  | --folderpath  ) folderpath="$2"  ; echo -e "global folder is  ${folderpath} \n" >&2;;
+    -f  | --folderpath  ) folderpath="$2"   ; echo -e "global folder is  ${folderpath} \n" >&2;;
+    -c  | --chromosome )  chromosome="$2"   ; echo -e "target chromosome are ${chromosome} \n" >&2 ;; 
     -h  | --help ) Help ; exit 2 ;;
    esac
    shift
@@ -166,6 +168,9 @@ if [ -z "${haplo1}" ] || [ -z "${haplo2}" ]  ; then
 	exit 2
 fi
 
+
+scaffold=$chromosome
+
 #make folderpath optional:
 #to do :|| [ -z "${folderpath}" ]    
 
@@ -173,14 +178,26 @@ fi
 if [ ! -z "${ancestral_sp}" ] ; then
 	echo "ancestral_species is $ancestral_sp "
 	echo "will attempt to extract the CDS and PROT from it "
-	gffread -g $ancestral_sp/$ancestral_sp.fa -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  $ancestral_sp/$ancestral_sp.gtf 
-	transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq "$ancestral_sp"_prot.fa
+	mkdir "$ancestral_sp"
+	# ----- check compression of fasta  ------ ##
+	#check compression
+	if file --mime-type "$ancestral_genome" | grep -q gzip$; then
+   		echo "$ancestral_genome is gzipped"
+   		gunzip "$ancestral_genome"
+   		ancestral_genome=${ancestral_genome%.gz}
+	else
+   		echo "$ancestral_genome is not gzipped"
+
+	fi
+
+	gffread -g "${ancestral_genome}" -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
+	transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq $ancestral_sp/"$ancestral_sp"_prot.fa
 fi
 
 #------------------------------ step 1 prepare bed file for each haplo -------------------------------------#
 #really simple:
 
-cd $folderpath
+#cd $folderpath
 
 #remove any existing folder:
 rm genespace peptide paml plots -rf 2>/dev/null
@@ -188,8 +205,9 @@ rm genespace peptide paml plots -rf 2>/dev/null
 mkdir -p genespace/bed genespace/peptide paml plots
 
 # create bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo1/08_best_run/$haplo1.longest_transcript.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo2/08_best_run/$haplo2.longest_transcript.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo2/08_best_run/$haplo2.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_sp/haplo1.longest_transcript.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
 sed 's/_1 CDS=.*$//g' $haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
@@ -236,12 +254,12 @@ fi
 # -- this part assumes that a bed and peptide file are existant for the ancestral haplo
 # -- here we used a genome annotated with the same pipeline relying on braker 
 
-cd genespace/bed/
-ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
-cd ../peptide
-ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
+#cd genespace/bed/
+#ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
+#cd ../peptide
+#ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
 
-cd ../../
+#cd ../../
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
 cd genespace 
@@ -261,7 +279,7 @@ Rscript ../../00_scripts/Rscripts/02.plot_geneSpace.R
 cd ../
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
 
-scaffold=scaffold.txt #hardcoded variable to be passed as an argument for later
+#scaffold=scaffold.txt #hardcoded variable to be passed as an argument for later
 cp ../$scaffold .
 echo $(pwd)
 echo haplo1 is "$haplo1"

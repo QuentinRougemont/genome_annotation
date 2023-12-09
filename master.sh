@@ -430,7 +430,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp   -c $scaffold
+
 
 	
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_sp" ]   ; then
@@ -484,7 +485,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp   -c $scaffold
+
 
 #here handle cases where already annotated genome with gtf are provided:
 elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
@@ -511,7 +513,7 @@ elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${geno
 	transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
 	transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
 
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp 
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp  -c $scaffold
 
 
 fi

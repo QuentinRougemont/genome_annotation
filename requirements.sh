@@ -127,7 +127,7 @@ then
     cd ProtHint-2.6.0/bin 
     #then add to ~/.bashrc
     path=$(pwd)
-    echo -e "\n#Path to $command\nexport PROTHINT_PATH=\$PATH:$path" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport PROTHINT_PATH=:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi
@@ -163,7 +163,7 @@ then
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
         path=$(pwd)
-        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=\$PATH:$path" >> ~/.bashrc 
+        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$path" >> ~/.bashrc 
         source ~/.bashrc  
 	cd ../
     else
@@ -179,7 +179,7 @@ if ! command -v $command &> /dev/null
 then
     echo "$command could not be found"
     #direct install: 
-    bamtools : https://github.com/pezmaster31/bamtools
+    #bamtools : https://github.com/pezmaster31/bamtools
     git clone https://github.com/pezmaster31/bamtools
     cd bamtools
     mkdir build
@@ -187,9 +187,15 @@ then
     path=$(pwd)
     cmake -DCMAKE_INSTALL_PREFIX=$(pwd) ..
     make -j8 
-    make DESTDIR=$path install
+    make install
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
+	cd $(find . -name "include" )
+	bt_inc=$(pwd)
+	cd ../
+	cd $(find . -name "lib" )
+	bt_lib=$(pwd)
+
 	cd ../build/src
         path=$(pwd)
         echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
@@ -201,6 +207,18 @@ then
     fi
 fi
 
+#download the latest htslib to recover the path for Augustus::
+wget https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2
+bzip2 -d htslib-1.18.tar.bz2 
+tar xf htslib-1.18.tar 
+cd htslib-1.18/
+
+./configure --prefix=$(pwd)
+make
+make install
+htpath=$(pwd)
+
+cd ../
 
 #**Augustus**
 command='Augustus'
@@ -213,9 +231,18 @@ then
     cd Augustus
     sed -i 's/COMPGENEPRED = true/COMPGENEPRED = false/g' common.mk
     sed -i 's/ZIPINPUT = true/ZIPINPUT = false\nBOOST = false/g' common.mk
-    bt=$(command -v bamtools)
-    echo "INCLUDE_PATH_BAMTOOLS     := -I$bt/src" >> common.mk
-    echo "LIBRARY_PATH_BAMTOOLS     := -L$bt/usr/local/lib -Wl,-rpath,$bt/usr/local/lib" >> common.mk
+    #bt=$(command -v bamtools)
+    sed -i.bkp '31s/#//g' common.mk #we make a backup before modifications :
+    sed -i "31s#usr/include/bamtools#$bt_inc/bamtools#" common.mk
+    sed -i '32s/#//g' common.mk 
+    sed -i "32s#usr/lib/x86_64-linux-gnu#$bt_lib#g" common.mk
+
+    #same with HTSLIB:
+    sed -i "33,34s/#//g" common.mk
+    sed -i "33s#usr#$htpath#g" common.mk
+    sed -i "34s#usr/lib/x86_64-linux-gnu#$htpath/lib#g" common.mk
+    #echo "INCLUDE_PATH_BAMTOOLS     := -I$bt/src" >> common.mk
+    #echo "LIBRARY_PATH_BAMTOOLS     := -L$bt/usr/local/lib -Wl,-rpath,$bt/usr/local/lib" >> common.mk
     #attempt to make augustus:
     make augustus
     #if all was succesffull: ""
@@ -229,7 +256,13 @@ then
 	source ~/.bashrc
 	cd ../auxprogs/joingenes
 	make -j8
-        cd ../
+        cd ../bam2hints
+	make
+	cd ../bam2wig
+	make
+	cd ../filterBam
+	make
+	cd ../../
     else
 	    echo "installation of augustus failed, look at the logs ! "
 	    echo "see details here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md"
@@ -253,7 +286,7 @@ if ! command -v $command &> /dev/null
     echo "will try a manual installation through git"
     git clone https://github.com/gatech-genemark/GeneMark-ETP/
     cd GeneMark-ETP/
-    cd bin/
+    cd bin/gmes
     path=$(pwd)
     echo -e "export GENEMARK_PATH=$path/ " >> ~/.bashrc
     source ~/.bashrc  
