@@ -21,7 +21,8 @@ for contig in SeqIO.parse(f'{input_file}', "fasta"):
 	#for each contig, contig_name = the first element encoded after the ">" (if there is len etc, not included)
 	contig_name=contig.id
 	print(f'old contig name: {contig_name}')
-	contig_name=re.split('[-._]',contig_name)
+	#contig_name=re.split('[-._]',contig_name)
+	contig_name=re.split('[-._]',contig_name)[-1]
 	contig_name=''.join(contig_name)
 	# in case there is informations on length etc, removes it to keep just the contig name
 	new_contig_name=species_name+'_'+contig_name
