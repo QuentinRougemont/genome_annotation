@@ -304,7 +304,9 @@ if ! command -v $command &> /dev/null
     git clone https://github.com/Gaius-Augustus/TSEBRA 
     cd TSEBRA/bin
     path=$(pwd)
-    echo -e "\n#Path to TSEBRA\nexport TSEBRA_PATH=\$PATH:$path" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport TSEBRA_PATH=$path" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+
     source ~/.bashrc  
     cd ../../
 fi 

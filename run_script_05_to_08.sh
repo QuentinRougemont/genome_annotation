@@ -5,6 +5,7 @@
 
 #deprecated -- this needs to be fully updated
 
+../config/config
 
 ##  ------------------------ general parameters --------------------------------  ##
 while [ $# -gt 0 ] ; do
