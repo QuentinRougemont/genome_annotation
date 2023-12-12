@@ -126,8 +126,8 @@ then
     tar zxvf ProtHint-2.6.0.tar.gz
     cd ProtHint-2.6.0/bin 
     #then add to ~/.bashrc
-    path=$(pwd)
-    echo -e "\n#Path to $command\nexport PROTHINT_PATH=:$path" >> ~/.bashrc 
+    protpath=$(pwd)
+    echo -e "\n#Path to $command\nexport PROTHINT_PATH=:$protpath" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
 fi
@@ -162,8 +162,8 @@ then
     make all 
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
-        path=$(pwd)
-        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$path" >> ~/.bashrc 
+        cdbpath=$(pwd)
+        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$cdbpath" >> ~/.bashrc 
         source ~/.bashrc  
 	cd ../
     else
@@ -248,11 +248,11 @@ then
     #if all was succesffull: ""
     if [ $? -eq 0 ]; then
         echo $command installation worked successfully
-        path=$(pwd)
+        augustuspath=$(pwd)
 	echo -e "#path to AUGUSTUS:" >> ~/.bashrc 
-        echo -e "export AUGUSTUS_CONFIG_PATH=$path/config " >> ~/.bashrc
-        echo -e "export AUGUSTUS_BIN_PATH=$path/bin/ " >> ~/.bashrc
-        echo -e "export AUGUSTUS_SCRIPTS_PATH=/$path/augustus_scripts " >> ~/.bashrc
+        echo -e "export AUGUSTUS_CONFIG_PATH=$augustuspath/config " >> ~/.bashrc
+        echo -e "export AUGUSTUS_BIN_PATH=$augustuspath/bin/ " >> ~/.bashrc
+        echo -e "export AUGUSTUS_SCRIPTS_PATH=/$augustuspath/augustus_scripts " >> ~/.bashrc
 	source ~/.bashrc
 	cd ../auxprogs/joingenes
 	make -j8
@@ -287,8 +287,8 @@ if ! command -v $command &> /dev/null
     git clone https://github.com/gatech-genemark/GeneMark-ETP/
     cd GeneMark-ETP/
     cd bin/gmes
-    path=$(pwd)
-    echo -e "export GENEMARK_PATH=$path/ " >> ~/.bashrc
+    gmarkpath=$(pwd)
+    echo -e "export GENEMARK_PATH=$gmarkpath/ " >> ~/.bashrc
     source ~/.bashrc  
     cd ../ 
 fi
@@ -303,9 +303,9 @@ if ! command -v $command &> /dev/null
     echo "will try a manual installation through git"
     git clone https://github.com/Gaius-Augustus/TSEBRA 
     cd TSEBRA/bin
-    path=$(pwd)
-    echo -e "\n#Path to $command\nexport TSEBRA_PATH=$path" >> ~/.bashrc 
-    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    tsebrapath=$(pwd)
+    echo -e "\n#Path to $command\nexport TSEBRA_PATH=$tsebrapath" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$tsebrapath" >> ~/.bashrc 
 
     source ~/.bashrc  
     cd ../../
@@ -480,6 +480,18 @@ cd ../
 
 mamba create -n repeatmodeler_env  -c bioconda repeatmasker=4.1.5 repeatmodeler=2.0.5
 #mamba activate repeatmodeler_env
+
+
+#now edit the braker launcher since the export from .bashrc does not always seems to work:
+sed -i "11i \n" 00_scripts/06_braker.sh
+sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
+sed -i "11i export TSEBRA_PATH=:$tsebrapath" 00_scripts/06_braker.sh
+sed -i "11i export PROTHINT_PATH=:$protpath" 00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
+sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
+sed -i "11i \n" 00_scripts/06_braker.sh
 
 
 exit
