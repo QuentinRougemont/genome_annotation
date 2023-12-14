@@ -445,6 +445,7 @@ if ! command -v $command &> /dev/null
 then
    #direct install: 
     wget http://161.111.160.230/cgi-bin/translatorx_vLocal.pl
+    chmod +x translatorx_vLocal.pl
     path=$(pwd)
     echo -e "\n#Path to translatorx\n export PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  

@@ -342,7 +342,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 
 	#if all is OK then run GeneSpace - paml etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 
+	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
+
 
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; then
@@ -393,7 +394,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
+
 
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_sp" ]  ; then
@@ -430,7 +432,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp   -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp -c $scaffold
 
 
 	
@@ -485,7 +487,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp   -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_sp -c $scaffold
 
 
 #here handle cases where already annotated genome with gtf are provided:

@@ -27,11 +27,10 @@ Help()
 }
 
 # 
-source config/config
+#source config/config
 
 ###########################################################
 ## to do: add more support to handle the ancestral haplo: it could be either only the genome + gtf or directly a bed + protein file for instance
-
 
 
 ## --------------- TEST THAT ALL DEPENDENCIES ARE HERE --------------------------------- ##
@@ -276,18 +275,13 @@ else
 fi
 
 #plot genespace subspace of target chromosomes: 
+cp $scaffold .
+
 Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
 
 cd ../
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
 
-#scaffold=scaffold.txt #hardcoded variable to be passed as an argument for later
-#test the existence of scaffold here
-
-#cp ../$scaffold .
-echo $(pwd)
-echo haplo1 is "$haplo1"
-echo haplo2 is "$haplo2"
 
 ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
 
@@ -309,7 +303,6 @@ echo -e "there is $scpo single copy orthologs \n"
 
 #----------------------------------- step4 -- plot paml results  -----------------------------------------#
 #test if previous step was successfull else plot or exit with high levels of pain
-echo $ancestral_sp 
 
 Rscript ./00_scripts/Rscripts/03.plot_paml.R $ancestral_sp $haplo1 $haplo2
 
