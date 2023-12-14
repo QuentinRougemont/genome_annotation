@@ -1,18 +1,17 @@
 
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(c("Biostrings", "rtracklayer"))
+if("BiocManager" %in% rownames(installed.packages()) == FALSE)            
+{install.packages("BiocManager", repos="https://cloud.r-project.org") }   
 
-if (!requireNamespace("devtools", quietly = TRUE))
-    install.packages("devtools")
+if("devtools" %in% rownames(installed.packages()) == FALSE)
+{install.packages("devtools", repos="https://cloud.r-project.org") }
+
 devtools::install_github("jtlovell/GENESPACE")
 
 library(GENESPACE)
 
 gpar <- init_genespace(
-  wd = "./",
-  path2mcscanx="/home/quentin/.software/MCScanX/",
- path2orthofinder = "/home/quentin/.software/OrthoFinder/orthofinder")
+  wd = "./" )
+
 gpar <- run_genespace(gsParam = gpar) 
 

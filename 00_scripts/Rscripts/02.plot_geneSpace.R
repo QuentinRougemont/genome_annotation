@@ -3,7 +3,10 @@
 library(GENESPACE)
 
 load("results/gsParams.rda")
-roi <- data.frame(genome=c("Mlag129A1"), chr=c("Mlag129A1_contig_11","Mlag129A1_contig_8"))
+
+scaffold <- read.table("scaffold.txt")      
+roi <- data.frame(scaffold)                 
+colnames(roi) <-c("genome","chr")           
 
 
 pdf(file = "HD_PR_geneOrder_useRegionF.pdf",8,6)

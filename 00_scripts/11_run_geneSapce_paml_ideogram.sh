@@ -192,6 +192,9 @@ if [ ! -z "${ancestral_sp}" ] ; then
 
 	gffread -g "${ancestral_genome}" -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
 	transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq $ancestral_sp/"$ancestral_sp"_prot.fa
+	awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > genespace/bed/$ancestal_sp.bed
+	sed 's/_1 CDS=.*$//g'  $ancestral_sp/"$ancestral_sp"_prot.fa > genespace/peptide/$ancestral_sp.fa
+
 fi
 
 #------------------------------ step 1 prepare bed file for each haplo -------------------------------------#
@@ -207,7 +210,6 @@ mkdir -p genespace/bed genespace/peptide paml plots
 # create bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo2/08_best_run/$haplo2.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_sp/haplo1.longest_transcript.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
 sed 's/_1 CDS=.*$//g' $haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
@@ -274,18 +276,20 @@ else
 fi
 
 #plot genespace subspace of target chromosomes: 
-Rscript ../../00_scripts/Rscripts/02.plot_geneSpace.R
+Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
 
 cd ../
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
 
 #scaffold=scaffold.txt #hardcoded variable to be passed as an argument for later
-cp ../$scaffold .
+#test the existence of scaffold here
+
+#cp ../$scaffold .
 echo $(pwd)
 echo haplo1 is "$haplo1"
 echo haplo2 is "$haplo2"
 
-../00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
+./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
 
 #here insert a test to veryfy that previous code was successful and else exit
 if [ $? -eq 0 ]; then
@@ -307,7 +311,7 @@ echo -e "there is $scpo single copy orthologs \n"
 #test if previous step was successfull else plot or exit with high levels of pain
 echo $ancestral_sp 
 
-Rscript ../00_scripts/Rscripts/03.plot_paml.R $ancestral_sp $haplo1 $haplo2
+Rscript ./00_scripts/Rscripts/03.plot_paml.R $ancestral_sp $haplo1 $haplo2
 
 
 # -- step5 -- plot ideogram 
@@ -315,7 +319,7 @@ Rscript ../00_scripts/Rscripts/03.plot_paml.R $ancestral_sp $haplo1 $haplo2
 samtools faidx $haplo1/03_genome/"$haplo1".fa
 samtools faidx $haplo2/03_genome/"$haplo2".fa
 
-Rscript ../00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 
 #
 ## --------------------------------Make Synteny table -----------------------------------------------
@@ -330,14 +334,14 @@ fi
 path_orthofinder='genespace/orthofinder/Results_*/'
 path_bed='genespace/bed/'
 
-python3 ../00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
+python3 ./00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
 
 
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-Rscript ../00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
-Rscript ../00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
+Rscript ./00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
+Rscript ./00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
 
 
 #-- step7 -- run minimap between the genomes 
