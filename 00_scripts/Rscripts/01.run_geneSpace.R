@@ -10,8 +10,7 @@ devtools::install_github("jtlovell/GENESPACE")
 
 library(GENESPACE)
 
-gpar <- init_genespace(
-  wd = "./" )
+gpar <- init_genespace(path2mcscanx="mcpath", wd = "./" )
 
 gpar <- run_genespace(gsParam = gpar) 
 

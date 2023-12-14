@@ -398,8 +398,8 @@ then
    #if command was successfull then add to path:
    if [ $? -eq 0 ]; then
         echo $command installation worked successfully
-        path=$(pwd)
-        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+	MCScanpath=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$MCScanpath" >> ~/.bashrc 
         source ~/.bashrc  
         cd ../
 
@@ -494,6 +494,7 @@ sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_b
 sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
 sed -i "11i \n" 00_scripts/06_braker.sh
 
+sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
 
 exit
 
