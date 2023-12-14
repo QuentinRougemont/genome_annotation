@@ -230,7 +230,7 @@ echo -e there is $(wc -l "$haplo".longest_transcript.gtf |awk '{print $1}' ) lin
 #declare new gtf for new work:
 gtf="$haplo".longest_transcript.gtf
 gtf2="gtf.tmp"                                      
-gtf3="$species".longest_transcript_dedup.gtf
+gtf3="$haplo".longest_transcript_dedup.gtf
 
 # now removing fully overlapping CDS
 # rule  adopted here: 
