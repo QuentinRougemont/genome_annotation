@@ -132,13 +132,14 @@ fi
 # -- handling ancestral haplo ------
 # -- this part assumes that a bed and peptide file are existant for the ancestral haplo
 # -- here we used a genome annotated with the same pipeline relying on braker 
-
-cd genespace/bed/
-ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
-cd ../peptide
-ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
-
-cd ../../
+if [ ! -z "${ancestral_sp}" ] ; then
+    cd genespace/bed/
+    ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
+    cd ../peptide
+    ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
+    
+    cd ../../
+fi
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
 cd genespace 
@@ -166,9 +167,6 @@ echo $(pwd)
 echo haplo1 is "$haplo1"
 echo haplo2 is "$haplo2"
 
-echo -e "
-./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
-"
 
 #check the size of gene names in the header 
 ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
