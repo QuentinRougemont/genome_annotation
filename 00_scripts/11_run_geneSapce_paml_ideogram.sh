@@ -21,7 +21,7 @@ Help()
    echo " -s2|--haplo2: the name of the second focal haplotype\t "
    echo " -a |--ancestral_sp: the name of the ancestral haplo to infer orthology and plot gene order"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
-   echo " -c|--chromosome: a set of chromosomes corresponding to the target chromosome (e.g.: chrX and Y, supergene, etc)"
+   echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
    echo " "
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
@@ -170,29 +170,25 @@ fi
 
 scaffold=$chromosome
 
-#make folderpath optional:
-#to do :|| [ -z "${folderpath}" ]    
-
 #make ancestral species optional
 if [ ! -z "${ancestral_sp}" ] ; then
-	echo "ancestral_species is $ancestral_sp "
-	echo "will attempt to extract the CDS and PROT from it "
-	mkdir "$ancestral_sp"
-	# ----- check compression of fasta  ------ ##
-	#check compression
-	if file --mime-type "$ancestral_genome" | grep -q gzip$; then
-   		echo "$ancestral_genome is gzipped"
-   		gunzip "$ancestral_genome"
-   		ancestral_genome=${ancestral_genome%.gz}
-	else
-   		echo "$ancestral_genome is not gzipped"
+    echo "ancestral_species is $ancestral_sp "
+    echo "will attempt to extract the CDS and PROT from it "
+    mkdir "$ancestral_sp"
+    # ----- check compression of fasta  ------ ##
+    #check compression
+    if file --mime-type "$ancestral_genome" | grep -q gzip$; then
+       echo "$ancestral_genome is gzipped"
+       gunzip "$ancestral_genome"
+       ancestral_genome=${ancestral_genome%.gz}
+    else
+       echo "$ancestral_genome is not gzipped"
 
-	fi
+    fi
 
-	gffread -g "${ancestral_genome}" -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
-	transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq $ancestral_sp/"$ancestral_sp"_prot.fa
-	awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > genespace/bed/$ancestal_sp.bed
-	sed 's/_1 CDS=.*$//g'  $ancestral_sp/"$ancestral_sp"_prot.fa > genespace/peptide/$ancestral_sp.fa
+    gffread -g "${ancestral_genome}" -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
+    transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq $ancestral_sp/"$ancestral_sp"_prot.fa
+    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > $ancestal_sp.bed
 
 fi
 
@@ -255,17 +251,17 @@ fi
 # -- this part assumes that a bed and peptide file are existant for the ancestral haplo
 # -- here we used a genome annotated with the same pipeline relying on braker 
 
-#cd genespace/bed/
-#ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
-#cd ../peptide
-#ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
+cd genespace/bed/
+ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
+cd ../peptide
+ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
 
-#cd ../../
+cd ../../
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
 cd genespace 
 
-Rscript ../../00_scripts/Rscripts/01.run_geneSpace.R
+Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
 
 if [ $? -eq 0 ]; then
     echo genespace worked successfully
@@ -275,6 +271,8 @@ else
 fi
 
 #plot genespace subspace of target chromosomes: 
+#a refaire en fonction de si ancestral species or not:
+echo scaffold is $scaffold
 cp $scaffold .
 
 Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
@@ -282,7 +280,15 @@ Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
 cd ../
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
 
+echo $(pwd)
+echo haplo1 is "$haplo1"
+echo haplo2 is "$haplo2"
 
+echo -e "
+./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
+"
+
+#check the size of gene names in the header 
 ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
 
 #here insert a test to veryfy that previous code was successful and else exit
@@ -293,19 +299,24 @@ else
     exit 1
 fi
 
-
 pamlsize=$(wc -l paml/results_YN.txt |awk '{print $1}' ) 
 scpo=$(wc -l paml/single.copy.orthologs |awk '{print $1}' )
 
 echo -e "there is $pamlsize results for PAML \n"
 echo -e "there is $scpo single copy orthologs \n" 
 
+#just in case:
+#sed -i 's/  */\t/g' paml/single.copy.orthologs
 
 #----------------------------------- step4 -- plot paml results  -----------------------------------------#
-#test if previous step was successfull else plot or exit with high levels of pain
+mkdir plots/ 2>/dev/null
 
-Rscript ./00_scripts/Rscripts/03.plot_paml.R $ancestral_sp $haplo1 $haplo2
-
+if [ -n ${anscestral_sp} ]; then
+    echo "using ancestral genome"
+    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold $ancestral_sp 
+else
+    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold
+fi
 
 # -- step5 -- plot ideogram 
 #test if previous step was successfull else plot or exit with high levels of pain
@@ -327,15 +338,20 @@ fi
 path_orthofinder='genespace/orthofinder/Results_*/'
 path_bed='genespace/bed/'
 
-python3 ./00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
+
+python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
 
 
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-Rscript ./00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
-Rscript ./00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
-
+if [ -n ${anscestral_sp} ]; then
+    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
+    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
+else
+    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1  $scaffolds $genes_plot
+    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2  $scaffolds $genes_plot
+fi
 
 #-- step7 -- run minimap between the genomes 
 #run minimap on the genome 
@@ -367,5 +383,3 @@ else
 
 fi
 
-
-#we can also run Rideogram here
