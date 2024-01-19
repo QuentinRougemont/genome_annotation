@@ -192,9 +192,9 @@ echo -e "there is $scpo single copy orthologs \n"
 #----------------------------------- step4 -- plot paml results  -----------------------------------------#
 mkdir plots/ 2>/dev/null
 
-if [ -n ${anscestral_sp} ]; then
+if [ -n ${anscestral_genome} ]; then
     echo "using ancestral genome"
-    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold $ancestral_sp 
+    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold ancestral_sp 
 else
     Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold
 fi
@@ -209,7 +209,7 @@ Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
 #
 ## --------------------------------Make Synteny table -----------------------------------------------
 is_anc='TRUE'
-if [ -n ${ancestral_sp} ] ; then
+if [ -n ${ancestral_genome} ] ; then
 	is_anc='TRUE'
 else
 
@@ -220,13 +220,13 @@ path_orthofinder='genespace/orthofinder/Results_*/'
 path_bed='genespace/bed/'
 
 
-python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ${ancestral_sp}
+python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ancestral_sp
 
 
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-if [ -n ${anscestral_sp} ]; then
+if [ -n ${anscestral_genome} ]; then
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
 else
