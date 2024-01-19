@@ -36,10 +36,12 @@ while [ $# -gt 0 ] ; do
    shift
 done 
 
-if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${ancestral_genome}" ]  || [ -z "${scaffold}" ]    ; then
+if [ -z "${haplo1}" ] && [ -z "${haplo2}" ]  && [ -z "${scaffold}" ]    ; then
 	Help
 	exit 2
 fi
+
+#test if ancestral genome is provided or not:
 
 #------------------------------ step 1 prepare input files  -------------------------------------#
 #haplo1=$1 	#name of haplo1 
@@ -56,29 +58,39 @@ cdsfile2=$haplo2/08_best_run/$haplo2.spliced_cds.fa
 sed -i 's/ CDS=.*$//g' $cdsfile1
 sed -i 's/ CDS=.*$//g' $cdsfile2
 
-
 #-- get single copy orthologs from orthofinder ---
 #-- criteria: we want 1:1:1 orthologs between the ancestralhaplo:haplo1:haplo2
 #single copy path:
+
 scopy=$(echo "genespace/orthofinder/Results_*/Orthogroups/Orthogroups_SingleCopyOrthologues.txt" ) 
-ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
-ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
 
-pwd
+if [ -n "$ancestral_sp" ] ; then
+    echo "using ancestral genome"
+    ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
+    ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
 
-paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
-	grep -Ff $scaffold - |\
-	awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
+    paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
+        grep -Ff $scaffold - |\
+        awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
+        
+        sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
-#correct the output that seemed to be MAC formatted with ^M :
-#dos2unix paml/single.copy.orthologs
-sed -i -e "s/\r//g"  paml/single.copy.orthologs
+        cut  -f3 paml/single.copy.orthologs > paml/sco.$haplo1.txt
+        cut  -f4 paml/single.copy.orthologs > paml/sco.$haplo2.txt
 
-rm HD_and_PR* 2>/dev/null
+else
+    echo "no ancestral genome"
+    hap1_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$haplo1"/"$haplo1"__v__"$haplo2".tsv ")
 
-cut  -f3 paml/single.copy.orthologs > paml/HD_and_PR.$haplo1.txt
-cut  -f4 paml/single.copy.orthologs > paml/HD_and_PR.$haplo2.txt
+    paste <(grep -Ff "$(echo $scopy )" "$(echo $hap1_vs_hap2)" ) |\
+	    grep -f <(cut -f 2 $scaffold ) - > paml/single.copy.orthologs  
+       
+        sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
+        cut  -f2 paml/single.copy.orthologs > paml/sco.$haplo1.txt
+        cut  -f3 paml/single.copy.orthologs > paml/sco.$haplo2.txt
+
+fi
 
 ##---  linearise the cds file ---#
 cat "${cdsfile2}" | \
@@ -87,7 +99,7 @@ cat "$cdsfile1" | \
 	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo1".linearised.cds
 
 
-##---- recover the wanted sequence HD and PR for in and haplo1 #
+##---- recover the wanted sequences in the CDS file #
 cd paml
 
 #all is run from paml folder now
@@ -96,12 +108,12 @@ rm sorted* 2>/dev/null
 while read -r pattern ; 
 do 
     grep -w -A1 "$pattern" "$haplo2".linearised.cds  >> sorted."$haplo2".wanted_cds.fa ;
-done < HD_and_PR.$haplo2.txt 
+done < sco.$haplo2.txt 
 #
 while read -r pattern ; 
 do 
     grep -w -A1 "$pattern" "$haplo1".linearised.cds >> sorted."$haplo1".wanted_cds.fa ; 
-done < HD_and_PR.$haplo1.txt 
+done < sco.$haplo1.txt 
 #
 
 ### ---- then run paml and dnds.sh  ----- #
@@ -142,7 +154,7 @@ do
 
 	translatorx_vLocal.pl -i sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta -o sequence_files/tmp.${line[0]}.vs.${line[1]}/results 2>&1 |tee log.translator
 
-	cp ../../00_scripts/yn00_template.ctl sequence_files/tmp.${line[0]}.vs.${line[1]}/
+	cp ../config/yn00_template.ctl sequence_files/tmp.${line[0]}.vs.${line[1]}/
 
         cd sequence_files/tmp.${line[0]}.vs.${line[1]}/
 
