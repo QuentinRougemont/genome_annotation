@@ -1,7 +1,16 @@
 #!/bin/bash
 
-#purpose: compute ds based on paml using yn00 model
+#Author: QR
+#date: 2024
+#purpose: compute dS, dN, and their SE based on paml using yn00 model
+#it will perform some checks and if all is ok will run muscle from TranslatorX first
+
 #to run me: ./12.command_line.paml.sh haplo1.cds.fa haplo2.cds.fa scaffold ancestral_genome 2>&1 |tee log
+
+# -- some colors for warnings --:
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 
 ############################################################
 # Help                                                     #
@@ -42,13 +51,14 @@ if [ -z "${haplo1}" ] && [ -z "${haplo2}" ]  && [ -z "${scaffold}" ]    ; then
 fi
 
 #test if ancestral genome is provided or not:
+if [ -n "$ancestral_genome" ] ; then
+    echo "the ancestral reference name $ancestal_genome" will be used
+else
+    echo "no ancestral reference genome provided"
+    echo "the genome 1 will be used"
+fi
 
 #------------------------------ step 1 prepare input files  -------------------------------------#
-#haplo1=$1 	#name of haplo1 
-#haplo2=$2 	#name of haplo2 
-#scaffold=$3 	#list of scaffold on the ancestral haplo 
-#ancestral_genome=$4 #ancestral genome 
-
 #cds file:
 cdsfile1=$haplo1/08_best_run/$haplo1.spliced_cds.fa
 cdsfile2=$haplo2/08_best_run/$haplo2.spliced_cds.fa
@@ -64,7 +74,8 @@ sed -i 's/ CDS=.*$//g' $cdsfile2
 
 scopy=$(echo "genespace/orthofinder/Results_*/Orthogroups/Orthogroups_SingleCopyOrthologues.txt" ) 
 
-if [ -n "$ancestral_sp" ] ; then
+#first we test if an ancestral ref is provided an extract orthologs accordingly:
+if [ -n "$ancestral_genome" ] ; then
     echo "using ancestral genome"
     ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
     ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
@@ -78,6 +89,7 @@ if [ -n "$ancestral_sp" ] ; then
         cut  -f3 paml/single.copy.orthologs > paml/sco.$haplo1.txt
         cut  -f4 paml/single.copy.orthologs > paml/sco.$haplo2.txt
 
+#if not we extract orthologs like this:
 else
     echo "no ancestral genome"
     hap1_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$haplo1"/"$haplo1"__v__"$haplo2".tsv ")
@@ -143,7 +155,64 @@ mkdir sequence_files
 
 grep ">"  $newf1 > ID1
 grep ">"  $newf2 > ID2
+
+#check that all gene names are below 32 characters otherwise paml will fail!
+awk '{print $0"\t"length }' ID1 |awk '$2>32 {print $1}' > long_geneID.hap1
+awk '{print $0"\t"length }' ID2 |awk '$2>32 {print $1}' > long_geneID.hap2
+
+#if some gene have length above we rename them using a structure of the type: gene$id
+#id is a seq from 1 to n with n the max number of gene to rename
+
+if [ -s long_geneID.hap1 ] ; then
+    #the file is not empty; so we will rename the "long" genes:
+    #0 - print some important warning as this may affect the user expectation: 
+    echo -e "${RED}!!! warning !!!\n some gene names are too long! ${NC} \n 
+    they will be renamed automatically\nyou'll find their name in the file:\n
+    correspondance.table.hap1.txt" 
+
+
+    #1 - create a correspondance table:
+    j=0 ; for i in $(cat long_geneID.hap1) ; do j=$(( $j + 1)) ; echo -e "$i\tgene.$j"  >> correspondance.table.hap1.txt; done
+
+    #2 - keep a copy:
+    oldf1=$newf1.original.genename.fa
+    cp $newf1 $oldf1
+
+    #3 - rename the fasta with awk
+    awk 'NR==1 { next } FNR==NR { a[$1]=$2; next } $1 in a { $1=a[$1] }1' correspondance.table.hap1.txt ${newf1} > ${newf1} 
+
+    #4 - re-extract the corrected ID for paml to succeed!
+    grep ">"  $newf1 > ID1
+
+fi
+
+#do the same for haplotype2: 
+if [ -s long_geneID.hap2 ] ; then
+    #the file is not empty; so we will rename the "long" genes:
+    #0 - print some important warning as this may affect the user expectation: 
+    echo -e "${RED}!!! warning !!!\n some gene names are too long! ${NC} \n 
+    they will be renamed automatically\nyou'll find their name in the file:\n
+    correspondance.table.hap2.txt" 
+
+    #1 - create a correspondance table:
+     j=0 ; for i in $(cat long_geneID.hap2) ; do j=$(( $j + 1)) ; echo -e "$i\tgene.$j"  >> correspondance.table.hap2.txt; done
+
+    #2 - keep a copy:
+    oldf2=$newf2.original.genename.fa
+    cp $newf1 $oldf2
+
+    #3 - rename the fasta with awk
+    awk 'NR==1 { next } FNR==NR { a[$1]=$2; next } $1 in a { $1=a[$1] }1' correspondance.table.hap2.txt ${oldf2} > ${newf2} 
+
+    #4 - re-extract the corrected ID for paml to succeed!
+    grep ">"  $newf2 > ID2
+
+fi
+
 paste ID1 ID2 |sed 's/>//g' > wanted_sequence
+
+#---- this is the only interesting part that is actually making stuff: 
+#---  create architecture run muscle and paml : 
 
 while IFS=$'\t' read -r -a line
 do
@@ -151,22 +220,29 @@ do
 
 	grep -A1 ${line[0]}  $newf1 > sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
 	grep -A1 ${line[1]}  $newf2 >> sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
-
+	
+	#run muscle from within translatorX, so we also have gblocks output and the html files:
 	translatorx_vLocal.pl -i sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta -o sequence_files/tmp.${line[0]}.vs.${line[1]}/results 2>&1 |tee log.translator
 
 	cp ../config/yn00_template.ctl sequence_files/tmp.${line[0]}.vs.${line[1]}/
 
         cd sequence_files/tmp.${line[0]}.vs.${line[1]}/
-
+	
+	#configure paml:
 	path=$(pwd)
 	echo $path
 	sed -i "s|PATH|$path|g" 	 yn00_template.ctl #"
 
+	#run paml : 
 	yn00 yn00_template.ctl  
 
         cd ../../
+
+	#extract the dS, dN and SE from the output: 
 	awk '/\+\-/ && !/(dS|SE)/ {split(FILENAME, a, "."); print $(NF-2), $(NF), $(NF-5), $(NF-3),"'${line[0]}'","'${line[1]}'"}'  sequence_files/tmp.${line[0]}.vs.${line[1]}/out_yn00_orthogp >  sequence_files/tmp.${line[0]}.vs.${line[1]}/resultat_Yang_Nielsen_2000_method.orthogp.txt 
 
 
 done < wanted_sequence 2>&1 |tee log.paml 
+
+#we concatenate everyone to work with them in the next scripts:
 cat sequence_files/tmp.*/resultat_Yang_Nielsen_2000_method.orthogp.txt >> results_YN.txt

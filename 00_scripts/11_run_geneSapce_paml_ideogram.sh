@@ -19,7 +19,7 @@ Help()
    echo " -h|--help: Print this Help."
    echo " -s1|--haplo1: the name of the first  focal haplotype\t "
    echo " -s2|--haplo2: the name of the second focal haplotype\t "
-   echo " -a |--ancestral_sp: the name of the ancestral haplo to infer orthology and plot gene order"
+   echo " -a |--ancestral_genome: the name of the ancestral haplo to infer orthology and plot gene order"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
    echo " "
@@ -36,7 +36,8 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -s1 | --haplo1) haplo1="$2" ; echo -e "haplotype 1 Name is ***${haplo1}*** \n" >&2;;
     -s2 | --haplo2) haplo2="$2" ; echo -e "haplotype 2 Name is ***${haplo2}*** \n" >&2;;
-    -a  | --ancestral_sp) ancestral_sp="$2" ; echo -e "ancestral haplo  Name is ***${ancestral_sp}*** \n" >&2;;
+    -a  | --ancestral_genome) ancestral_genome="$2" ; echo -e "ancestral haplo  Name is ***${ancestral_genome}*** \n" >&2;;
+    -g  | --ancestral_gff) ancestral_gff="$2" ; echo -e "ancestral gff  Name is ***${ancestral_gff}*** \n" >&2;;
     -f  | --folderpath  ) folderpath="$2"   ; echo -e "global folder is  ${folderpath} \n" >&2;;
     -c  | --chromosome )  chromosome="$2"   ; echo -e "target chromosome are ${chromosome} \n" >&2 ;; 
     -h  | --help ) Help ; exit 2 ;;
@@ -53,10 +54,10 @@ fi
 scaffold=$chromosome
 
 #make ancestral species optional
-if [ ! -z "${ancestral_sp}" ] ; then
-    echo "ancestral_species is $ancestral_sp "
+if [ ! -z "${ancestral_genome}" ] ; then
+    echo "ancestral_species is $ancestral_genome "
     echo "will attempt to extract the CDS and PROT from it "
-    mkdir "$ancestral_sp"
+    mkdir ancestral_sp
     # ----- check compression of fasta  ------ ##
     #check compression
     if file --mime-type "$ancestral_genome" | grep -q gzip$; then
@@ -68,9 +69,9 @@ if [ ! -z "${ancestral_sp}" ] ; then
 
     fi
 
-    gffread -g "${ancestral_genome}" -w $ancestral_sp/$ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
-    transeq -sequence $ancestral_sp/$ancestral_sp.spliced_cds.fa -outseq $ancestral_sp/"$ancestral_sp"_prot.fa
-    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > $ancestal_sp.bed
+    gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
+    transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
+    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > ancestal_sp.bed
 
 fi
 
@@ -132,11 +133,11 @@ fi
 # -- handling ancestral haplo ------
 # -- this part assumes that a bed and peptide file are existant for the ancestral haplo
 # -- here we used a genome annotated with the same pipeline relying on braker 
-if [ ! -z "${ancestral_sp}" ] ; then
+if [ ! -z "${ancestral_genome}" ] ; then
     cd genespace/bed/
-    ln -s ../../../"$ancestral_sp"/"$ancestral_sp".bed . 
+    ln -s ../../../ancestral_sp/ancestral_sp.bed . 
     cd ../peptide
-    ln -s ../../../"$ancestral_sp"/"$ancestral_sp".prot.fa "$ancestral_sp".fa
+    ln -s ../../../ancestral_sp/ancestral_sp.prot.fa ancestral_sp.fa
     
     cd ../../
 fi
@@ -169,7 +170,7 @@ echo haplo2 is "$haplo2"
 
 
 #check the size of gene names in the header 
-./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a "$ancestral_sp"
+./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
 
 #here insert a test to veryfy that previous code was successful and else exit
 if [ $? -eq 0 ]; then
