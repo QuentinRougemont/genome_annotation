@@ -5,7 +5,7 @@
 #purpose: compute dS, dN, and their SE based on paml using yn00 model
 #it will perform some checks and if all is ok will run muscle from TranslatorX first
 
-#to run me: ./12.command_line.paml.sh haplo1.cds.fa haplo2.cds.fa scaffold ancestral_genome 2>&1 |tee log
+#to run me: ./12.command_line.paml.sh -h1 haplo1.cds.fa -h2 haplo2.cds.fa -s scaffold.txt -a ancestral_genome 2>&1 |tee log
 
 # -- some colors for warnings --:
 RED='\033[0;31m'
@@ -166,13 +166,15 @@ awk '{print $0"\t"length }' ID2 |awk '$2>32 {print $1}' > long_geneID.hap2
 if [ -s long_geneID.hap1 ] ; then
     #the file is not empty; so we will rename the "long" genes:
     #0 - print some important warning as this may affect the user expectation: 
+    nb_genes=$(wc -l long_geneID.hap1 |awk '{print $1}' )
     echo -e "${RED}!!! warning !!!\n some gene names are too long! ${NC} \n 
-    they will be renamed automatically\nyou'll find their name in the file:\n
-    correspondance.table.hap1.txt" 
+    a total of $nb_genes genes names will be renamed\n
+    you'll find their name in the file:\n
+    correspondance.table.hap1.txt\n\n" 
 
 
     #1 - create a correspondance table:
-    j=0 ; for i in $(cat long_geneID.hap1) ; do j=$(( $j + 1)) ; echo -e "$i\tgene.$j"  >> correspondance.table.hap1.txt; done
+    j=0 ; for i in $(cat long_geneID.hap1) ; do j=$(( $j + 1)) ; echo -e "$i\t>gene.$j"  >> correspondance.table.hap1.txt; done
 
     #2 - keep a copy:
     oldf1=$newf1.original.genename.fa
@@ -190,12 +192,14 @@ fi
 if [ -s long_geneID.hap2 ] ; then
     #the file is not empty; so we will rename the "long" genes:
     #0 - print some important warning as this may affect the user expectation: 
+    nb_genes=$(wc -l long_geneID.hap2 |awk '{print $1}' )
     echo -e "${RED}!!! warning !!!\n some gene names are too long! ${NC} \n 
-    they will be renamed automatically\nyou'll find their name in the file:\n
-    correspondance.table.hap2.txt" 
+    a total of $nb_genes genes names will be renamed\n
+    you'll find their name in the file:\n
+    correspondance.table.hap2.txt\n\n" 
 
     #1 - create a correspondance table:
-     j=0 ; for i in $(cat long_geneID.hap2) ; do j=$(( $j + 1)) ; echo -e "$i\tgene.$j"  >> correspondance.table.hap2.txt; done
+     j=0 ; for i in $(cat long_geneID.hap2) ; do j=$(( $j + 1)) ; echo -e "$i\t>gene.$j"  >> correspondance.table.hap2.txt; done
 
     #2 - keep a copy:
     oldf2=$newf2.original.genename.fa
