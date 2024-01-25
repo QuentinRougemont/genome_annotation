@@ -14,12 +14,13 @@ Help()
    # Display Help
    echo -e "master script to: \n 1 - create bed files, \n 2 - launch GeneSpace, \n 3 - run paml and launch downstream Rscripts (Rideogram, plot paml, etc)"
    echo " "
-   echo "Usage: $0 [-s1|-s2|-f|-a|-h|]"
+   echo "Usage: $0 [-s1|-s2|-f|-a|-g|-h|]"
    echo "options:"
    echo " -h|--help: Print this Help."
    echo " -s1|--haplo1: the name of the first  focal haplotype\t "
    echo " -s2|--haplo2: the name of the second focal haplotype\t "
    echo " -a |--ancestral_genome: the name of the ancestral haplo to infer orthology and plot gene order"
+   echo " -g |--ancestral_gff: the name of the ancestral gff associated with the ancestral genome"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
    echo " "
@@ -57,7 +58,7 @@ scaffold=$chromosome
 if [ ! -z "${ancestral_genome}" ] ; then
     echo "ancestral_species is $ancestral_genome "
     echo "will attempt to extract the CDS and PROT from it "
-    mkdir ancestral_sp
+    mkdir ancestral_sp 2>/dev/null #note: this folder exist already 
     # ----- check compression of fasta  ------ ##
     #check compression
     if file --mime-type "$ancestral_genome" | grep -q gzip$; then
@@ -69,9 +70,9 @@ if [ ! -z "${ancestral_genome}" ] ; then
 
     fi
 
-    gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gtf}" 
+    gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
-    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gtf |sed 's/"//g' > ancestal_sp.bed
+    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestal_sp.bed
 
 fi
 
@@ -130,6 +131,8 @@ else
 	exit 2
 fi
 
+rm tmp1 tmp2
+
 # -- handling ancestral haplo ------
 # -- this part assumes that a bed and peptide file are existant for the ancestral haplo
 # -- here we used a genome annotated with the same pipeline relying on braker 
@@ -169,8 +172,13 @@ echo haplo1 is "$haplo1"
 echo haplo2 is "$haplo2"
 
 
-#check the size of gene names in the header 
-./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
+if [ -n ${anscestral_genome} ]; then
+    #ancestral genome exist
+    ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
+else
+    #ancestral genome not provided	
+    ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" 
+fi
 
 #here insert a test to veryfy that previous code was successful and else exit
 if [ $? -eq 0 ]; then
@@ -204,7 +212,16 @@ fi
 samtools faidx $haplo1/03_genome/"$haplo1".fa
 samtools faidx $haplo2/03_genome/"$haplo2".fa
 
-Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+if [ -n ${anscestral_genome} ]; then
+    echo "using ancestral genome"
+    Rscript ./00_scripts/Rscripts/04.ideogram.R $ancestral_sp $haplo1 #add links!
+    Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+else
+    Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+
+fi
+
+
 
 #
 ## --------------------------------Make Synteny table -----------------------------------------------

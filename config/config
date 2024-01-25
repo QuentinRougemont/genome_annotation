@@ -34,5 +34,5 @@ ncbi_species=""
 busco_lineage="" #see busco lineage to have the list
 
 #option for Dn/Ds, plot, etc:
-scaffold=" " #scaffold.txt #a set of scaffold in the ancestral species corresponding to the region of interest (X/Y chromosome, supergenes, etc)
+scaffold=" " #scaffold.txt #tab separated file providing the genome name in first column, second column the scaffold for the region of interest (X/Y chromosome, supergenes, etc) third colum a string (normal or reversed) expliciting wether the scaffold orientation should be reversed or not
 
