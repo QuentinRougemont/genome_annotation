@@ -27,7 +27,7 @@ invisible(lapply(libs, library, character.only = TRUE))
 argv <- commandArgs(T)
 
 single_copy_ortho <- argv[1]
-sco <- read.table(single_copy_ortho) %>% select(-V1) 
+sco <- read.table(single_copy_ortho, sep = "\t") %>% select(-V1) 
 
 # test if there is at least one argument: if not, return an error
 if (length(argv)<=4) {
@@ -74,8 +74,8 @@ bed2 <- read.table(bedB) %>%
     select(species2, gene2, contig2, Start_2, End_2) 
 
 
-n1 <- dim(bed1)
-n2 <- dim(bed2)
+n1 <- nrow(bed1)
+n2 <- nrow(bed2)
 print(paste0("there is ", n1, " single copy gene in bed1"))
 print(paste0("there is ", n2, " single copy gene in bed2"))
 

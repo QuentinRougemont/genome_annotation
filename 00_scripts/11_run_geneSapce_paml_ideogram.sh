@@ -220,7 +220,7 @@ if [ ! -z "${ancestral_genome}" ] ; then
     #we will make an ideogram with it 
     awk '{print $1"\t"$2"\t"$3}' paml/single.copy.orthologs > sco_anc	
     awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs > sco
-    if [ -n ${links} ] ; then    
+    if [ ! -z "${links}" ] ; then    
 	#links were provided and will be colored
         Rscript ./00_scripts/Rscripts/04.ideogram.R sco     genespace/bed/$haplo1.bed       genespace/bed/$haplo2.bed  \
 		$haplo1/03_genome/"$haplo1".fa.fai $haplo2/03_genome/"$haplo2".fa.fai $links 
@@ -236,7 +236,7 @@ if [ ! -z "${ancestral_genome}" ] ; then
     fi
 else
     echo -e "no ancestral genome assumed"
-    if [ -n ${links} ] ; then    
+    if [ ! -z "${links}" ] ; then    
         Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
 		$haplo1/03_genome/"$haplo1".fa.fai $haplo2/03_genome/"$haplo2".fa.fai $links 
     else
