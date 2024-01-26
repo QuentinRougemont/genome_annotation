@@ -41,14 +41,45 @@ fi
 
 TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 
+#----------------- BAM data for RNAseq ------------------------ #
 #previously we used a concatenated and filtered bam.
 #however, providing a list of all bam gives similart results with a significant gain in time:
 alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 
-#simpl --species="$species"_round1ifying this: 
-#this hard-coded variable should be repl --species="$species"_round1aced in the config file":
-relatProt="$RelatedProt" 
 
+#----------------OrthoDB and Other Protein data -------------- #
+target=$orthoDBspecies
+
+if [ -z ${orthoDBspecies+x} ]; then
+    echo "no orthoDB species provided"
+    
+    relatProt="$RelatedProt"
+
+else
+    species=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
+    if [[ ${species[@]} =~ $target ]]
+    then
+        mkdir odb11 2>/dev/null ; cd odb11
+	if [ -f "$target".fa* ]; then
+	    echo "warning file $target.fa already present "
+	    echo "please verify if this is the file that you need"
+	    exit 1 
+        else
+	    wget https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
+            gunzip ${target}.fa.gz
+            cd ../ 
+            cat $RelatedProt  odb11/"${target}".fa > relatProt.fa
+	    relatProt="relatProt.fa"
+
+	fi
+
+    else
+        echo "No Protein database specified"
+    fi  
+fi
+
+
+#------------------ check ----------------------------------#
 if [[ -d 06_braker ]] 
 then
 	echo "WARNING directory 06_braker already exists! check its content first"
