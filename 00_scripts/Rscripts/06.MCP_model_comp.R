@@ -23,7 +23,7 @@ library(cowplot)
 library(dplyr)
 
 #---- load data ---- # 
-df <- read.table("dS.modelcomp", h = T) #a table with two columns : Ds and ordre 
+df <- read.table("dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and ordre 
 
 #this input is normally produced from the script (03.plot_paml.R)
 
