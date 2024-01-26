@@ -291,20 +291,24 @@ if [ -n ${ancestral_sp} ] ; then
     awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
     awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
 
-    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo1".paf 
-    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo2".paf 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo1".paf 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo2".paf 
 
-    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
-    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
-    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
 
 else 
     awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt
     
     #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
-    Rscript ../00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-    Rscript ../00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
 
 fi
 
+
+#------------------------ step 8 -- model comparison -------------------------------------------------#
+
+Rscript 00_scripts/Rscripts/06.MCP_model_comp.R
