@@ -23,57 +23,63 @@ if("data.table" %in% rownames(installed.packages()) == FALSE)
 libs <- c('dplyr','RIdeogram','magrittr','data.table')
 invisible(lapply(libs, library, character.only = TRUE))
 
-sco <- read.table("paml/single.copy.orthologs") %>% select(-V1, -V2) 
-
 #read species name from the 
 argv <- commandArgs(T)
 
+single_copy_ortho <- argv[1]
+sco <- read.table(single_copy_ortho) %>% select(-V1) 
+
 # test if there is at least one argument: if not, return an error
-if (length(argv)==0) {
-	  stop("At least the name of 2 species to compare must be supplied.n", call.=FALSE)
-} else if (length(argv)==2) {
-	  print("assuming no particular link to be highlighted")
-	sp1 <- argv[1] #only the basename is needed !
-	sp2 <- argv[2] #only the basename is needed !
+if (length(argv)<=4) {
+	  stop("At least the bed and index names of 2 species to compare must be supplied.n", call.=FALSE)
+} else if (length(argv)==5) {
+	print("assuming no particular link to be highlighted")
+	bedA <- argv[2]   #full path to bed file for sp1
+	bedB <- argv[3]   #full path to bed file for sp2
+	indexA <- argv[4] #full path to index file for sp1
+	indexB <- argv[5] #full path to index file for sp2
+
 } else {
 	print("links provided in the links file will be displayed in colors")
 	print("link file must contain name of gene for species1, name of ortholog for species2 and a status that will be used for coloring the gene")
 	#to do: add option to provide a coordinate file with status instead of gene file 
 
-	sp1 <- argv[1] #only the basename is needed !
-	sp2 <- argv[2] #only the basename is needed !
-       	link <- argv[3] 
+	bedA <- argv[2]   #full path to bed file for sp1
+	bedB <- argv[3]   #full path to bed file for sp2
+	indexA <- argv[4] #full path to index file for sp1
+	indexB <- argv[5] #full path to index file for sp2
+
+       	link <- argv[6] 
 	links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
 	#we will create a vector of color according to the number of status
 }
 
-#bed files
-bedA <- paste0("genespace/bed/" , sp1, ".bed")
-bedB <- paste0("genespace/bed/" , sp2, ".bed")
-
-#fasta index files :
-#species 1 path to index:
-indexA <- paste0(sp1, "/03_genome/", sp1, ".fa.fai" )
-
-#species 2 path to index:
-indexB <- paste0(sp2, "/03_genome/", sp2, ".fa.fai" )
+sp1 <- basename(gsub(".bed", "",bedA)) 
+sp2 <- basename(gsub(".bed", "",bedB)) 
 
 #read bed files
 #they will be use to create the jointed file:
 bed1 <- read.table(bedA) %>% 
-    merge(sco, ., by.x="V3", by.y = "V4", sort = F ) %>% 
-    select(-V4) %>%
+    merge(sco, ., by.x="V2", by.y = "V4", sort = F ) %>% 
+    select(-V3.x) %>%
     set_colnames(., c("gene1", "contig1", "Start_1", "End_1") ) %>%
     mutate(species1 = sp1 ) %>%
     select(species1, gene1, contig1, Start_1, End_1) 
 
 bed2 <- read.table(bedB) %>%
-    merge(sco, ., by.x="V4", by.y = "V4", sort = F ) %>% 
-    select(-V3.x) %>%
+    merge(sco, ., by.x="V3", by.y = "V4", sort = F ) %>% 
+    select(-V2.x) %>%
     set_colnames(., c("gene2", "contig2", "Start_2", "End_2") ) %>%
     mutate(species2  = sp2 ) %>%
     select(species2, gene2, contig2, Start_2, End_2) 
 
+
+n1 <- dim(bed1)
+n2 <- dim(bed2)
+print(paste0("there is ", n1, " single copy gene in bed1"))
+print(paste0("there is ", n2, " single copy gene in bed2"))
+
+#to do: add a check and exit with error if n1 != n2 
 
 #-------------- merging bed1 and bed2 - fill colors - create rank to match RIdeogram weird requirement 
 #---- rename the rank as species
@@ -81,16 +87,16 @@ bed2 <- read.table(bedB) %>%
 #we will merge the bed1 and bed2 
 
 
-if (length(argv)==2) {
+if (length(argv)==5) {
 all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
     filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
-   mutate(fill = 'cccccc') %>%
-  as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
-  mutate(Species_2 = dense_rank(contig2)) %>% 
-  #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
-  as.data.frame(.)
+    mutate(fill = 'cccccc') %>%
+    as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
+    mutate(Species_2 = dense_rank(contig2)) %>% 
+    #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
+    as.data.frame(.)
 } else {
-
+    #assumming links were provided
     all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
     filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
     mutate(fill = 'cccccc') %>%
@@ -162,7 +168,7 @@ print("index2 is: ")
 index2
 
 print("-----------------")
-print("karyoi : ")
+print("karyo : ")
 karyo 
 
 print("-----small is: ")

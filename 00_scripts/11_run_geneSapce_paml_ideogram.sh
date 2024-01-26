@@ -58,7 +58,7 @@ scaffold=$chromosome
 if [ ! -z "${ancestral_genome}" ] ; then
     echo "ancestral_species is $ancestral_genome "
     echo "will attempt to extract the CDS and PROT from it "
-    mkdir ancestral_sp 2>/dev/null #note: this folder exist already 
+    mkdir ancestral_sp/03_genome 2>/dev/null #note: this folder exist already 
     # ----- check compression of fasta  ------ ##
     #check compression
     if file --mime-type "$ancestral_genome" | grep -q gzip$; then
@@ -69,10 +69,11 @@ if [ ! -z "${ancestral_genome}" ] ; then
        echo "$ancestral_genome is not gzipped"
 
     fi
-
+    
+    samtools faidx "${ancestral_genome}"
     gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
-    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestal_sp.bed
+    awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestral_sp/ancestral_sp.bed
 
 fi
 
@@ -138,9 +139,9 @@ rm tmp1 tmp2
 # -- here we used a genome annotated with the same pipeline relying on braker 
 if [ ! -z "${ancestral_genome}" ] ; then
     cd genespace/bed/
-    ln -s ../../../ancestral_sp/ancestral_sp.bed . 
+    ln -s ../../ancestral_sp/ancestral_sp.bed . 
     cd ../peptide
-    ln -s ../../../ancestral_sp/ancestral_sp.prot.fa ancestral_sp.fa
+    ln -s ../../ancestral_sp/ancestral_sp.prot.fa ancestral_sp.fa
     
     cd ../../
 fi
@@ -207,26 +208,50 @@ else
     Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold
 fi
 
-# -- step5 -- plot ideogram 
+# ---------------------------------- step5 -- plot ideogram -----------------------------------------------#
 #test if previous step was successfull else plot or exit with high levels of pain
-samtools faidx $haplo1/03_genome/"$haplo1".fa
+#take advantage of samtools to get length of genome
+samtools faidx $haplo1/03_genome/"$haplo1".fa 
 samtools faidx $haplo2/03_genome/"$haplo2".fa
 
-if [ -n ${anscestral_genome} ]; then
-    echo "using ancestral genome"
-    Rscript ./00_scripts/Rscripts/04.ideogram.R $ancestral_sp $haplo1 #add links!
-    Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+
+if [ ! -z "${ancestral_genome}" ] ; then
+    echo -e "ancestral genome was provided for inference" 
+    #we will make an ideogram with it 
+    awk '{print $1"\t"$2"\t"$3}' paml/single.copy.orthologs > sco_anc	
+    awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs > sco
+    if [ -n ${links} ] ; then    
+	#links were provided and will be colored
+        Rscript ./00_scripts/Rscripts/04.ideogram.R sco     genespace/bed/$haplo1.bed       genespace/bed/$haplo2.bed  \
+		$haplo1/03_genome/"$haplo1".fa.fai $haplo2/03_genome/"$haplo2".fa.fai $links 
+        Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed  \
+		"${ancestral_genome}".fai $haplo1/03_genome/"$haplo1".fa.fai $links 
+    else
+	#no links were provided
+	Rscript ./00_scripts/Rscripts/04.ideogram.R sco     genespace/bed/$haplo1.bed       genespace/bed/$haplo2.bed  $haplo1/03_genome/"$haplo1".fa.fai \
+		$haplo2/03_genome/"$haplo2".fa.fai 
+        Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed "${ancestral_genome}".fai \
+		$haplo1/03_genome/"$haplo1".fa.fai 
+
+    fi
 else
-    Rscript ./00_scripts/Rscripts/04.ideogram.R $haplo1 $haplo2 #add links!
+    echo -e "no ancestral genome assumed"
+    if [ -n ${links} ] ; then    
+        Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
+		$haplo1/03_genome/"$haplo1".fa.fai $haplo2/03_genome/"$haplo2".fa.fai $links 
+    else
+	Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
+		$haplo1/03_genome/"$haplo1".fa.fai $haplo2/03_genome/"$haplo2".fa.fai 
+    fi
 
 fi
-
 
 
 #
 ## --------------------------------Make Synteny table -----------------------------------------------
 is_anc='TRUE'
-if [ -n ${ancestral_genome} ] ; then
+if [ ! -z "${ancestral_genome}" ] ; then
+
 	is_anc='TRUE'
 else
 
@@ -243,15 +268,17 @@ python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} 
 
 # ---------------------------------- step6 -- create circos plot ----------------------------------------#
 #circos plot here:
-if [ -n ${anscestral_genome} ]; then
+if [ ! -z "${ancestral_genome}" ] ; then
+    echo "ancestral genome was provided" 
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
 else
+    echo "no ancestral genome" 
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1  $scaffolds $genes_plot
     Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2  $scaffolds $genes_plot
 fi
 
-#-- step7 -- run minimap between the genomes 
+#---------------------------------- step7 -- run minimap between the genomes -----------------------------#
 #run minimap on the genome 
 #assumption : each genome MUST BE located in folder 03-genome
 minimap2 -cx asm5 $haplo1/03_genome/"$haplo1".fa $haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
