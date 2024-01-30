@@ -90,11 +90,14 @@ busco --list-dataset
 
 in the config/config file set the **busco_lineage** by providing the name of the species that is closer to your study organism 
 
-* A list of scaffold from the targeted region of interest (sex chromosome supergenes). Should be as follows: 
+* A list of scaffold from the targeted region of interest (sex chromosome supergenes). Should be as follows:
+
+
 | Genome name        | chromosome      |     Order   |
 |:-------------------|:------------------------------|
 | __haplo1__         | chrX_scaff01    	| N          |
 | __haplo1__         | chrX_scaff02     | R         |
+
 
 Header is not needed. 
 
@@ -142,6 +145,9 @@ annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the geno
 
 RelatedProt="/path/to/related_protein.fa" #a full path to a set of external protein data (fasta format) for braker
 
+# ---- orthoDB ---- #
+orthoDBspecies=" " #one of : "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles"
+#if a species is given then it will be used for annotation (in addition to eventual RNAseq and orthProteins) 
 
 #if annotate = NO then gtf should be provided: 
 gtf1=""
@@ -149,7 +155,7 @@ gtf2=""
 
 #RNASeq data ?
 RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
-RNAseqlist=" "
+RNAseqlist=" " #/full/path/to/rnaseq.list.txt" listing the rnaseq data available
 
 #TE INFO:
 TEdatabase="" #a full path to a custom database of species/genus species TE
