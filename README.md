@@ -194,8 +194,11 @@ cat rnaseq.list_PE.txt
 ```
 
 can be created simply by a command like so:   
-`readlink -f your_rna_folder > rnaseq.list_SE.txt `
-with paired-end awk can do the trick of puting reads on two columns (`readlink -f your_rna_folder |awk 'ORS=NR%2?FS:RS ' > rnaseq.list.PE.txt `)
+`readlink -f your_rna_folder > rnaseq.list_SE.txt ` 
+
+with paired-end awk can do the trick of puting reads on two columns: 
+`readlink -f your_rna_folder |awk 'ORS=NR%2?FS:RS ' > rnaseq.list.PE.txt `  
+
 
 
 ## step2 - run the master script 
