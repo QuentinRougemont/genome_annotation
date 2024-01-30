@@ -90,9 +90,19 @@ busco --list-dataset
 
 in the config/config file set the **busco_lineage** by providing the name of the species that is closer to your study organism 
 
+* A list of scaffold from the targeted region of interest (sex chromosome supergenes). Should be as follows: 
+| Genome name        | chromosome      |     Order   |
+|:-------------------|:------------------------------|
+| __haplo1__         | chrX_scaff01    	| N          |
+| __haplo1__         | chrX_scaff02     | R         |
+
+Header is not needed. 
+
+N = Normal, R = Reversed, meaning that the scaffold orientation should be reversed.
+
+
 
 * optional:  1 ancestral genome in **fasta** format with its annotation in **gtf** format.  
-
 
 **!keep a single transcript per gene!**  
 
