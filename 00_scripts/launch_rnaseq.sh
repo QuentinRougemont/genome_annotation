@@ -31,7 +31,7 @@ ncol=$(awk '{print NF}'  $RNAseqlist |uniq)
 
 if [[ $ncol = 2 ]] ; then
     #assuming PE:
-    echo "running trimmomatic" 
+    echo "running trimmomatic assuming reads are Paired-End" 
     while IFS=$'\t' read -r -a read ; 
     do 
         ../00_scripts/01_trimmomatic_PE.sh ${read[0]} ${read[1]}  
