@@ -131,15 +131,14 @@ the file is as follows:
 cat config/config
 # config file
 #--- COMPULSORY MINIMAL LEVEL OF INFORMATION REQUIRED -----
-genome1=""     #full path to current genome1 assembly (haplotype1 - compressed or not)
-genome1=""     #full path to current genome1 assembly (haplotype1 - compressed or not)
-genome2=""     #full path to current genome2 assembly (haplotype2)
+genome1=""     #full path to current genome1 assembly (fasta for haplotype1 - compressed or not)
+genome2=""     #full path to current genome2 assembly (fasta for haplotype2 - compressed or not)
 
 #----- optional --------
-current_name1=" "   #current basename of scaffold in the genome (ignore if name are already like "chr1, chr2, etc")
-haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
-current_name2=" "   #current basename of scaffold in the genome2 (ignore if name are already like "chr1, chr2, etc")
-haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
+current_name1=" "   #current basename of scaffolds in the genome (ignore if names are already short like "chr1, chr2, etc")
+haplotype1=""       #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
+current_name2=" "   #current basename of scaffolds in the genome2 (ignore if name are already like "chr1, chr2, etc")
+haplotype2=""       #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
 
 ancestral_genome="" #full path to the ancestral genome used as proxy of ancestral gene order (fasta, compressed or not)
 ancestral_gff=""    #full path to gff for the ancestral species (uncompressed)
