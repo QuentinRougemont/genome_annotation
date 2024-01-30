@@ -184,14 +184,14 @@ if file --mime-type "$genome2" | grep -q gzip$; then
    gunzip "$genome2"
    genome2=${genome%.gz}
    cd haplo2/03_genome 
-   #cp $genome2 $haplotype2.fa
+   cp $genome2 $haplotype2.fa
    ../../00_scripts/00_rename_fasta.py $genome2 $haplotype2
 
    cd ../../
 else
    echo "$genome2 is not gzipped"
    cd haplo2/03_genome 
-   #cp $genome2 $haplotype2.fa
+   cp $genome2 $haplotype2.fa
    ../../00_scripts/00_rename_fasta.py $genome2 $haplotype2
 
    genome2=$genome2
