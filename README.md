@@ -64,7 +64,7 @@ cd genome annotation
 ./requirements.sh #will work with mamba. alternatively replace by conda (sed -i 's/mamba/conda/g' requirements.sh) 
 ``` 
  
-# minimal input data needed: 
+# input data: 
 
 * 2 genomes (**fasta files**) to annotate :
 
@@ -74,7 +74,7 @@ cd genome annotation
 
 these must correspond to each haplotype you'd like to compare
 
-* If annotation is required then the following data are recquired:
+* If **annotation** is required then the following data are recquired:
 
 	* a list of protein from the same or closely related species in fasta format
 
@@ -123,7 +123,7 @@ we recommend to use short name for each haplotype and avoid any special characte
 
 ### step1 - edit the config file and set the correct path 
 
-the config file is here: ./config/config
+the config file is here: `./config/config`
 
 the file is as follows:
 
@@ -169,7 +169,7 @@ busco_lineage=""
 
 set all variables accordingly, provide full path when needed
 
-list the RNAseq reads if available in a file called "rnaseq.list.txt"
+list the RNAseq reads, if available, in a file called "rnaseq.list.txt"
 this file is as follows:
 
 ```shell
@@ -188,6 +188,10 @@ cat rnaseq.list_PE.txt
 /path/to/data/rnaseq/rnaseq3.R1.fq.gz   /path/to/data/rnaseq/rnaseq3.R2.fq.gz
 /path/to/data/rnaseq/rnaseq4.R1.fq.gz   /path/to/data/rnaseq/rnaseq4.R2.fq.gz
 ```
+
+can be created simply by a command like so:   
+`readlink -f your_rna_folder > rnaseq.list_SE.txt `
+with paired-end awk can do the trick of puting reads on two columns (`readlink -f your_rna_folder |awk 'ORS=NR%2?FS:RS ' > rnaseq.list.PE.txt `)
 
 
 ## step2 - run the master script 
@@ -210,10 +214,12 @@ for more details run:
 
 
 
-# detailed step by step guide: ------------------------------------------------------------------#
+# detailed step by step guide: ------------------------------------------------------------------
 ###  Steps 
 
-your genomes should be in the `haplo1/03_genome` and `haplo2/03_genome` folders for each haplotype!  
+Normally, you should only run the script ```./master.sh```
+
+below we provided a description of what will be done at each steps.
 
 ## 0 - rename the contigs/scaffold/chromosome ID in your reference genome. 
 
@@ -352,139 +358,17 @@ to do
 
 ## 11 - perform changepoint analyses
 
-to o
-
-## 12 - minimap alignements and plots of target region
+to do
 
 
+## 12 - minimap alignements and plots of target region  
 
-
-# DEPRECATED PART FOR NOW: 
-
-# ------   Under Construction ------------ ##
-## Running with long-reads PacBio IsoSeq 
-
-
-Here's some exploratory stuff combining long-reads from PacBio + RNAseq from short + Protein data
-I've followed the protocol from braker with some modifications: https://github.com/Gaius-Augustus/BRAKER/blob/master/docs/long_reads/long_read_protocol.md
+to do
 
 
 
-## ----- dependencies ---- 
-### new braker :  
-change braker to long read mode by cloning another version in a separate directory
-
-```
-git clone https://github.com/Gaius-Augustus/BRAKER
-cd BRAKER/
-git checkout long_reads
-```
-
-export it to your $PATH
-
-### new tsebra:
-
-```
-git clone https://github.com/Gaius-Augustus/TSEBRA
-
-
-cd TSEBRA/
-git checkout long_reads
-```
-
-export it to your $PATH 
-
-
-### GeneMark ST: 
-
-download GeneMark ST http://exon.gatech.edu/GeneMark/license_download.cgi 
-
-export ```gmst.pl``` 
-
-### Minimap:
-
-see [here](https://github.com/lh3/minimap2)
-```
-git clone https://github.com/lh3/minimap2
-cd minimap2 && make
-```
-
-
-### Cupcake :
-
-```
-mamba create -n anaCogent 
-mamba activate anaCogent
-mamba install -c anaconda biopython
-
-source activate anaCogent
-
-git clone https://github.com/Magdoll/cDNA_Cupcake.git
-cd cDNA_Cupcake
-python setup.py build
-python setup.py install
 
 
 
-## then run the script for IsoSeq: 
-```
 
-run scripts:
-
-```
-00_scripts/long_reads/isoseqv2_minimap_target_species.sh
-```
-
-For species different from the reference genome I've added the `asm20` parameter in minimap. Need to check if this affect the mapping of such reads
-
-```
-00_scripts/long_reads/isoseqv2_minimap_asm20.sh
-```
-
-the resulting protein from the outgroup were combined to a database of external protein:
-
-```cat 07_isoseq/*mRNA protein.fa >> all.proteins.fa```
-
-Note: Running pbmm2 + Isoseq3 seems to provide fairly similar results
-
-
-
-## then run braker on the protein database from external evidence + long read outgroups
-
-```
-genome=$1
-protein="all.proteins.fa"
-wd=08_braker_long_read/protein
-mkdir -p $wd
-braker.pl --genome=$genome --softmasking --cpu="$NCPUS" --epmode --prot_seq="$protein"  --workingdir="$wd" 2> $wdir/braker2.log
-```
-
-then use RNAseq (see script ```00_scripts/06_braker.sh``` )
-
-
-## Combine dataset with TSEBRA
-
-
-```sh
-name=$1 #specie name
-LR=07_isoseq_mapped/
-wd=08_braker_long_read/protein
-
-tsebra.py -g 06_braker/rnaseq/augustus.hints.gtf, $wd/augustus.hints.gtf -e 06_braker/rnaseq/hintsfile.gff,$wd/hintsfile.gff -l $LR/gmst."$name".gtf -c long_reads.cfg -o tsebra."$name".gtf
-```
-
-## then perform all the quality check as described above for classical data:
-
-1 - busco   
-
-2 - proportion of correct annotation (missing start/stop codon, length of transcript, length of intron, number of exon per genes, etc)  
-
-3 - blast all protein against each other  
-
-4 - blast against uniprot  
-
-5 - annotate with Inter-pro  
-
-
-## ACKNOWLEDGMENTS:
 
