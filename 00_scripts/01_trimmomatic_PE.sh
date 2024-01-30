@@ -45,4 +45,4 @@ java -jar -Xmx10G Trimmomatic-0.39/trimmomatic-0.39.jar PE \
         LEADING:20 \
         TRAILING:20 \
         SLIDINGWINDOW:30:30 \
-        MINLEN:100 2> $LOG_FOLDER/log.trimmomatic.pe."$base"."$TIMESTAMP"
+        MINLEN:36 2> $LOG_FOLDER/log.trimmomatic.pe."$base"."$TIMESTAMP"
