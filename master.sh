@@ -95,7 +95,8 @@ done
 
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
-echo "*** ancestral genome is ${anestral_genome} ***"
+echo "*** ancestral genome is ${acnestral_genome} ***"
+echo "*** ancestral gff is ${acnestral_gff} ***"
 echo "*** fasta for genome1 is ${genome1} **** "
 echo "*** fasta for genome2 is ${genome2} **** "
 echo "*** haplotype1 is ${haplotype1} ***"
