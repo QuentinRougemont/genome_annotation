@@ -94,7 +94,7 @@ in the config/config file set the **busco_lineage** by providing the name of the
 
 
 | Genome name        | chromosome      |     Order  | 
-|:-------------------|:-----------------------------| 
+|:-------------------|:-----------------|-----------| 
 | __haplo1__         | chrX_scaff01    	| N         | 
 | __haplo1__         | chrX_scaff02     | R         | 
 
