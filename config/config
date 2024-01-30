@@ -5,7 +5,7 @@ haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome an
 
 #----- optional --------
 ancestral_genome="" #full path to the ancestral genome to be used whenever possible
-ancestral_gtf=" "   #full path to the associated gtf to be used whehever possible
+ancestral_gff=" "   #full path to the associated gff to be used whehever possible
 
 genome2=""     #full path to current genome2 assembly (haplotype2)
 haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
