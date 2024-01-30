@@ -154,21 +154,32 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome 
-   #cp $genome1 $haplotype1.fa
-   ../../00_scripts/00_rename_fasta.py $genome1 $haplotype1
+   if [ -z ${haplotype1+x} ]; then
+       echo "no haplotype name  provided - skip renaming scaffold ids"
+       cp $genome1 .
+   else
+       echo "renaming scaffold ids "
+       ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
+   fi
 
    cd ../../
 else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome 
-   #cp $genome1 $haplotype1.fa
-   ../../00_scripts/00_rename_fasta.py $genome1 $haplotype1
+   if [ -z ${haplotype1+x} ]; then
+       echo "no haplotype name  provided - skip renaming scaffold ids"
+       cp $genome1 .
+   else
+       echo "renaming scaffold ids "
+       ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
+   fi
+
 
    cd ../../
 fi
 
-
+#--- handling genome 2 -----
 if [[ -n "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
 	mkdir -p haplo2/03_genome ; 
 fi
@@ -185,22 +196,32 @@ if file --mime-type "$genome2" | grep -q gzip$; then
    gunzip "$genome2"
    genome2=${genome%.gz}
    cd haplo2/03_genome 
-   cp $genome2 $haplotype2.fa
-   ../../00_scripts/00_rename_fasta.py $genome2 $haplotype2
+   if [ -z ${haplotype2+x} ]; then
+       echo "no haplotype name  provided - skip renaming scaffold ids"
+       cp $genome2 .
+   else
+       echo "renaming scaffold ids "
+       ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
+   fi
 
    cd ../../
 else
    echo "$genome2 is not gzipped"
    cd haplo2/03_genome 
-   cp $genome2 $haplotype2.fa
-   ../../00_scripts/00_rename_fasta.py $genome2 $haplotype2
+   if [ -z ${haplotype2+x} ]; then
+       echo "no haplotype name  provided - skip renaming scaffold ids"
+       cp $genome2 .
+   else
+       echo "renaming scaffold ids "
+       ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
+   fi
 
    genome2=$genome2
    cd ../../
 fi
 
 if [[ -n "${ancestral_genome}" ]] ; then 
-	mkdir ancestralsp  
+	mkdir ancestralsp  2>/dev/null
 	#test if ancestral gtf is also provided in the config file:
 	if [ -z "${ancestral_gff}" ] ; then 
 		echo "error ! you provided an ancestral genome but no corresponding annotation (gff file)"
@@ -265,7 +286,6 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
- 	        ../00_scripts/launch_step05_to_08.sh
  	        echo "running TE detection and gene prediction"
 		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES
 
