@@ -93,10 +93,10 @@ in the config/config file set the **busco_lineage** by providing the name of the
 * A list of scaffold from the targeted region of interest (sex chromosome supergenes). Should be as follows:
 
 
-| Genome name        | chromosome      |     Order   |
-|:-------------------|:------------------------------|
-| __haplo1__         | chrX_scaff01    	| N          |
-| __haplo1__         | chrX_scaff02     | R         |
+| Genome name        | chromosome      |     Order  | 
+|:-------------------|:-----------------------------| 
+| __haplo1__         | chrX_scaff01    	| N         | 
+| __haplo1__         | chrX_scaff02     | R         | 
 
 
 Header is not needed. 
