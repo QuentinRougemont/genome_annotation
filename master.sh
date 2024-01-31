@@ -236,6 +236,8 @@ fi
 # Process the input options.                               #
 ############################################################
 
+mkdir LOGS 2>/dev/null
+
 echo -e "\ntesting cases\n"
 
 if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then 
@@ -249,7 +251,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
 	echo "we will only perform TE detection and genome annotation"
 	echo "genome is ${genome1} "
         echo "running TE detection and gene prediction"
-	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES
+	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
 	cd ../
 	else
@@ -266,7 +268,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
 	echo "we will only perform TE detection and genome annotation"
 	echo "genome is ${genome2} "
 	echo "running TE detection and gene prediction"
-	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES
+	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	cd ../
 	else
@@ -282,12 +284,13 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
 	    echo "only the genome of one species was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
 	    echo "genome is ${genome1} "
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype1}    2>&1 |tee ../LOGS/log_rna_haplo1
+
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        echo "running TE detection and gene prediction"
-		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES
+		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
          	cd ../
 
@@ -310,14 +313,14 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
 	    echo "only the genome of one species was provided" 
 	    echo "we will only perform TE detection and genome annotation with RNAseq "
 	    echo "genome is ${genome2} "
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
 
 	   
             #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
  	        echo "running TE detection and gene prediction"
-		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES
+		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	        cd ../
 
@@ -343,7 +346,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 
 	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES
+	    ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 	    #verify that alll run correctly 
 	cd ../
 	else
@@ -356,7 +359,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 	cd haplo2
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    echo "running TE detection and gene prediction"
-	     ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES
+	     ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	    #verify that alll run correctly 
 	cd ../
@@ -378,12 +381,12 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
 	        echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES
+	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
 	cd ../
 	    else
@@ -399,13 +402,13 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 
 	cd haplo2/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
 
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
 	        echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES
+	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	cd ../
 	    else
@@ -421,7 +424,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; th
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 
@@ -432,7 +435,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 	cd haplo1
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES
+	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
 	    #verify that alll run correctly 
 	cd ../
@@ -446,7 +449,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 	cd haplo2
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
 	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES
+	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	    #verify that alll run correctly 
 	cd ../
@@ -459,7 +462,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 	
@@ -468,13 +471,13 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 	echo "genomes are ${genome1} and ${genome2}"
 	cd haplo1/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
 
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
                 echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES
+	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
 	        cd ../
 
@@ -491,13 +494,13 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	cd haplo2/
 	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}
+	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo1
 
 	    #check that this script was sucessfull else kill:
 	    if [ $? -eq 0 ]; then
     	        echo rnaseq mapping succesffull
                 echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES
+	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
 
 	        cd ../
 
@@ -514,7 +517,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ 
 
 	#then run GeneSpace etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 #here handle cases where already annotated genome with gtf are provided:
@@ -542,7 +545,7 @@ elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${geno
 	transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
 	transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
 
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 fi
