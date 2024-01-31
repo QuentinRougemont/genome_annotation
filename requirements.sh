@@ -128,6 +128,7 @@ then
     #then add to ~/.bashrc
     protpath=$(pwd)
     echo -e "\n#Path to $command\nexport PROTHINT_PATH=:$protpath" >> ~/.bashrc 
+    echo -e "\nexport PATH=\$PATH:$protpath" >> ~/.bashrc
     source ~/.bashrc  
     cd ../../
 fi
@@ -164,6 +165,7 @@ then
         echo $command installation worked successfully
         cdbpath=$(pwd)
         echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$cdbpath" >> ~/.bashrc 
+        echo -e "\nexport PATH=\$PATH:$cdbpath" >> ~/.bashrc
         source ~/.bashrc  
 	cd ../
     else
@@ -252,6 +254,7 @@ then
 	echo -e "#path to AUGUSTUS:" >> ~/.bashrc 
         echo -e "export AUGUSTUS_CONFIG_PATH=$augustuspath/config " >> ~/.bashrc
         echo -e "export AUGUSTUS_BIN_PATH=$augustuspath/bin/ " >> ~/.bashrc
+	echo -e "export PATH=\$PATH:$augustuspath/bin" >> ~/.bashrc
         echo -e "export AUGUSTUS_SCRIPTS_PATH=/$augustuspath/augustus_scripts " >> ~/.bashrc
 	source ~/.bashrc
 	cd ../auxprogs/joingenes
@@ -289,6 +292,7 @@ if ! command -v $command &> /dev/null
     cd bin/gmes
     gmarkpath=$(pwd)
     echo -e "export GENEMARK_PATH=$gmarkpath/ " >> ~/.bashrc
+    echo -e "\nexport PATH=\$PATH:$gmarkpath" >> ~/.bashrc
     source ~/.bashrc  
     cd ../ 
 fi
