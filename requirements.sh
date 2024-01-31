@@ -488,17 +488,17 @@ mamba create -n repeatmodeler_env  -c bioconda repeatmasker=4.1.5 repeatmodeler=
 
 
 #now edit the braker launcher since the export from .bashrc does not always seems to work:
-sed -i "11i \n" 00_scripts/06_braker.sh
-sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
-sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
-sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
-sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
-sed -i "11i \n" 00_scripts/06_braker.sh
-
-sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
+#sed -i "11i \n" 00_scripts/06_braker.sh
+#sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
+#sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
+#sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
+#sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
+#sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
+#sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
+#sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
+#sed -i "11i \n" 00_scripts/06_braker.sh
+#
+#sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
 
 exit
 

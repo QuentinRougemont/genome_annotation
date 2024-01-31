@@ -55,7 +55,7 @@ else
     echo "running trimmomatic" 
     while IFS=$'\t' read -r -a read ; 
     do 
-        ../00_scripts/01_trimmomatic_SE.sh ${read[0]}  
+        ../00_scripts/01_trimmomatic_SE.sh ${read[0]} 2>&1 |tee trimmo_"${read[0]}"_log  
     done < $RNAseqlist #  file1file2.tmp 
     
     if [ $? -eq 0 ]; then
@@ -68,7 +68,7 @@ else
 
     #launch gsnap - samtools and read count:
     for read1 in $(ls 02_trimmed/*R1.paired.fastq.gz ) ; do
-        ../00_scripts/03_gsnap_SE.sh $genome $read1
+        ../00_scripts/03_gsnap_SE.sh $genome $read1 2>&1 |tee gsnap_"$read1"_log
     done 
 
 fi
