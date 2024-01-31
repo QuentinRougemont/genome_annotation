@@ -71,4 +71,12 @@ samtools view -c "$base".sorted.bam |awk -v var=$base 'END {print var"\t"$1}' > 
 samtools view -F 0x4 $base.sorted.bam | cut -f 1 | sort | uniq | wc -l |\
             awk -v var="$base" 'END {print var"\t"$1}' > comptage_F04.${base}.txt ;
 
+samtools view "$base".sorted.bam |cut -f 3-5|uniq |awk -v var=$base '{print var"\t"$0}' |gzip > mapq.${base}.txt.gz
+samtools depth "$base".sorted.bam |gzip > "$base".dp.gz  
+
+#plot depth along the genome:
+Rscript ../00_scripts/Rscripts/plot_dp.R "$base".dp.gz
+
+#plot mapq along the genome: 
+Rscript  ../00_scripts/Rscripts/plot_mapq.R mapq."$base".txt.gz
 
