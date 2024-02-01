@@ -53,7 +53,7 @@ cd 06_braker
 #therefore we perform a few replicate run and choose the 'best run' where best is defined as the run providing 
 #the highest score in terms of busco completness 
 #we sort on k3 (highest completeness), k11 (lowest amount of missing), k9 (lowest amount of fragmented genes)  
-best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.specific.basidiomycota_odb10.busco_augustus*.txt |\
+best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.specific.*.busco_augustus*.txt |\
 sed -e 's/%//g' -e 's/\[/,/g' -e 's/]//g' -e 's/:/\t/g' -e  's/,/\t/g' |\
 LC_ALL=C sort -k3nr -k11n -k9n -k7n -k5  |head -n 1 |cut -d "/" -f 1 ) 
 #alternative sorting: 
@@ -63,10 +63,27 @@ LC_ALL=C sort -k3nr -k11n -k9n -k7n -k5  |head -n 1 |cut -d "/" -f 1 )
 echo -e "best_round is $best_round\n----------------------------------------------"
 
 cd ../
+
+#optionally make a report:
+mkdir 08_best_run 2>/dev/null
+python3 ../00_scripts/utility_scripts/generateReport.py 06_braker/"$best_round"/braker.gtf \
+	06_braker/"$best_round"/hintsfile.gff  \
+	08_best_run/report_"$best_round".pdf
+
+
+
 #------------------------------ step 2 finding runs --------------------------------------------#
 
 if [[ $RNAseq = "YES" ]]
 then
+
+	#make a report on rnaseq:
+        python3 ../00_scripts/utility_scripts/generateReport.py \
+		06_braker/rnaseq/braker.gtf \
+		06_braker/ranseq/hintsfile.gff  \
+		08_best_run/report_rnaseq.pdf
+
+
 	echo -e "\nrunning tsebra\n" 
 
 	#2 -- run tsebra
@@ -85,9 +102,9 @@ then
 	../00_scripts/09_tsebra.sh $haplo $best_round
 
 	#remove any existing folder:
-	rm -rf 08_best_run 2>/dev/null
+	#rm -rf 08_best_run 2>/dev/null
 
-	mkdir 08_best_run
+	#mkdir 08_best_run 2>/dev/null
 	cd 08_best_run
 
 	ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
@@ -109,7 +126,7 @@ else
 	
 	echo "running on protein only - not running tsebra" 
 
-	mkdir 08_best_run
+	#mkdir 08_best_run
 	cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.gtf
 	file=08_best_run/$haplo.gtf
 
