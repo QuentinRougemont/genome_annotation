@@ -268,5 +268,11 @@ source ../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco_env
-busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein #--updata-data #to update the database if there's a warning
+busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein 
 
+#then launch quality check on the final dataset: 
+chmod +x 00_scripts/quality.check.sh
+
+#note: maybe this could be an option
+echo -e "running quality checks now "
+../../00_scripts/quality.check.sh -s "$haplo"

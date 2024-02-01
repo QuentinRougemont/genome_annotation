@@ -230,6 +230,15 @@ if [[ -n "${ancestral_genome}" ]] ; then
 
 fi
 
+#download uniprot for later checks
+./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
+
+if [[ $interpro = "YES" ]]
+then
+    echo "attempting to download and install inter-pro - this will take some time" 
+    ./00_scripts/get_interpro.sh
+fi
+
 #artchitecture should be OK to proceed
 
 ############################################################

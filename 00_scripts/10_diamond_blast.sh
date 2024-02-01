@@ -13,7 +13,6 @@ then
     exit
 fi
 
-#databaseA1=/scratch/qrougemont/diamond_blast_resultsA1_A2_HD_PR/HD_PR_MvSv_A1.prot.fa
 databaseA1=$2
 diamond makedb --in ${databaseA1} -d  ${databaseA1} 
 

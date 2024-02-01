@@ -87,13 +87,20 @@ then
 fi
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
-#Run braker with RNAseq 
-#round 1:
-wd=06_braker/rnaseq
-mkdir -p $wd
+## Note on braker: we found that running on RNAseq & proteins separately and combining afterwards 
+## manually with TSEBRA give higher BUSCO scores. 
+## in addition manually setting parameter for TSEBRA config file may prevent the removal of 
+## biologically important genes, a case we have observed on all out dataset.
+## Therefore we choose to only implement this approach
+## for user having trouble installing braker and all it's dependencies it should still be possible
+## to modify the code lightly and run through singularity.
 
+#Run braker with RNAseq 
 if [[ $RNAseq = "YES" ]]
 then
+    wd=06_braker/rnaseq
+    mkdir -p $wd
+
     if [[ $fungus = "YES" ]]
     then
             braker.pl --species="$species"_round1 --species="$species" --fungus --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 

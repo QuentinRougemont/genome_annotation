@@ -1,9 +1,9 @@
 
 #Purpose:
 #making a few checks for quality (in addition to the classical busco)
-#Date: 2023
+#Date: 2024
 #Author: QR
-source config/config
+source ../../config/config
 
 ############################################################
 # Help                                                     #
@@ -36,19 +36,6 @@ done
 #cds input
 input="$haplo".spliced_cds.fa
 
-#--------------------- get uniprot ------------------#
-mkdir uniprot
-cd uniprot
-wget https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
-gunzip uniprot_sprot.fasta.gz
-
-#index:
-diamond makedb --in uniprot_sprot.fasta -d uniprot_sprot.fasta
-
-cd ../
-
-#moove to directory:
-cd $haplo/08_best_run/
 
 #---------------- run blast/diamond against the cds ----#
 name=$(basename $input )
@@ -56,7 +43,7 @@ name=$(basename $input )
 output=diamond_blastx
 mkdir $output 2>/dev/null
 
-diamond blastx -d uniprot_sprot.fasta \
+diamond blastx -d ../../uniprot/uniprot_sprot.fasta \
         -q $input --ultra-sensitive\
         --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq \
         --threads 20 \
@@ -66,26 +53,7 @@ diamond blastx -d uniprot_sprot.fasta \
 #------ Inter pro scan --------------#
 if [[ $interpro = "YES" ]]
 then
-    #get interpro-scan
-    #interproscan: 
-    cd ../../
-    
-    mkdir my_interproscan
-    cd my_interproscan
-    wget https://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/5.66-98.0/interproscan-5.66-98.0-64-bit.tar.gz
-    wget https://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/5.66-98.0/interproscan-5.66-98.0-64-bit.tar.gz.md5
-    
-    #md5sum -c interproscan-5.66-98.0-64-bit.tar.gz.md5
-    
-    tar -pxvzf interproscan-5.66-98.0-*-bit.tar.gz
-    python3 setup.py -f interproscan.properties
-    
-    path=$(pwd)
-    echo -e "\n#Path to interproscan\nexport PATH=\$PATH:$path" >> ~/.bashrc
-    source ~/.bashrc
-    
-    cd ../../$haplo/08_best_run
-    interproscan.sh -i "$haplo"_prot.clean.fa -goterms 2>&1 |tee interpro.$i.log
+    interproscan.sh -i "$haplo"_prot.clean.fa -goterms 2>&1 |tee interpro.log
     
 fi
 
