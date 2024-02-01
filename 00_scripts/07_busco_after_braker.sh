@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #purpose: run busco after braker in order to assess quality of the results
-lineage=$1 #~/basidiomycota_odb10 #to be passed as an argument #
-RNASeq=$2  #YES/NO
+lineage=$1 
+RNAseq=$2  #YES/NO
 
 #activate braker 
 eval "$(conda shell.bash hook)"
