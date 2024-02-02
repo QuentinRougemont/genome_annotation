@@ -56,8 +56,8 @@ if [ -z ${orthoDBspecies+x} ]; then
     relatProt="$RelatedProt"
 
 else
-    species=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
-    if [[ ${species[@]} =~ $target ]]
+    clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
+    if [[ ${clades[@]} =~ $target ]]
     then
         mkdir odb11 2>/dev/null ; cd odb11
 	if [ -f "$target".fa* ]; then
