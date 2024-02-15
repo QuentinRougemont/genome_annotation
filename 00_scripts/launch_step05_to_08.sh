@@ -69,17 +69,17 @@ augconf=$(echo $augbin  |sed 's/bin/config/' )
 [[ -z "augbin" ]] && { echo "Error: Augustus binaries not found"; exit 1; }
 
 # reshape braker code prior to run:
-sed -i "11i #--- end of setting path ---- " 00_scripts/06_braker.sh
-sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
-sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
-sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
-sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
+sed -i "11i #--- end of setting path ---- " ../00_scripts/06_braker.sh
+sed -i "11i export CDBTOOLS_PATH=$cdbpath" ../00_scripts/06_braker.sh
+sed -i "11i export TSEBRA_PATH=$tsebrapath" ../00_scripts/06_braker.sh
+sed -i "11i export PROTHINT_PATH=$protpath" ../00_scripts/06_braker.sh
+sed -i "11i export GENEMARK_PATH=$gmarkpath " ../00_scripts/06_braker.sh
 
-sed -i "11i export AUGUSTUS_CONFIG_PATH=$augconf" 00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_BIN_PATH=$augbin " 00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augscripts " 00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_CONFIG_PATH=$augconf" ../00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_BIN_PATH=$augbin " ../00_scripts/06_braker.sh
+sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augscripts " ../00_scripts/06_braker.sh
 
-sed -i "11i # ---- start of setting path --- " 00_scripts/06_braker.sh
+sed -i "11i # ---- start of setting path --- " ../00_scripts/06_braker.sh
 
 
 
