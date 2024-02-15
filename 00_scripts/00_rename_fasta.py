@@ -5,7 +5,6 @@ import sys
 from Bio import SeqIO
 import re
 input_file=sys.argv[1]
-input_file=sys.argv[1]
 current_basename=sys.argv[2]
 new_basename=sys.argv[3]
 
