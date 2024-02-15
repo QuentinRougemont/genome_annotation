@@ -148,6 +148,10 @@ if [[ -z "${haplotype1}" ]] ; then
 fi
 
 # ----- check compression of fasta  ------ ##
+
+eval "$(conda shell.bash hook)"
+conda activate braker_env
+
 #check compression
 if file --mime-type "$genome1" | grep -q gzip$; then
    echo "$genome1 is gzipped"
@@ -219,6 +223,8 @@ else
    genome2=$genome2
    cd ../../
 fi
+
+conda deactivate
 
 if [[ -n "${ancestral_genome}" ]] ; then 
 	mkdir ancestralsp  2>/dev/null
