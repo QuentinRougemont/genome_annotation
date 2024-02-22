@@ -154,7 +154,6 @@ MCScanpath=$(command -v MCScanX |xargs dirname )
 sed -i "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
 
 Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
-
 if [ $? -eq 0 ]; then
     echo genespace worked successfully
 else
@@ -167,7 +166,19 @@ fi
 echo scaffold is $scaffold
 ln -s $scaffold scaffold.txt
 
-Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
+echo -e "---------- making subplots using scaffold data ----------------"
+if [ ! -z "${ancestral_genome}" ] ; then
+    Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R ancestral_sp
+else
+    Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R $haplo1
+fi
+if [ $? -eq 0 ]; then
+    echo -e "------------- plots OK ---------------------------------------\n"
+else
+    echo "plottings subset failed checks your input scaffold name"
+    exit 1
+fi
+
 
 cd ../
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
