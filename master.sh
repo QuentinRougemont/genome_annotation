@@ -227,7 +227,7 @@ fi
 conda deactivate
 
 if [[ -n "${ancestral_genome}" ]] ; then 
-	mkdir ancestralsp  2>/dev/null
+	mkdir ancestral_sp  2>/dev/null
 	#test if ancestral gtf is also provided in the config file:
 	if [ -z "${ancestral_gff}" ] ; then 
 		echo "error ! you provided an ancestral genome but no corresponding annotation (gff file)"
@@ -387,7 +387,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 
 	#if all is OK then run GeneSpace - paml etc :
 	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	../00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
+	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
 
 
 

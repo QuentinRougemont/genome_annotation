@@ -74,6 +74,7 @@ if [ ! -z "${ancestral_genome}" ] ; then
     gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
     awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestral_sp/ancestral_sp.bed
+    sed -i 's/_1 CDS=.*$//g'  ancestral_sp/ancestral_sp_prot.fa
 
 fi
 
@@ -141,13 +142,16 @@ if [ ! -z "${ancestral_genome}" ] ; then
     cd genespace/bed/
     ln -s ../../ancestral_sp/ancestral_sp.bed . 
     cd ../peptide
-    ln -s ../../ancestral_sp/ancestral_sp.prot.fa ancestral_sp.fa
+    ln -s ../../ancestral_sp/ancestral_sp_prot.fa ancestral_sp.fa
     
     cd ../../
 fi
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
 cd genespace 
+
+MCScanpath=$(command -v MCScanX |xargs dirname )
+sed -i "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
 
 Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
 
@@ -161,7 +165,7 @@ fi
 #plot genespace subspace of target chromosomes: 
 #a refaire en fonction de si ancestral species or not:
 echo scaffold is $scaffold
-cp $scaffold .
+ln -s $scaffold scaffold.txt
 
 Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R
 

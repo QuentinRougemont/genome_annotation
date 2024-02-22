@@ -103,9 +103,12 @@ then
 
     if [[ $fungus = "YES" ]]
     then
-            braker.pl --species="$species"_round1 --species="$species" --fungus --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+	    echo -e "------ \n running braker on rnaseq data \n -------"
+	    echo -e "------ \n data are from fungus \n -------"
+            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     else
-            braker.pl --species="$species"_round1 --species="$species" --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+	    echo -e "------ \n running braker on rnaseq data \n -------"
+            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     fi
 fi 
 
@@ -131,45 +134,45 @@ wd=${FOLDER1}
 
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
+    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
 else
-    braker.pl --species="$species"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd 
+    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd 
 fi
 
 echo "----------- round 2 ------------" 
 wd=${FOLDER2}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
 else
-    braker.pl --species="$species"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
 fi
 
 echo "----------- round 3 ------------" 
 wd=${FOLDER3}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
 else
-    braker.pl --species="$species"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
 fi
 
 echo "----------- round 4 ------------" 
 wd=${FOLDER4}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
 else
-    braker.pl --species="$species"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
 fi
 
 echo "----------- round 5 ------------" 
 wd=${FOLDER5}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
 else
-    braker.pl --species="$species"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
 fi
-echo "----------- finished------------" 
+echo -e "----------- finished------------\n\n" 
 

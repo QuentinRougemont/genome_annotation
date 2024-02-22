@@ -3,8 +3,6 @@
 #Author QR
 # WARNING STILL BETA #! 
 
-#deprecated -- this needs to be fully updated
-
 source ../config/config
 
 ##  ------------------------ general parameters --------------------------------  ##
@@ -45,7 +43,7 @@ fi
 
 ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
 if [ $? -eq 0 ]; then
-    echo repeatmodeler run successfull
+    echo -e "---- repeatmodeler run successfull ----\n"
 else
     echo repeatmodeler failed. check the provided libraries and whether all software and dependancies are correctly installed   
     exit 
@@ -82,7 +80,8 @@ sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augscripts " ../00_scripts/06_braker.s
 sed -i "11i # ---- start of setting path --- " ../00_scripts/06_braker.sh
 
 
-
+echo "---- running braker now on $haplotype ----- " 
+echo "see details in braker_log in case of bugs" 
 ../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus 2>&1 |tee braker_log  #NO for no rnaseq  
 
 # -------------------- run Busco  ---------------------------- #
@@ -101,7 +100,7 @@ else
    ../00_scripts/08_braker_reshaping.sh -s $haplotype -r NO 2>&1 |tee reshape_log 
 fi
 if [ $? -eq 0 ]; then
-    echo braker output successfully processed
+    echo -e "------\nbraker output successfully processed\n------"
 else
     echo ERROR - verfiy braker outputs!   
     exit 1

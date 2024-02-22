@@ -80,7 +80,7 @@ then
 	#make a report on rnaseq:
         python3 ../00_scripts/utility_scripts/generateReport.py \
 		06_braker/rnaseq/braker.gtf \
-		06_braker/ranseq/hintsfile.gff  \
+		06_braker/rnaseq/hintsfile.gff  \
 		08_best_run/report_rnaseq.pdf
 
 
