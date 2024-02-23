@@ -19,7 +19,7 @@
 #------------- check that libraries are installed and load them ---------------#
 packages=c('circlize','dplyr','tidyr','wesanderson')
 #install.packages(setdiff(packages, rownames(installed.packages())))
-install.packages(setdiff(packages, rownames(installed.packages())))
+install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 invisible(lapply(packages, library, character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
@@ -49,9 +49,12 @@ chromosomes=read.table(args[3])
 syn=read.table(paste0('synteny_',reference,'_',haplo,'.txt'), header=T, as.is=T, sep='\t')
 
 # import contig informations from .fai index
-index_ref=read.table(paste0(reference,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
+index_ref=read.table(paste0(reference "/03_genome/", reference,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
 colnames(index_ref)=c("chr","end")
-index_hap=read.table(paste0(haplo,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
+
+#to fix:
+#index_hap=read.table(paste0(haplo,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
+
 colnames(index_hap)=c("chr","end")
 
 ####------------------------ PREPARE CIRCOS DATA ---------------------------####

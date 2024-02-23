@@ -79,6 +79,8 @@ if [ -n "$ancestral_genome" ] ; then
     echo "using ancestral genome"
     ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
     ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
+    sed -i -e "s/\r//g" $ancestral_vs_hap1
+    sed -i -e "s/\r//g" $ancestral_vs_hap2
 
     paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
         grep -Ff $scaffold - |\
@@ -93,9 +95,10 @@ if [ -n "$ancestral_genome" ] ; then
 else
     echo "no ancestral genome"
     hap1_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$haplo1"/"$haplo1"__v__"$haplo2".tsv ")
+    sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
     paste <(grep -Ff "$(echo $scopy )" "$(echo $hap1_vs_hap2)" ) |\
-	    grep -f <(cut -f 2 $scaffold ) - > paml/single.copy.orthologs  
+        grep -f <(cut -f 2 $scaffold ) - > paml/single.copy.orthologs  
        
         sed -i -e "s/\r//g"  paml/single.copy.orthologs
 

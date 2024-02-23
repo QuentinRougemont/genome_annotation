@@ -65,6 +65,10 @@ mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
     perl-list-moreutils
 mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
 mamba install -c conda-forge json5
+#stuff for R:
+mamba install conda-forge::jags
+mamba install conda-forge::r-rjags
+mamba install conda-forge::r-rsvg
 
 
 #----------- a few tools to install directly with mamba :---------------------- 
@@ -448,11 +452,13 @@ command='translatorx_vLocal.pl'
 if ! command -v $command &> /dev/null
 then
    #direct install: 
+    mkdir translatorx ; cd translatorx
     wget http://161.111.160.230/cgi-bin/translatorx_vLocal.pl
     chmod +x translatorx_vLocal.pl
     path=$(pwd)
     echo -e "\n#Path to translatorx\n export PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
+    cd ../
 fi
 
 #**minimap2** 
