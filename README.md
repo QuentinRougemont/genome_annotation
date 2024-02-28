@@ -23,8 +23,7 @@
  5 - perform changepoint analyses
 
 
-![Fig1.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig1.png)  
-
+![Fig1.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png)
 
 
 **Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
@@ -152,22 +151,23 @@ insert busco plot here
 
    * 3a -  minimap based divergence along the mating type chromosomes :
 
-![Fig2.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig2.png)  
-
+![Fig2.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig2.png)
 
    * 3b - minimap based whole genome alignment : 
 	
-![Fig3.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig3.png)  
+![Fig3.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig3.png)
+
 
 
    * 4 - Synteny plot from GeneSpace
 
-![Fig4.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig4.png)  
+![Fig4.png]https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig4.png)
 
 
    * 5 - Ds plot : 
 
-![Fig5.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig5.png)  
+![Fig5.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig5.png)
+
 
 
    * 6 - changePoint inference : 
