@@ -23,7 +23,7 @@
  5 - perform changepoint analyses
 
 
-![Fig1.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png)
+<img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png" width = "24" heigth = "24">
 
 
 **Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
