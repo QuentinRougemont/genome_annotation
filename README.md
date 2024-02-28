@@ -161,7 +161,7 @@ insert busco plot here
 
    * 4 - Synteny plot from GeneSpace
 
-![Fig4.png]https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig4.png)
+![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig4.png)
 
 
    * 5 - Ds plot : 
