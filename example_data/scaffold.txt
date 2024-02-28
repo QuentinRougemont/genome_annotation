@@ -1,0 +1,2 @@
+Mlag129A1   Mlag129A1_contig_8  R
+Mlag129A1   Mlag129A1_contig_11 N

@@ -206,7 +206,7 @@ if [ -s long_geneID.hap2 ] ; then
 
     #2 - keep a copy:
     oldf2=$newf2.original.genename.fa
-    cp $newf1 $oldf2
+    cp $newf2 $oldf2
 
     #3 - rename the fasta with awk
     awk 'NR==1 { next } FNR==NR { a[$1]=$2; next } $1 in a { $1=a[$1] }1' correspondance.table.hap2.txt ${oldf2} > ${newf2} 

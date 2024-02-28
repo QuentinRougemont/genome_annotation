@@ -1,0 +1,3 @@
+example_data/RNA/input1.R1.fastq.gz example_data/RNA/input1.R2.fastq.gz
+example_data/RNA/input2.R1.fastq.gz example_data/RNA/input2.R2.fastq.gz
+

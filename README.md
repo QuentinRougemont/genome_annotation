@@ -1,4 +1,13 @@
-# genome_annotation - GeneSpace - dotplot construction -  Ds computation between haplotypes - changepoint analysis - whole genome alignements 
+# genome annotation - Synteny - Ds computation between haplotypes - changepoint analysis - whole genome alignements 
+====================================================================================
+
+   * [Purpose](#purpose)
+   * [Dependencies](#dependencies)
+   * [Input data](#input-data)
+   * [Example input data](#example-input-data)
+   * [Quick start](#quick-start)
+   * [Example plot](#example-plot)
+   * [Detailed steps](#detailed-steps)
 
 
 # Purpose:
@@ -7,38 +16,20 @@
 
  2 - genome annotation using braker2  
 
- 3 - run GeneSpace  
+ 3 - identify synteny blocks and rearragnements (GeneSpace and Minimap)  
 
  4 - plot Ds along the genome using ancestral genomes  
 
- 5 - identify rearrangements  
+ 5 - perform changepoint analyses
 
- 6 - plot ideograms   
- 
- 7 - perform changepoint analyses
 
-in details these scripts will: 
-* trim RNAseq reads
-* map them to the reference genome
-* mask the genome using repeatModeller + external evidence
-* run braker on RNAseq + external protein data
-* combine braker results with TSEBRA
-* reshape the output
+![Fig1.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig1.png)  
 
-* Run GeneSpace (with orthoFinder and MCScanX)
-* Compute Ds between single copy orthologs of interest assuming a 1:1:1 correspondance
-* Plot Ds along the genome and genes order
-* Perform changepoint analysis
-* Plot Ideograms 
-
-This code has been tested with linux. 
 
 
 **Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
 
 # Dependencies: 
-
-**braker2** and all of its dependencies available [here](https://github.com/Gaius-Augustus/BRAKER)
 
 basic requirements: **git**, **gcc** , **R**, **make**, **cmake**, **wget** or **curl** , **java** 
 
@@ -63,57 +54,51 @@ git clone https://github.com/QuentinRougemont/genome_annotation
 cd genome annotation
 ./requirements.sh #will work with mamba. alternatively replace by conda (sed -i 's/mamba/conda/g' requirements.sh) 
 ``` 
+
  
-# input data: 
-
-* 2 genomes (**fasta files**) to annotate :
-
-	* with OR without RNAseq (i.e. short read from Illumina, sinle-end or paired-end)  
-
-* OR **2 genomes** already annotated with their corresponding **gtf** files
-
-these must correspond to each haplotype you'd like to compare
-
-* If **annotation** is required then the following data are recquired:
-
-	* a list of protein from the same or closely related species in fasta format
-
-	* if possible: a custom database of TE for the TE annotation steps
-
-	* a lineage name for busco evaluation of the genome annotation quality.  
-
-The list of lineage can be obtained [here](https://busco-data.ezlab.org/v5/data/lineages/) or using :
-
-```shell
-busco --list-dataset
-``` 
-
-in the config/config file set the **busco_lineage** by providing the name of the species that is closer to your study organism 
-
-* A list of scaffold from the targeted region of interest (sex chromosome supergenes). Should be as follows:
+# Input data: 
 
 
-| Genome name        | chromosome      |     Order  | 
-|:-------------------|:-----------------|-----------| 
-| __haplo1__         | chrX_scaff01    	| N         | 
-| __haplo1__         | chrX_scaff02     | R         | 
+* minimal input:
+	* 2 genomes assemblies (**fasta files**) 
 
+	* additional settings (RNAseq data, etc) can be declared in the **config file** 
 
-Header is not needed. 
-
-N = Normal, R = Reversed, meaning that the scaffold orientation should be reversed.
-
-
-
-* optional:  1 ancestral genome in **fasta** format with its annotation in **gtf** format.  
-
-**!keep a single transcript per gene!**  
-
-  
+more details on the config file are [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/input_data_info) 
 
 ### note on input naming: 
 
 we recommend to use short name for each haplotype and avoid any special characters appart from underscore.  
+
+
+# Example input data:  
+
+   
+**Compulsory** 
+
+	* genome1: `example_data/genome1.fa.gz`
+	* genome2: `example_data/genome2.fa.gz`
+    * config file: `example_data/example.config`
+
+
+**Optional data** 
+
+	* ancestral genome: `ancestral_genome/Mlag129A1.fa.gz`
+	* ancestral gff: `ancestral_genome/Mlag129A1.gtf.gz`
+	* RNAseq data:  `example_data/rnaseq.fq.gz`
+
+
+**TE data (compulsory)** 
+
+	* custom database: `example_data/TE.fa.gz`
+
+
+**Proteins for annotation (optional)**
+
+	* example_data/prot.fa 
+	  note: if no protein data are available we will use orthoDB11  (downloaded automatically)
+
+
 
 # Quick start:
 
@@ -125,79 +110,6 @@ we recommend to use short name for each haplotype and avoid any special characte
 
 the config file is here: `./config/config`
 
-the file is as follows:
-
-```shell
-cat config/config
-# config file
-#--- COMPULSORY MINIMAL LEVEL OF INFORMATION REQUIRED -----
-genome1=""     #full path to current genome1 assembly (fasta for haplotype1 - compressed or not)
-genome2=""     #full path to current genome2 assembly (fasta for haplotype2 - compressed or not)
-
-#----- optional --------
-current_name1=" "   #current basename of scaffolds in the genome (ignore if names are already short like "chr1, chr2, etc")
-haplotype1=""       #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
-current_name2=" "   #current basename of scaffolds in the genome2 (ignore if name are already like "chr1, chr2, etc")
-haplotype2=""       #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
-
-ancestral_genome="" #full path to the ancestral genome used as proxy of ancestral gene order (fasta, compressed or not)
-ancestral_gff=""    #full path to gff for the ancestral species (uncompressed)
-
-#--- annotate or not #
-annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed
-             #else gtf and fastafiles are expected and only the paml/ds/genespace etc will be performed
-
-RelatedProt="/path/to/related_protein.fa" #a full path to a set of external protein data (fasta format) for braker
-
-# ---- orthoDB ---- #
-orthoDBspecies=" " #one of : "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles"
-#if a species is given then it will be used for annotation (in addition to eventual RNAseq and orthProteins) 
-
-#if annotate = NO then gtf should be provided: 
-gtf1=""
-gtf2=""
-
-#RNASeq data ?
-RNAseq=""   #YES/NO a string stating wether rnaseq data is available or not
-RNAseqlist=" " #/full/path/to/rnaseq.list.txt" listing the rnaseq data available
-
-#TE INFO:
-TEdatabase="" #a full path to a custom database of species/genus species TE
-#NCBI species for de-novo TE:
-ncbi_species=""
-
-#BUSCO SPECIFIC ARGUMENTS:
-#busco_lineage name:
-busco_lineage=""
-```
-
-set all variables accordingly, provide full path when needed
-
-list the RNAseq reads, if available, in a file called "rnaseq.list.txt"
-this file is as follows:
-
-```shell
-cat rnaseq.list_SE.txt
-/path/to/data/rnaseq/rnaseq1.R1.fq.gz
-/path/to/data/rnaseq/rnaseq2.R1.fq.gz
-/path/to/data/rnaseq/rnaseq3.R1.fq.gz
-/path/to/data/rnaseq/rnaseq4.R1.fq.gz
-```
-
-with PAIRED END:
-```sh
-cat rnaseq.list_PE.txt
-/path/to/data/rnaseq/rnaseq1.R1.fq.gz	/path/to/data/rnaseq/rnaseq1.R2.fq.gz
-/path/to/data/rnaseq/rnaseq2.R1.fq.gz   /path/to/data/rnaseq/rnaseq2.R2.fq.gz
-/path/to/data/rnaseq/rnaseq3.R1.fq.gz   /path/to/data/rnaseq/rnaseq3.R2.fq.gz
-/path/to/data/rnaseq/rnaseq4.R1.fq.gz   /path/to/data/rnaseq/rnaseq4.R2.fq.gz
-```
-
-can be created simply by a command like so:   
-`readlink -f your_rna_folder > rnaseq.list_SE.txt ` 
-
-with paired-end awk can do the trick of puting reads on two columns: 
-`readlink -f your_rna_folder |awk 'ORS=NR%2?FS:RS ' > rnaseq.list.PE.txt `  
 
 
 
@@ -209,7 +121,13 @@ once the config file is ready with your path and dataset correctly simply run
 ./master.sh 2>&1 |tee log
 ```
 
-this script should handle automatically the different use cases (annotation only, annotation and plot, etc):
+this script should handle automatically the different **use cases**
+
+Use case will be infered from the config file automatically. These can be:
+ * annotation only
+ * annotation, synteny, arrangement and Ds inference
+ * synteny, arrangement and Ds inference  
+ 
 
 for more details run: 
 
@@ -219,10 +137,77 @@ for more details run:
 
 
 
+# Example Results 
 
 
-# detailed step by step guide: ------------------------------------------------------------------
-###  Steps 
+   * 1 - Genome Annotations 
+
+insert results here 
+
+
+   * 2 - Genome Annotation quality assesment based on busco: 
+
+insert busco plot here 
+
+
+   * 3a -  minimap based divergence along the mating type chromosomes :
+
+![Fig2.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig2.png)  
+
+
+   * 3b - minimap based whole genome alignment : 
+	
+![Fig3.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig3.png)  
+
+
+   * 4 - Synteny plot from GeneSpace
+
+![Fig4.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig4.png)  
+
+
+   * 5 - Ds plot : 
+
+![Fig5.png](https://github.com/QuentinRougemont/blob/main/pictures/Fig5.png)  
+
+
+   * 6 - changePoint inference : 
+
+insert some plot here 
+
+
+
+# detailed steps  
+
+### Step by step guide: 
+
+# --------------------------------------------------------------------------
+
+
+# list of operations and tools
+
+
+| Operation                        |  Tools                         |   data type  | 
+|:---------------------------------|:-------------------------------|-----------| 
+| __read trimming__                |  Trimmomatic                   | RNAseq         | 
+| __read mapping__                 |  gmap/gsnap                    | RNAseq          | 
+| __sorting read__                 |  samtools                      | RNAseq        |
+| __mapping quality assement__     |  samtools + R                  | RNAseq        |
+| __TE detection and softmasking__ |  RepeatModeler + RepeadMasker  | genome assembly |
+| __genome annotation__            |  Braker + tsebra               | genome assembly + protein + database |
+| __quality assessment__           |  Busco + Blast + Inter Pro     | genome prediction |
+| __Synteny and HOG__              |  GeneSpace (including OrthoFinder/MCScan) | gene prediction and proteins |
+| __cds alignement__               |  muscle + translatorX          | gene prediction (single copy orthologs) | 
+| __Ds computation__               |  paml                          | CDS alignment |
+| __Ds plot/CIRCOS plot__          |  R                             | Ds and genome information |
+| __whole genome alignemnt__       |  minimap2                      | genome assemblies |
+| __gene microsynteny__            |  R                      | single copy orthologs |
+| __changepoint analysis__         |  R                      | Ds values and gene order |
+
+
+
+This code has been tested with linux. 
+
+
 
 Normally, you should only run the script ```./master.sh```
 

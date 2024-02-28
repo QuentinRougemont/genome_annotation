@@ -23,7 +23,7 @@ library(cowplot)
 library(dplyr)
 
 #---- load data ---- # 
-df <- read.table("dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and ordre 
+df <- read.table("dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and order 
 
 #this input is normally produced from the script (03.plot_paml.R)
 
@@ -36,13 +36,13 @@ model5strata = list(Ds ~ 1, 1~ 1, 1 ~ 1, 1 ~ 1, 1 ~ 1)
 model4strata = list(Ds ~ 1, 1~ 1, 1 ~ 1, 1 ~ 1)
 model3strata = list(Ds ~ 1, 1~ 1, 1 ~ 1)
 model2strata = list(Ds ~ 1, 1~ 1)
-modelsimple = list(Ds ~ 1 + ordre)
+modelsimple = list(Ds ~ 1 + order)
 
-fit_1st = mcp(modelsimple,  data = df, par_x = "ordre",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
-fit_2st = mcp(model2strata, data = df, par_x = "ordre",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
-fit_3st = mcp(model3strata, data = df, par_x = "ordre",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
-fit_4st = mcp(model4strata, data = df, par_x = "ordre",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
-fit_5st = mcp(model5strata, data = df, par_x = "ordre",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
+fit_1st = mcp(modelsimple,  data = df, par_x = "order",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
+fit_2st = mcp(model2strata, data = df, par_x = "order",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
+fit_3st = mcp(model3strata, data = df, par_x = "order",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
+fit_4st = mcp(model4strata, data = df, par_x = "order",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
+fit_5st = mcp(model5strata, data = df, par_x = "order",   iter = 8e3, adapt = 1.5e3,  chains = 5, cores = 5 )
 
 
 #use my usual theme:
@@ -108,19 +108,19 @@ cp4m5 <- m5$mean[3]
 #filter data and visualise differences in mean Ds values:
 #note: we could do better using the BF and hypothesis function instead of working with means ....
 
-df$two_strata <- ifelse(df$ordre < cp1m2, "strata1", "strata2")
-df$three_strata <- ifelse(df$ordre < cp1m3, "strata1", 
-                    ifelse(df$ordre > cp2m3, "strata3", "strata2"))
+df$two_strata <- ifelse(df$order < cp1m2, "strata1", "strata2")
+df$three_strata <- ifelse(df$order < cp1m3, "strata1", 
+                    ifelse(df$order > cp2m3, "strata3", "strata2"))
 
-df$four_strata <- ifelse(df$ordre < cp1m4, "strata1", 
-                    ifelse(df$ordre > cp3m4, "strata4",
-                    ifelse(df$ordre > cp2m4 & df$ordre < cp3m4, "strata3", "strata2")))
+df$four_strata <- ifelse(df$order < cp1m4, "strata1", 
+                    ifelse(df$order > cp3m4, "strata4",
+                    ifelse(df$order > cp2m4 & df$order < cp3m4, "strata3", "strata2")))
 
 
-df$five_strata <- ifelse(df$ordre < cp1m5, "strata1", 
-                    ifelse(df$ordre > cp4m5, "strata5",
-                    ifelse(df$ordre > cp1m5 & df$ordre < cp2m5, "strata2",
-                    ifelse(df$ordre > cp2m5 & df$ordre < cp3m5, "strata3","strata4"))))
+df$five_strata <- ifelse(df$order < cp1m5, "strata1", 
+                    ifelse(df$order > cp4m5, "strata5",
+                    ifelse(df$order > cp1m5 & df$order < cp2m5, "strata2",
+                    ifelse(df$order > cp2m5 & df$order < cp3m5, "strata3","strata4"))))
 
 
 mycolor <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
@@ -168,7 +168,7 @@ fit_3st$loo <- loo(fit_3st)
 fit_4st$loo <- loo(fit_4st)
 fit_5st$loo <- loo(fit_5st)
 
-m.choice <- loo::loo_compare(fit_2st$loo, fit_3st$loo, fit_4st$loo fit_5st$loo)
+m.choice <- loo::loo_compare(fit_2st$loo, fit_3st$loo, fit_4st$loo, fit_5st$loo)
 
 # ----- rule of thumb - to be used as a helper for model choice ---- : #
 # you should read the manual (https://lindeloev.github.io/mcp/articles/comparison.html)

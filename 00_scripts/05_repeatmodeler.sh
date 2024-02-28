@@ -57,6 +57,16 @@ else
    genome=$genome
 fi
 
+
+if file --mime-type "$database" | grep -q gzip$; then
+   echo "$database is gzipped"
+   gunzip "$database"
+   database=${database%.gz}
+else
+   echo "$database is not gzipped"
+   database=$database
+fi
+
 #this should be deprecated:
 #sed 's/ [0-9A-Za-z=-]*//g' $genome > ${genome%.fa}.simpl.fa
 #genome=${genome%.fa}.simpl.fa
