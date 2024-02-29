@@ -31,7 +31,9 @@ gtf2=""
 rnaseq=""   #YES/NO a string stating wether rnaseq data is available or not
 RNAseqlist="/full/path/to/rnaseq.list.txt" #list of rnaseq data 
 #OR BAM file
-bamlist="/full/path/to/bam.list.txt"     #list of bams
+bamlist1="/full/path/to/bam.aligned_on_genome1.txt" #list of bam on genome1
+bamlist2="/full/path/to/bam.aligned_on_genome2.txt" #list of bam on genome2
+
 
 
 #TE INFO:
