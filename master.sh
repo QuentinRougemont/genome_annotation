@@ -90,8 +90,8 @@ done
 ## Global variables
 ########################################
 #if [ -z --help ] ; then 
-	echo "source config file..."
-	source ./config/config 
+    echo "source config file..."
+    source ./config/config 
 
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
@@ -102,6 +102,8 @@ echo "*** fasta for genome2 is ${genome2} **** "
 echo "*** haplotype1 is ${haplotype1} ***"
 echo "*** haplotype2 is ${haplotype2}"
 echo "*** RNAseq? $rnaseq ***"
+echo "*** RNAseq list is: ${RNAseqlist} ****" 
+echo "*** Alternatively, BAM list might be : ${bamlist}****"
 echo "*** gtf ? $gtf ***" 
 echo "*** TE database is : $TEdatabase ***"
 echo "*** lineage for busco analyses will be:  $busco_lineage ***"
@@ -118,21 +120,21 @@ echo -e "------------------------------------------------------------\n"
 # if no lineage for busco then exit and ask for it 
 if [ -z "$TEdatabase" ] && [[ $annotate = YES ]] ;
 then
-	echo "Error NO Database for TE is provided "
-	echo "I will not be able to assess mask TE prior to the genome annotation step "
-	echo "this is very bad" 
-	exit
-	Help
+    echo "Error NO Database for TE is provided "
+    echo "I will not be able to assess mask TE prior to the genome annotation step "
+    echo "this is very bad" 
+    exit
+    Help
 fi
 
 
 # if no lineage for busco then exit and ask for it 
 if [ -z "${busco_lineage}" ]  && [[ $annotate = YES ]] ;
 then
-	echo "Error NO lineage provided for busco analyses" 
-	echo "I will not be able to assess the quality of the annotation runs, which is compulsory for these anaylses"
-	exit
-	Help
+    echo "Error NO lineage provided for busco analyses" 
+    echo "I will not be able to assess the quality of the annotation runs, which is compulsory for these anaylses"
+    exit
+    Help
 fi
 
 
@@ -144,7 +146,7 @@ echo "Generate Architecture"
 mkdir -p haplo1/03_genome 
 
 if [[ -z "${haplotype1}" ]] ; then
-	haplotype1="haplo1"
+    haplotype1="haplo1"
 fi
 
 # ----- check compression of fasta  ------ ##
@@ -185,11 +187,11 @@ fi
 
 #--- handling genome 2 -----
 if [[ -n "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
-	mkdir -p haplo2/03_genome ; 
+    mkdir -p haplo2/03_genome ; 
 fi
 if [[ -z "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
-	haplotype2="haplo2"
-	mkdir -p haplo2/03_genome ; 
+    haplotype2="haplo2"
+    mkdir -p haplo2/03_genome ; 
 fi
 
 #check genome compression:
@@ -227,12 +229,12 @@ fi
 conda deactivate
 
 if [[ -n "${ancestral_genome}" ]] ; then 
-	mkdir ancestral_sp  2>/dev/null
-	#test if ancestral gtf is also provided in the config file:
-	if [ -z "${ancestral_gff}" ] ; then 
-		echo "error ! you provided an ancestral genome but no corresponding annotation (gff file)"
-		echo "please correct that"
-	fi
+    mkdir ancestral_sp  2>/dev/null
+    #test if ancestral gtf is also provided in the config file:
+    if [ -z "${ancestral_gff}" ] ; then 
+        echo "error ! you provided an ancestral genome but no corresponding annotation (gff file)"
+        echo "please correct that"
+    fi
 
 fi
 
@@ -256,311 +258,428 @@ mkdir LOGS 2>/dev/null
 echo -e "\ntesting cases\n"
 
 if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then 
-	echo "Error! provide the genome of at least one species"
-	Help
-	exit 2
+    echo "Error! provide the genome of at least one species"
+    Help
+    exit 2
 elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
-	cd haplo1
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	echo "only the genome of one species was provided" 
-	echo "we will only perform TE detection and genome annotation"
-	echo "genome is ${genome1} "
+    cd haplo1
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+    echo "only the genome of one species was provided" 
+    echo "we will only perform TE detection and genome annotation"
+    echo "genome is ${genome1} "
         echo "running TE detection and gene prediction"
-	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
-
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
+    ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
 
 elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
-	cd haplo2
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	echo "only the genome of one species was provided" 
-	echo "we will only perform TE detection and genome annotation"
-	echo "genome is ${genome2} "
-	echo "running TE detection and gene prediction"
-	../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    cd haplo2
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+    echo "only the genome of one species was provided" 
+    echo "we will only perform TE detection and genome annotation"
+    echo "genome is ${genome2} "
+    echo "running TE detection and gene prediction"
+    ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
 
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
 
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"]  ; then
-	cd haplo1/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    echo "only the genome of one species was provided" 
-	    echo "we will only perform TE detection and genome annotation with RNAseq "
-	    echo "genome is ${genome1} "
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}    2>&1 |tee ../LOGS/log_rna_haplo1
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ] ; then
+    cd haplo1/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "only the genome of one species was provided" 
+        echo "we will only perform TE detection and genome annotation with RNAseq "
+        echo "genome is ${genome1} "
+        ../00_scripts/launch_rnaseq.sh ${haplotype1}    2>&1 |tee ../LOGS/log_rna_haplo1
 
-	    #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
- 	        echo "running TE detection and gene prediction"
-		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+        #check that this script was sucessfull else kill:
+        if [ $? -eq 0 ]; then
+            echo rnaseq mapping succesffull
+            echo "running TE detection and gene prediction"
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
 
-         	cd ../
+            cd ../
 
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
+        else
+            echo ERROR - verfiy braker outputs!   
+            exit 1
+        fi
+    else
+            echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
 
-	
-	
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]   ; then
-	cd haplo2/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    echo "only the genome of one species was provided" 
-	    echo "we will only perform TE detection and genome annotation with RNAseq "
-	    echo "genome is ${genome2} "
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
 
-	   
+
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist1}" ]   ; then
+    cd haplo1/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "only the genome of one species was provided" 
+        echo "we will only perform TE detection and genome annotation with RNAseq "
+        echo "genome is ${genome2} "
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype2 -r YES -m YES -f YES -b $bamlist1  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+        cd ../
+    
+    else
+        echo "error no fasta file in 03_genome"
+        echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+
+
+
+
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${RNAseqlist}" ]   ; then
+    cd haplo2/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "only the genome of one species was provided" 
+        echo "we will only perform TE detection and genome annotation with RNAseq "
+        echo "genome is ${genome2} "
+        ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
+    
+    
             #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
- 	        echo "running TE detection and gene prediction"
-		../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+        if [ $? -eq 0 ]; then
+                echo rnaseq mapping succesffull
+            echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+            cd ../
+    
+        else
+                echo ERROR - verfiy braker outputs!   
+                exit 1
+        fi
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
 
-	        cd ../
 
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
+
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist22}" ]   ; then
+    cd haplo2/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "only the genome of one species was provided" 
+        echo "we will only perform TE detection and genome annotation with RNAseq "
+        echo "genome is ${genome2} "
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  -b $bamlist2 2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+        cd ../
+    
+    else
+        echo "error no fasta file in 03_genome"
+        echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+
 
 
 	#if both species are provided without RNAseq:
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; then
-	echo "we will perform TE detection - genome annotation - Ds computation and plots"
-	echo "genome are $genome1 and $genome2 "
-	echo $(pwd)
-	cd haplo1
-	#partie en erreur à débuguer:
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+    echo "we will perform TE detection - genome annotation - Ds computation and plots"
+    echo "genome are $genome1 and $genome2 "
+    echo $(pwd)
+    cd haplo1
+    #partie en erreur à débuguer:
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+    
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    cd haplo2
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    #if all is OK then run GeneSpace - paml etc :
+    #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
 
-	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
-	    #verify that alll run correctly 
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
-
-	cd haplo2
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    echo "running TE detection and gene prediction"
-	     ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
-
-	    #verify that alll run correctly 
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
-
-	#if all is OK then run GeneSpace - paml etc :
-	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
 
 
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  ; then
 
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]    ; then
-	echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
-	echo "genomes are ${genome1} and ${genome2}"
-	cd haplo1/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
-	    #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
-	        echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
+    echo "genomes are ${genome1} and ${genome2}"
+    cd haplo1/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
+        #check that this script was sucessfull else kill:
+        if [ $? -eq 0 ]; then
+                echo rnaseq mapping succesffull
+            echo "running TE detection and gene prediction"
+            ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+    cd ../
+        else
+                echo ERROR - verfiy braker outputs!   
+                exit 1
+        fi
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    cd haplo2/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
+    
+        #check that this script was sucessfull else kill:
+        if [ $? -eq 0 ]; then
+                echo rnaseq mapping succesffull
+            echo "running TE detection and gene prediction"
+            ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+    cd ../
+        else
+                echo ERROR - verfiy braker outputs!   
+                exit 1
+        fi
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    #then run GeneSpace etc :
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
-	cd ../
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
 
-	cd haplo2/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo2
 
-	    #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
-	        echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -z "$ancestral_genome" ] ; then
 
-	cd ../
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		Help
-		exit 1
-	fi
-
-	#then run GeneSpace etc :
-	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
+    echo "genomes are ${genome1} and ${genome2}"
+    cd haplo1/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  -b YES -b $bamlist1 2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+        cd ../
+    
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    cd haplo2/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  -b $bamlist2 2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+        echo "please copy your genome here"	
+        Help
+        exit 1
+    fi
+    
+    #then run GeneSpace etc :
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_genome" ]  ; then
-	echo "we will perform all analyses with annotations performed without rnaseq "
-	echo "genomes are ${genome1} and ${genome2}"
+    echo "we will perform all analyses with annotations performed without rnaseq "
+    echo "genomes are ${genome1} and ${genome2}"
 
-	cd haplo1
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    cd haplo1
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    cd haplo2
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    #then run GeneSpace etc :
+    #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    
+    
 
-	    #verify that alll run correctly 
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		help
-		exit 1
-	fi
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [[ -n "${bamlist1}" ]] && [[ -n "${bamlist2}" ]] && [ -n "$ancestral_genome" ]  ; then
+    echo "we will perform all analyses with annotations performed without rnaseq "
+    echo "genomes are ${genome1} and ${genome2}"
 
-	cd haplo2
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    echo "running TE detection and gene prediction"
-	    ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
-
-	    #verify that alll run correctly 
-	cd ../
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		help
-		exit 1
-	fi
-
-	#then run GeneSpace etc :
-	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
-
-
-	
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -n "$ancestral_genome" ]   ; then
-	echo "we will perform all analyses including annotation with rnaseq"
-	echo "genomes are ${genome1} and ${genome2}"
-	cd haplo1/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
-
-	    #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
+    cd haplo1
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES -b $bamlist1  2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    cd haplo2
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        echo "running TE detection and gene prediction"
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES -b $bamlist2 2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+        #verify that alll run correctly 
+    cd ../
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    #then run GeneSpace etc :
+    #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    
+    
+    
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ]   ; then
+    echo "we will perform all analyses including annotation with rnaseq"
+    echo "genomes are ${genome1} and ${genome2}"
+    cd haplo1/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        ../00_scripts/launch_rnaseq.sh ${haplotype1}   2>&1 |tee ../LOGS/log_rna_haplo1
+    
+        #check that this script was sucessfull else kill:
+        if [ $? -eq 0 ]; then
+                echo rnaseq mapping succesffull
                 echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
-
-	        cd ../
-
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		help
-		exit 1
-	fi
-
-	cd haplo2/
-	if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-	    ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo1
-
-	    #check that this script was sucessfull else kill:
-	    if [ $? -eq 0 ]; then
-    	        echo rnaseq mapping succesffull
+            ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+    
+            cd ../
+    
+        else
+                echo ERROR - verfiy braker outputs!   
+                exit 1
+        fi
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    cd haplo2/
+    if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
+        ../00_scripts/launch_rnaseq.sh ${haplotype2}   2>&1 |tee ../LOGS/log_rna_haplo1
+    
+        #check that this script was sucessfull else kill:
+        if [ $? -eq 0 ]; then
+                echo rnaseq mapping succesffull
                 echo "running TE detection and gene prediction"
-	        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
-
-	        cd ../
-
-	    else
-    	        echo ERROR - verfiy braker outputs!   
-    	        exit 1
-	    fi
-	else
-		echo "error no fasta file in 03_genome"
-	        echo "please copy your genome here"	
-		help
-		exit 1
-	fi
-
-	#then run GeneSpace etc :
-	#modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+            ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+    
+            cd ../
+    
+        else
+                echo ERROR - verfiy braker outputs!   
+                exit 1
+        fi
+    else
+        echo "error no fasta file in 03_genome"
+            echo "please copy your genome here"	
+        help
+        exit 1
+    fi
+    
+    #then run GeneSpace etc :
+    #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 #here handle cases where already annotated genome with gtf are provided:
 elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
-	echo "gtf and genomes file were provided" 
-	echo "we will run geneSpace, compute Ds and other kind of analyses"
-	mkdir haplo1/08_best_run -p 
-       	mkdir haplo2/08_best_run -p 
-	cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf	
-	cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf	
+    echo "gtf and genomes file were provided" 
+    echo "we will run geneSpace, compute Ds and other kind of analyses"
+    mkdir haplo1/08_best_run -p 
+        mkdir haplo2/08_best_run -p 
+    cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf	
+    cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf	
 
 
 
 elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [ -n "$ancestral_genome" ]  ; then
-	echo "gtf and genomes file were provided" 
-	echo "we will run geneSpace, compute Ds and other kind of analyses"
-	mkdir -p haplo1/08_best_run  
-       	mkdir -p haplo2/08_best_run  
-	cp $gtf1 haplo1/08_best_run/$haplotype1.longest_transcript.gtf	
-	cp $gtf2 haplo2/08_best_run/$haplotype2.longest_transcript.gtf	
-
-	gffread -g $genome1 -w haplo1/08_best_run/$haplotype1.spliced_cds.fa  $gtf1 
-	gffread -g $genome2 -w haplo2/08_best_run/$haplotype2.spliced_cds.fa  $gtf2 
-
-	transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
-	transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
-
-	./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    echo "gtf and genomes file were provided" 
+    echo "we will run geneSpace, compute Ds and other kind of analyses"
+    mkdir -p haplo1/08_best_run  
+        mkdir -p haplo2/08_best_run  
+    cp $gtf1 haplo1/08_best_run/$haplotype1.longest_transcript.gtf	
+    cp $gtf2 haplo2/08_best_run/$haplotype2.longest_transcript.gtf	
+    
+    gffread -g $genome1 -w haplo1/08_best_run/$haplotype1.spliced_cds.fa  $gtf1 
+    gffread -g $genome2 -w haplo2/08_best_run/$haplotype2.spliced_cds.fa  $gtf2 
+    
+    transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
+    transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
+    
+    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
 
 
 fi

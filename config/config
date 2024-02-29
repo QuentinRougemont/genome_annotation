@@ -30,6 +30,9 @@ gtf2=""
 #RNASeq data ?
 rnaseq=""   #YES/NO a string stating wether rnaseq data is available or not
 RNAseqlist="/full/path/to/rnaseq.list.txt" #list of rnaseq data 
+#OR BAM file
+bamlist="/full/path/to/bam.list.txt"     #list of bams
+
 
 #TE INFO:
 TEdatabase="" #a full path to a custom database of species/genus species TE

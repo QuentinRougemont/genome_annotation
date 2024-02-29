@@ -1,4 +1,4 @@
-# genome annotation - Synteny - Ds computation between haplotypes - changepoint analysis - whole genome alignements 
+# genome annotation - Synteny - Ds computation - changepoint analysis - whole genome alignments 
 ====================================================================================
 
    * [Purpose](#purpose)
@@ -125,7 +125,7 @@ this script should handle automatically the different **use cases**
 Use case will be infered from the config file automatically. These can be:
  * annotation only
  * annotation, synteny, arrangement and Ds inference
- * synteny, arrangement and Ds inference  
+ * synteny, arrangement and Ds inference (if your already have annotations for your genomes) 
  
 
 for more details run: 
@@ -178,16 +178,12 @@ insert some plot here
 
 # detailed steps  
 
-### Step by step guide: 
-
-# --------------------------------------------------------------------------
-
 
 # list of operations and tools
 
 
-| Operation                        |  Tools                         |   data type  | 
-|:---------------------------------|:-------------------------------|-----------| 
+| __Operation__                     |  __Tools__                         |  __data type__  | 
+|:---------------------------------:|:------------------------------:|:-----------:| 
 | __read trimming__                |  Trimmomatic                   | RNAseq         | 
 | __read mapping__                 |  gmap/gsnap                    | RNAseq          | 
 | __sorting read__                 |  samtools                      | RNAseq        |
@@ -208,29 +204,60 @@ insert some plot here
 This code has been tested with linux. 
 
 
-
 Normally, you should only run the script ```./master.sh```
 
 below we provided a description of what will be done at each steps.
 
+
+### Step by step guide: 
+
+# --------------------------------------------------------------------------
+
+All steps will be performed automatically by the ```master.sh``` script once the config file is set appropriately
+
+
 ## 0 - rename the contigs/scaffold/chromosome ID in your reference genome. 
 
-We recommand to use very short name with simple separator such as `_`. 
-Long name tend to cause bug with paml.
+We provide a script: 
+```00_scripts/00_rename_fasta.py```
+
+that will rename automatically the contigs_id if provided the current name and a new name of the following form:
+
+``` [species]_[haplotype]```  
+
+to create something like:
+
+``` [species]_[haplotype]_[contigID] ```  
+
+We recommand short name with simple separator such as ```_```      
+
+Note: Long name tend to cause bug with paml.
+
 In the rest of the pipeline, we will insert the contigs/scaffold ID in the gene ID, so they are easier to track.
 
 
-## 1 - trimmomatic: trim the reads  
+## With RNA seq data: 
 
-you can count the number of retained reads using the scripts : `./00_scripts/utility_scripts/count_read_fastq.sh`
+the script: 
+```00_scripts/launch_rnaseq.sh```
 
-for instance: 
+will be launch automatically  
+
+the following Steps will be performed:  
+
+
+## 1 - trim the reads: trimmomatic 
+
+the script will launch trimmomatic and recognized wether your data are Sinle-End or Paired-End
+at the end the following script is launch to count the number of retained reads:
+
 ```sh
-cd 02_trimmed ../00_scripts/utility_scripts/count_read_fastq.sh *fq >> read_count.txt
+/00_scripts/utility_scripts/count_read_fastq.sh
 ```
 
-
 ## 2 - create database for gsnap
+
+the following steps are performed automatically for each of your genome:
 
 ```sh
 cd haplo1
@@ -243,122 +270,251 @@ cd ../
 ## 3 - alignment with gsnap:
 
 for a given genome located in the folder `03_genome` and a set of input in `02_trimmed` ;  
-simply loop over files:
 
-```sh
-cd haplo1
-for i in 02_trimmed/*R1.paired.fastq.gz ; 
-do 
-./00_scripts/03_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
-done
+a script will launch **gsnap** automatically:  
 
-#mapping against haplo2:
-cd ../haplo2
-for i in 02_trimmed/*R1.paired.fastq.gz ; 
-do 
-./00_scripts/03_gsnap.sh 03_genome/your.genome.fa.gz $i ; 
-done
-cd ../
+* If PE:  ```00_scripts/03_gsnap_PE.sh```  
+ 
+* If SE:  ```00_scripts/03_gsnap_SE.sh```  
 
-```
 
-#### DEPRECATED STEP (ALREADY DONE IN GSNAP )
-## 4 - count the number of well mapped reads
-#
-#use the script:
-#```
-#./00_scripts/04_count_mapped_read.sh 
-#```
-#
-#and compare it to the number of trimmed reads to evaluate the quality of the data
+## 4 - mapping quality assessment 
+
+for each RNAseq data we will compute the sequencing depth and MAPQ along the genome and this will be plotted automatically.
+This is implemented directly in the script ```03_gsnap_[P/S]E.sh```  
+
+Insert example plot here
 
 
 ## 5 - TE discovery and masking
 
-## Note: It is possible to run step 05-06-07-08 with ```run_step_05_06_07_08.sh``` but read everything before !
 
-We will identify denovo repeat (from our genome) using *RepeatModeler* and mask the genome using known TE Library using *Repeatmasker* 
+## TO UPDATE
 
-use this script:
+This part will run the script ```launch_step05_to_08.sh```  
 
-```
-./00_scripts/05_repeatmodeler.sh 2>&1 |tee RM.log
-```
+It will perform the following :  
 
-### WARNING:  
-edit the script to provide path to your own database of repetetive regions. 
-Here I use 3 custom libraries + online data you may have more or less of these, so comment or delete unessecary rounds of RepeatMasker 
+   
+* step 05:  
+
+    * run **repeatmodeler**: denovo repeat identification from your genome   
+
+    * run **repeatmasker** : mask the genome using known TE Libraries 
+
+
+
+**data needed :** 
+
+    * your genome  
+
+    * NCBI database and species name on NCBI for TE 
+
+    *Ideally: a custom (home made) TE library 
+ 
+* step 06: running braker
+
+* step 07: assessing quality 
+
+* step 08: filtering and rehaping the data
+
 
 
 ## 6 - Runnning braker
 
-## data: 
-* RNAseq for the target species
+**data needed :**
+ 
+* Your genome 
 
-* Protein database from several closely related species
+* A busco lineage name 
+
+At least one of the three following data must be provided : 
+
+* 1 - RNAseq for the target species
+
+and/or:
+
+* 2 - An orthoDB species name to download external protein data
+
+and/or: 
+
+* 3 - A custom database of proteins from closely related species
 
 
 ### WARNING /!\ 
+
+**all details should be provided in the config file** 
 
 make sure to have all the dependencies installed as indicated on [braker](https://github.com/Gaius-Augustus/BRAKER#installation)
 
 #### when all is ok:
 
-Run: 
+
+The master script will run automatically:
+
 ```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
 
 This will run Braker separately for RNAseq and the protein database.   
 
-I use 5 runs for the proteiinDB and choose the one with best Busco score 
-
-
-## 7 - Evaluate quality with busco - combine different run with TSEBRA - reshape braker output 
-
-### /!\ WARNING /!\
-
-read TSEBRA manual before running the script. 
-set the parameter of tsebra accordingly
-
-then run:
-```sh
-./00_scripts/08_braker_reshaping.sh -s species_name -r YES/NO
-
-#with -s the haplotype_name 
-# -r a YES/NO string stating whether RNEseq was used (YES) or NOT (NO)
+I use 5 runs for the proteiinDB and choose the one with best Busco score  
  
+
+## 7 - Evaluate quality  
+
+4 tools can be used for quality assesment :
+
+1 - Busco 
+
+2 - Braker report on the raw hintsfile
+
+3 - Blast against Uniprot (optional)
+
+4 - UniProt (optional - more time consuming)
+
+**1 - Busco**  
+ 
+This will run the script 
+```
+00_scripts/07_busco_after_braker.sh
 ```
 
-## 8 - Write a report -- quality assesment and extraction of CDS
+to assess the quality of each braker annotation.  
 
-* annotate further with [interproscan](https://interproscan-docs.readthedocs.io/en/latest/index.html):  
+
+Again you need to provide the busco species name in the config file   
+
+
+
+**2 - Braker Report :**  
+
+
+
+On all hintsfile this will generate very usefull report including:  
+ 
+	* Number of  Gene (Total, Single-exons and Multi-exons genes) 
+ 
+	* Number of introns per genes 
+
+	* support for the genes (count and %) 
+ 
+	* complete genes (count and %)  
+ 
+	* as well as various histograms usefull for error checking
+
+
+**3 - Blast against Uniprot :** 
+
+this will be performed automatically -  
+
+comment the line 295 of the script in ```00_scripts/08_braker_reshaping.sh``` if you don't want to  
+
+
+**4 - InterProsScan annotations :**  
+
+
+to obtain InterProScan annotation set ```interpro="YES"``` in the config/config file  
+
+
+This will run : 
 
 ```
 interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
 ```
 
-Note: I had to install libdw1 (without root). 
+
+
+Note that if you disabled blast against uniprot this will not be performed either 
+
+Interproscan and blast against uniprot will in reality be run at the very end of the renaming process when single transcript have been selected 
+
+ 
+
+## 8 - reshape the data : combine run with TSEBRA - rename genes 
+
+
+Read TSEBRA manual before running the script. 
+
+set the parameter of tsebra according to the levels of stringeancy that you want .
+ 
+we provide a config file in ```config/default.cfg``` 
+
+the levels of stringeancy have been reduced to keep genes of interest that can be highly degenerated
+
+
+then our pipeline will automatically run: 
+
+```sh
+./00_scripts/08_braker_reshaping.sh -s species_name -r YES/NO
+```
+
+internally the gene will be renamed to insert the scaffold name in it. 
+
+the longest transcript will further be kept as this is important for single copy orthologs identifications 
+  
 
 
 ## 9 - Run GeneSpace - compute and plot Ds - plot ideogram - plot arrangement 
 
-* input needed: haplo1/haplo2 + the ancestral genome 
+
+* **input needed:**  gene annotation for haplo1/haplo2 + the ancestral genome 
+
+This will: 
+* 1 - Identify single copy orthologs (OrthoFinder run from GeneSpace)  
+
+* 2 - construct dotplot and riparian plot of whole genome (GeneSpace) 
+
+* 3 - perform a riparian plot focussed on the sex chromosome (GeneSpace) 
+
+
+* 4 - Align all CDS from the hap1 vs hap2 sex chromosomes (TranslatorX + muscle)
+
+* 5 - Compute Ds & Dn from PAML
+
+* 6 - Plot Ds values along the focal species (either ancestral genome or haplotype1) and gene rank order to display rearrangements 
+
+
+insert some geneSpace plot here 
+
 
 ## 10 - Plot circos
 
-to do 
+to do:
 
+* fix the code 
+
+* insert circos here 
 
 ## 11 - perform changepoint analyses
 
 to do
 
+insert graph here and how to interpret  
 
-## 12 - minimap alignements and plots of target region  
+explain the output
 
-to do
+ 
+ 
+
+## 12 - minimap alignements and plots of target region
 
 
+This is the easiest step implemented in : 
 
+```
+00_scripts/11_run_geneSapce_paml_ideogram.sh
+```  
+ 
+
+It will: 
+
+* run **minimap**  between the two haplotype 
+
+* run **minimap** between the two haplotype and ancestral genome if you have one  
+
+* run pafR to construct whole genome dotplot and synteny plot on the focal scaffold (X/Y etc).
+
+
+insert some graph here
 
 
 

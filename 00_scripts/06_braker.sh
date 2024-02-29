@@ -43,9 +43,19 @@ TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 
 #----------------- BAM data for RNAseq ------------------------ #
 #previously we used a concatenated and filtered bam.
-#however, providing a list of all bam gives similart results with a significant gain in time:
-alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
-
+#however, providing a list of all bam gives similar results with a significant gain in time:
+if [ -z $bamlist ] ; then
+    alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
+else
+   assuming list of bam already exist !
+    for i in $(cat $bamlist ) ; do
+	    mkdir 04_mapped ;
+	    cd 04_mapped
+	    ln -s $i . 
+	    cd ../ ; 
+    done
+    alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
+fi
 
 #----------------OrthoDB and Other Protein data -------------- #
 target=$orthoDBspecies
