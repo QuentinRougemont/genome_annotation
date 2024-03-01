@@ -63,7 +63,7 @@ cd genome annotation
 
 	* additional settings (RNAseq data, etc) can be declared in the **config file** 
 
-more details on the config file are [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/input_data_info) 
+more details on the config file are [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/input_data_info.md) 
 
 ### note on input naming: 
 
