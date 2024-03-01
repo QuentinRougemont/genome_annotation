@@ -89,9 +89,8 @@ done
 ########################################
 ## Global variables
 ########################################
-#if [ -z --help ] ; then 
-    echo "source config file..."
-    source ./config/config 
+echo "source config file..."
+source ./config/config 
 
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
@@ -103,7 +102,7 @@ echo "*** haplotype1 is ${haplotype1} ***"
 echo "*** haplotype2 is ${haplotype2}"
 echo "*** RNAseq? $rnaseq ***"
 echo "*** RNAseq list is: ${RNAseqlist} ****" 
-echo "*** Alternatively, BAM list might be : ${bamlist}****"
+echo "*** Alternatively, BAM list might be : ${bamlist1} & ${bamlist2}****"
 echo "*** gtf ? $gtf ***" 
 echo "*** TE database is : $TEdatabase ***"
 echo "*** lineage for busco analyses will be:  $busco_lineage ***"
@@ -111,7 +110,6 @@ echo "*** annotate? $annotate"
 echo "*** is species a fungus? $fungus ****"
 echo -e "------------------------------------------------------------\n"
 
-#fi 
 
 ###########################################################
 #a few minore chek here:
@@ -261,7 +259,7 @@ if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then
     echo "Error! provide the genome of at least one species"
     Help
     exit 2
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   && [ -z "$ancestral_genome" ] ; then
     cd haplo1
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
     echo "only the genome of one species was provided" 
@@ -278,7 +276,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   ; then
         exit 1
     fi
 
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]  && [ -z "$ancestral_genome" ]   ; then
     cd haplo2
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
     echo "only the genome of one species was provided" 
@@ -296,7 +294,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]    ; then
     fi
 
 
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ] ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] ; then
     cd haplo1/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -325,7 +323,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "$
 
 
 
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist1}" ]   ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist1}" ]  && [ -z "$ancestral_genome" ]  ; then
     cd haplo1/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -346,7 +344,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 
 
 
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${RNAseqlist}" ]   ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ]   ; then
     cd haplo2/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -376,7 +374,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 
 
 
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist22}" ]   ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist22}" ]  && [ -z "$ancestral_genome" ]  ; then
     cd haplo2/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -397,7 +395,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 
 
 	#if both species are provided without RNAseq:
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -z "$ancestral_genome" ]  ; then
     echo "we will perform TE detection - genome annotation - Ds computation and plots"
     echo "genome are $genome1 and $genome2 "
     echo $(pwd)
@@ -436,7 +434,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]   ; the
 
 
 
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] ; then
 
     echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
     echo "genomes are ${genome1} and ${genome2}"
@@ -562,14 +560,14 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
     
     
 
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [[ -n "${bamlist1}" ]] && [[ -n "${bamlist2}" ]] && [ -n "$ancestral_genome" ]  ; then
-    echo "we will perform all analyses with annotations performed without rnaseq "
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -n "$ancestral_genome" ]  ; then
+    echo "we will perform all analyses with annotations performed with rnaseq "
     echo "genomes are ${genome1} and ${genome2}"
 
     cd haplo1
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "running TE detection and gene prediction"
-        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES -b $bamlist1  2>&1 |tee ../LOGS/log_step05_08_hap1
+        ../00_scripts/launch_step05_to_08.sh  -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES -b $bamlist1  2>&1 |tee ../LOGS/log_step05_08_hap1
     
         #verify that alll run correctly 
     cd ../
