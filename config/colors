@@ -1,0 +1,15 @@
+#---- set colors and font ---------
+RED='\033[0;31m'
+BLU='\033[0;34m'
+GRE='\033[0;32m'
+NC='\033[0m' # No Color
+bold='\e[1m'
+italic='\e[3m'
+bolditalic='\e[3m\e[1m'
+underline='\e[4m'
+#bold=$(tput bold)
+normal=$(tput sgr0 )
+underline=$(tput smul )
+nounderline=$(tput rmul )
+#-------------------------------------
+

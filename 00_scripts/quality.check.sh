@@ -1,3 +1,4 @@
+#!/bin/bash
 
 #Purpose:
 #making a few checks for quality (in addition to the classical busco)

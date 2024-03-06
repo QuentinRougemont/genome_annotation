@@ -4,21 +4,7 @@
 #Date: 11-2023
 #Author: QR
 
-#---- set colors and font ---------
-RED='\033[0;31m'
-BLU='\033[0;34m'
-GRE='\033[0;32m'
-NC='\033[0m' # No Color
-bold='\e[1m'
-italic='\e[3m'
-bolditalic='\e[3m\e[1m'
-underline='\e[4m'
-#bold=$(tput bold)
-normal=$(tput sgr0 )
-underline=$(tput smul )
-nounderline=$(tput rmul )
-#-------------------------------------
-
+source config/colors 
 ############################################################
 # Help                                                     #
 ############################################################
@@ -430,7 +416,8 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -
     
     #if all is OK then run GeneSpace - paml etc :
     #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold 2>&1 |tee LOGS/log_GeneSpace_and_Co
+
 
 
 
@@ -482,7 +469,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -
     fi
     
     #then run GeneSpace etc :
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
 
 
 
@@ -518,7 +505,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -
     fi
     
     #then run GeneSpace etc :
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
 
 
 
@@ -556,7 +543,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
     
     #then run GeneSpace etc :
     #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
 
@@ -594,7 +581,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n
     
     #then run GeneSpace etc :
     #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
     
@@ -649,7 +636,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -
     
     #then run GeneSpace etc :
     #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
 
 
 #here handle cases where already annotated genome with gtf are provided:
@@ -677,7 +664,7 @@ elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${geno
     transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq "$haplotype1"_prot.fa
     transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq "$haplotype2"_prot.fa
     
-    ./00_scripts/11_run_geneSapce_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold   2>&1 |tee ../LOGS/log_geneSapce_and_Co
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff  -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
 
 
 fi

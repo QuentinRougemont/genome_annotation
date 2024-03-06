@@ -64,11 +64,12 @@ mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
     perl-threaded perl-list-util perl-math-utils cdbtools \
     perl-list-moreutils
 mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
-mamba install -c conda-forge json5
+mamba install -c conda-forge json5 matplotlib
 #stuff for R:
-mamba install conda-forge::jags
+mamba install conda-forge::jags 
 mamba install conda-forge::r-rjags
 mamba install conda-forge::r-rsvg
+mamba install conda-forge::r-igraph
 
 
 #----------- a few tools to install directly with mamba :---------------------- 
@@ -261,7 +262,7 @@ then
 	echo -e "export PATH=\$PATH:$augustuspath/bin" >> ~/.bashrc
         echo -e "export AUGUSTUS_SCRIPTS_PATH=/$augustuspath/augustus_scripts " >> ~/.bashrc
 	source ~/.bashrc
-	cd ../auxprogs/joingenes
+	cd ./auxprogs/joingenes
 	make -j8
         cd ../bam2hints
 	make

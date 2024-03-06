@@ -288,7 +288,7 @@ conda activate busco_env
 busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein 
 
 #then launch quality check on the final dataset: 
-chmod +x 00_scripts/quality.check.sh
+chmod +x ../../00_scripts/quality.check.sh
 
 #note: maybe this could be an option
 echo -e "running quality checks now "

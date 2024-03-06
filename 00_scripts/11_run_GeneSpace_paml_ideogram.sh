@@ -7,9 +7,7 @@
 #Author: QR
 
 # -- some colors for warnings in the terminal  --:
-RED='\033[0;31m' #for error
-BLU='\033[0;34m' #for success
-NC='\033[0m'     #No Color
+source config/colors
 
 ############################################################
 # Help                                                     #
@@ -75,8 +73,7 @@ if [ ! -z "${ancestral_genome}" ] ; then
 
     fi
     
-    samtools faidx "${ancestral_genome}"
-    cd ancestral_sp ; ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
+    cd ancestral_sp ; rm ancestra_sp.fa ; ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
     gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
     awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestral_sp/ancestral_sp.bed
@@ -95,12 +92,12 @@ rm genespace peptide paml plots -rf 2>/dev/null
 mkdir -p genespace/bed genespace/peptide paml plots
 
 # create bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $haplo2/08_best_run/$haplo2.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/$haplo2.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
-sed 's/_1 CDS=.*$//g' $haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
-sed 's/_1 CDS=.*$//g' $haplo2/08_best_run/"$haplo2"_prot.fa > genespace/peptide/$haplo2.fa
+sed 's/_1 CDS=.*$//g' haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
+sed 's/_1 CDS=.*$//g' haplo2/08_best_run/"$haplo2"_prot.fa > genespace/peptide/$haplo2.fa
 
 #verify that IDs in bed and fasta file are matching - else exit  
 grep ">" genespace/peptide/$haplo1.fa |sed 's/>//g' > tmp1
@@ -157,7 +154,7 @@ fi
 cd genespace 
 
 MCScanpath=$(command -v MCScanX |xargs dirname )
-sed -i "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
+sed -i "s#mcpath#$MCScanpath#" ../00_scripts/Rscripts/01.run_geneSpace.R
 
 Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
 if [ $? -eq 0 ]; then
