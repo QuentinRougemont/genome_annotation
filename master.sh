@@ -360,7 +360,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 
 
 
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist22}" ]  && [ -z "$ancestral_genome" ]  ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist2}" ]  && [ -z "$ancestral_genome" ]  ; then
     cd haplo2/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -475,7 +475,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -z "$ancestral_genome" ] ; then
 
-    echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
+    echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots - bam files already provided"
     echo "genomes are ${genome1} and ${genome2}"
     cd haplo1/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then

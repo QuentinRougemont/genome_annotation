@@ -10,6 +10,7 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
     -s | --haplotype) haplotype="$2" ;echo "the haplotype name will be $haplotype" >&2;;
+    -b | --bam )    bamlist="$2" ; echo "the optional bamlist of bam files will be $bamlist " >&2;;
     -m | --mask )   Mask="$2" ; echo "unknown TE will be removed after repeatemasking" >&2;;
     -r | --rna )    RNAseq="$2" ; echo "Is RNAseq provided ? $RNAseq " >&2;; 
     -f | --fungus ) fungus="$2" ; echo "Do species belong to fungi? $fungus" >&2;;
@@ -82,7 +83,7 @@ sed -i "11i # ---- start of setting path --- " ../00_scripts/06_braker.sh
 
 echo "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
-../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus 2>&1 |tee braker_log  #NO for no rnaseq  
+../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
 
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
