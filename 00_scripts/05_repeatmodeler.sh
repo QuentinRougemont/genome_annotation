@@ -39,14 +39,10 @@ fi
 
 base=$(basename $genome)
 #--------------DECLARE THE USUAL GENERIQ STUFF: -----------------#
-TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
-SCRIPT=$0
-NAME=$(basename $0)
-LOG_FOLDER="99_log_files"
+TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
+LOG_FOLDER="log_files"
 #create log folder
 mkdir $LOG_FOLDER 2>/dev/null
-
-cp $SCRIPT $LOG_FOLDER/"$TIMESTAMP"_"$NAME"
 
 # ----- check compression of fasta  ------ ##
 #check compression
@@ -81,23 +77,33 @@ cd 05_TE
 #--------------STEP1 : RUN REPEATMODELER  -----------------------#
 
 ##build db:
-BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIMESTAMP.log
+BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIME.log
 
 #de novo TE annotations:
-RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIMESTAMP.log
-
+RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIME.log
+if [ $? -eq 0 ]; then
+   echo -e "RepeatModeler run successfull\n"
+else
+   echo -e "${RED} ERROR! RepeatModeler failed - check your data and installation\n${NC}"
+   exit 1
+fi
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
 
 # BASED ON DATABASE : 
-FOLDER1=FOLDER1_"${base}"_mask.$TIMESTAMP
+FOLDER1=FOLDER1_"${base}"_mask.$TIME
 mkdir $FOLDER1
 lib1=$TEdatabase 
-RepeatMasker -pa 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIMESTAMP.log
-
+RepeatMasker -pa 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIME.log
+if [ $? -eq 0 ]; then
+   echo -e "RepeatMasker run successfull\n"
+else
+   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
+exit 1
+fi
 
 # Based on de-novo repeat + database:
-FOLDER2=FOLDER2_"${base}"_mask.$TIMESTAMP
+FOLDER2=FOLDER2_"${base}"_mask.$TIME
 
 # test if we keep Unknwon repeat or not
 ## without Unknwon repeat ##
@@ -117,17 +123,30 @@ fi
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
-    tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIMESTAMP.log
+    tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIME.log
 
+if [ $? -eq 0 ]; then
+   echo -e "RepeatMasker run successfull\n"
+else
+   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
+exit 1
+fi
 
 ## ----- step 2.3: based on online data ----- ## 
 #online database
-FOLDER3=FOLDER3_"${base}"_mask.$TIMESTAMP
+FOLDER3=FOLDER3_"${base}"_mask.$TIME
 mkdir "$FOLDER3"
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
-    tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIMESTAMP.log
+    tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIME.log
+
+if [ $? -eq 0 ]; then
+   echo -e "RepeatMasker run successfull\n"
+else
+   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
+exit 1
+fi
 
 cd ../03_genome
 

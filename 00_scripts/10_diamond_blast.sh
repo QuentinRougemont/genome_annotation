@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source ../config/colors
 #Date: March-2023
 #Author: QR
 #Purpose: script to blast the CDS against A1 and A2 of M-lagerheimii-1253-A1/A2 
@@ -32,7 +33,7 @@ diamond blastx -d $databaseA2 \
         --threads 20 \
         -o matches."$name".on_"$(basename $databaseA2 )".tsv 
 
-echo -e "\n---- diamond finished----\n"
+echo -e "\n${BLU}---- diamond finished----\n"
 
 #----------------- optional:  ---------------------------
 #--------------- uncomment this to search HD/PR ---------

@@ -26,6 +26,7 @@ mkdir -p $DATAOUTPUT 2>/dev/null
 
 NCPUS=8
 
+
 # For genome
 #check:
 genome=$(basename $genome )

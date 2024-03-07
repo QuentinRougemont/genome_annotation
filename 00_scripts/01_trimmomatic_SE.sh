@@ -15,7 +15,7 @@ fi
 base=$(basename $file)
 
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
-LOG_FOLDER="99_log_files"
+LOG_FOLDER="log"
 
 #create folder if not existent:
 mkdir $LOG_FOLDER 2>/dev/null

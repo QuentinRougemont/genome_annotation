@@ -217,5 +217,7 @@ then
 else
     braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
 fi
-echo -e "----------- finished------------\n\n" 
+echo -e "\n${BLU}-----------------------------\n
+	\t ALL BRAKER REPLICATES finished\n
+	------------------------------------${NC}\n\n" 
 

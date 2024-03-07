@@ -5,7 +5,7 @@
 #Date: 2024
 #Author: QR
 source ../../config/config
-
+source ../../config/colors
 ############################################################
 # Help                                                     #
 ############################################################
@@ -60,3 +60,8 @@ fi
 
 #make other checks:
 #plot cds length/intron/exons conts, etc...
+
+#to do here:
+#insert some code to compute the %of read with match against uniprot, full length of gene with match, etc
+
+echo -e "${BLU}\n------------- \n\t\tquality checks finished\n -----------${NC}\n"

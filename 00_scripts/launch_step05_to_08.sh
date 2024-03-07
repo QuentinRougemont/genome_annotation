@@ -4,7 +4,7 @@
 # WARNING STILL BETA #! 
 
 source ../config/config
-source config/colors 
+source ../config/colors 
 
 ##  ------------------------ general parameters --------------------------------  ##
 while [ $# -gt 0 ] ; do
@@ -48,7 +48,7 @@ rm_file="03_genome/genome.wholemask.fa"
 
 if [  -e "$rm_file" ] ; then 
     echo -e "\n-----------------------------------------------------"
-    echo -e "\trepeatmodeler output already exist\tnwill skip this step"; 
+    echo -e "\trepeatmodeler output already exist\n\twill skip this step"; 
     echo -e "-----------------------------------------------------\n"
 else 
     echo -e "\n-----------------------------------------------------"
@@ -56,10 +56,10 @@ else
     echo -e "-----------------------------------------------------\n"
     ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
     if [ $? -eq 0 ]; then
-        echo -e "---- repeatmodeler run successfull ----\n"
+        echo -e "\n${BLU}---- repeatmodeler run successfull ----\n${NC}"
     else
-        echo -e "repeatmodeler failed.\n
-        check the provided libraries and software dependancies"   
+        echo -e "${RED} ERROR: repeatmodeler failed.\n
+        check the provided libraries and software dependancies  \n${NC}"   
         exit 
     fi
 fi
@@ -94,8 +94,15 @@ sed -i "s#AUGSC_PATH#export AUGUSTUS_SCRIPTS_PATH=$augscripts#" ../00_scripts/06
 
 echo "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
-../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa $haplotype $RNAseq $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
+../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa $haplotype $RNAseq \
+    $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
 
+if [ $? -eq 0 ]; then
+    echo -e "${BLU}------\nbraker successfully run\n------${NC}"
+else
+    echo -e "${RED} ERROR! FAILED RUNNING BRAKER - verfiy braker_log!  \n${NC}"
+    exit 1
+fi
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
 then
@@ -112,8 +119,8 @@ else
    ../00_scripts/08_braker_reshaping.sh -s $haplotype -r NO 2>&1 |tee reshape_log 
 fi
 if [ $? -eq 0 ]; then
-    echo -e "------\nbraker output successfully processed\n------"
+    echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
 else
-    echo ERROR - verfiy braker outputs!   
+    echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
     exit 1
 fi

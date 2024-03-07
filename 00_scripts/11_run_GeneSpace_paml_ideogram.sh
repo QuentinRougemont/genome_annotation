@@ -158,9 +158,9 @@ sed -i "s#mcpath#$MCScanpath#" ../00_scripts/Rscripts/01.run_geneSpace.R
 
 Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
 if [ $? -eq 0 ]; then
-    echo genespace worked successfully
+    echo -e "\n${BLU}------------------- \n\tgenespace worked successfully \n --------------------------${NC}\n"
 else
-    echo genespace failed
+    echo -e "\n${RED}------------------- \n\t ERROR : genespace failed   \n----------------------${NC}\n"
     exit 1
 fi
 
@@ -176,9 +176,9 @@ else
     Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R $haplo1
 fi
 if [ $? -eq 0 ]; then
-    echo -e "\n---------------------\n\t\tplots OK\n---------------------------------------\n"
+    echo -e "\n${BLU}---------------------\n\t\tplots OK\n---------------------------------------${NC}\n"
 else
-    echo -e "\n---------------------\n\t\tplottings subset failed checks your input scaffold name-----------------------\n"
+    echo -e "\n${RED}---------------------\n\t\tplottings subset failed checks your input scaffold name-----------------------${NC}\n"
     exit 1
 fi
 
@@ -284,7 +284,7 @@ else
 fi
 
 
-#
+
 ## --------------------------------Make Synteny table -----------------------------------------------
 is_anc='TRUE'
 if [ ! -z "${ancestral_genome}" ] ; then
@@ -328,7 +328,9 @@ python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} 
 #assumption : each genome MUST BE located in folder 03-genome
 
 echo -e "\n------- running minimap for genome broad synteny plots  -------\n" 
+
 minimap2 -cx asm5 haplo1/03_genome/"$haplo1".fa haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
+
 if [ $? -eq 0 ]; then
      echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
  else
@@ -336,6 +338,7 @@ if [ $? -eq 0 ]; then
      PLEASE CHECK INTPUT DATA------------------${NC}\n"
      exit 1
 fi
+
 
 if [ -n ${ancestral_sp} ] ; then
     echo -e "\n------- an ancestral genome was provided ------ "
@@ -401,10 +404,10 @@ fi
 
 Rscript 00_scripts/Rscripts/06.MCP_model_comp.R
 
-    if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall Changepoint worked successfully\nALL ANALYSES COMPLETE!------------------${NC}\n"
-    else
-        echo -e "\n${RED}-------------------\nERROR: Changepoint Failed /!\ \n
-        PLEASE CHECK INTPUT DATA------------------${NC}\n"
-        exit 1
-    fi
+if [ $? -eq 0 ]; then
+     echo -e  "\n${BLU}------------------\nall Changepoint worked successfully\nALL ANALYSES COMPLETE!------------------${NC}\n"
+else
+     echo -e "\n${RED}-------------------\nERROR: Changepoint Failed /!\ \n
+     PLEASE CHECK INTPUT DATA------------------${NC}\n"
+     exit 1
+fi
