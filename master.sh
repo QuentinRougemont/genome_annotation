@@ -280,7 +280,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO"]  && [ -z "$
     fi
 
 
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
     cd haplo1/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -309,10 +309,10 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "$
 
 
 
-elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist1}" ]  && [ -z "$ancestral_genome" ]  ; then
+elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist1}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
     cd haplo1/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-        echo "only the genome of one species was provided" 
+        echo "only the genome of one species was provided along with a list of bam" 
         echo "we will only perform TE detection and genome annotation with RNAseq "
         echo "genome is ${genome2} "
         echo "running TE detection and gene prediction"
@@ -330,7 +330,7 @@ elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 
 
 
-elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ]   ; then
+elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]  ; then
     cd haplo2/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -363,7 +363,7 @@ elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n
 elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -n "${bamlist2}" ]  && [ -z "$ancestral_genome" ]  ; then
     cd haplo2/
     if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-        echo "only the genome of one species was provided" 
+        echo "only the genome of one species was provided along with a list of bam" 
         echo "we will only perform TE detection and genome annotation with RNAseq "
         echo "genome is ${genome2} "
         echo "running TE detection and gene prediction"
@@ -421,7 +421,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -
 
 
 
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
 
     echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots"
     echo "genomes are ${genome1} and ${genome2}"
@@ -548,7 +548,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n 
     
 
 elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -n "$ancestral_genome" ]  ; then
-    echo "we will perform all analyses with annotations performed with rnaseq "
+    echo "we will perform all analyses with annotations performed with rnaseq - list of bam provided "
     echo "genomes are ${genome1} and ${genome2}"
 
     cd haplo1
@@ -585,7 +585,7 @@ elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n
     
     
     
-elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ]   ; then
+elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]   ; then
     echo "we will perform all analyses including annotation with rnaseq"
     echo "genomes are ${genome1} and ${genome2}"
     cd haplo1/
