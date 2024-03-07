@@ -31,7 +31,6 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
 #  ---- external data required arguments --------------- #
-#if [ $# -ne 5 ] ; then
 if (( $# < 5 )) ; then
     echo "USAGE: $0 reference_genome species RNAseq(YES/NO) fungus(YES/NO)" 
     echo -e "Expecting the following parameters:\n
@@ -93,7 +92,7 @@ else
         echo "please verify if this is the file that you need"
         exit 1 
         else
-        wget https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
+        wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
             gunzip ${target}.fa.gz
             cd ../ 
             cat $RelatedProt  odb11/"${target}".fa > relatProt.fa
@@ -108,10 +107,17 @@ fi
 
 
 #------------------ check ----------------------------------#
-if [[ -d 06_braker ]] 
+if [[ -d 06_braker ]]
 then
-    echo "WARNING directory 06_braker already exists! check its content first"
-    exit 1
+    echo "WARNING directory 06_braker already exists! check its content first
+    Do you wish to remove it?\n
+    this will stop the pipeline"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) rm -rf; break;;
+            No ) exit;;
+        esac
+    done
 fi
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##

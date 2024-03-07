@@ -61,6 +61,7 @@ fi
 
 
 # -------------------- run Braker  ---------------------------- #
+
 #setting up path prior to running busco: 
 tsebrapath=$(command -v tsebra.py |xargs dirname )
 cdbpath=$(command -v cdbfasta |xargs dirname )
@@ -73,7 +74,7 @@ augconf=$(echo $augbin  |sed 's/bin/config/' )
 #verify again that all path exist -----
 [[ -z "$tsebrapath" ]] && { echo "Error: tsebra.py not found"; exit 1; }
 [[ -z "$cdbpath" ]] && { echo "Error: cdbfasta not found"; exit 1; }
-[[ -z "$prothpath" ]] && { echo "Error: prothint not found"; exit 1; }
+[[ -z "$protpath" ]] && { echo "Error: prothint not found"; exit 1; }
 [[ -z "$gmarkpath" ]] && { echo "Error: genemark not found"; exit 1; }
 [[ -z "$augbin" ]] && { echo "Error: Augustus binaries not found"; exit 1; }
 
