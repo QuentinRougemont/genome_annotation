@@ -73,7 +73,7 @@ if [ ! -z "${ancestral_genome}" ] ; then
 
     fi
     
-    cd ancestral_sp ; rm ancestra_sp.fa ; ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
+    cd ancestral_sp ; rm ancestral_sp.fa ; ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
     gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
     awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestral_sp/ancestral_sp.bed

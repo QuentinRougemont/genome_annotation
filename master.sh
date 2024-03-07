@@ -239,7 +239,7 @@ fi
 
 mkdir LOGS 2>/dev/null
 
-echo -e "\ntesting cases\n"
+echo -e "\ntesting use cases and checking inputs\n"
 
 if [ -z "${genome1}" ]  || [ -z "${genome2}" ] ; then 
     echo "Error! provide the genome of at least one species"

@@ -47,6 +47,7 @@ rm_file="03_genome/genome.wholemask.fa"
 
 if [  -e "$rm_file" ] ; then 
     echo -e "repeatmodeler output already exist\nwill skip this step"; 
+    echo -e "-----------------------------------------------------\n"
 else 
     echo -e "no repeatmodeller output \n will launch repeatmodeller " ; 
     ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm

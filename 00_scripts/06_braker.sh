@@ -31,8 +31,8 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
 #  ---- external data required arguments --------------- #
-if (( $# < 5 )) ; then
-    echo "USAGE: $0 reference_genome species RNAseq(YES/NO) fungus(YES/NO)" 
+if (( $# < 4 )) ; then
+    echo "USAGE: $0 <reference_genome> <species> <RNAseq>(YES/NO) <fungus>(YES/NO) <bamlist> (optional) <NCPUS>(optional)" 
     echo -e "Expecting the following parameters:\n
         1 - the reference genome\n
         2 - a species name\n
@@ -73,6 +73,21 @@ else
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 fi
 
+
+#------------------ check if the folder already exits ----------------------------------#
+if [[ -d 06_braker ]]
+then
+    echo "WARNING directory 06_braker already exists! check its content first
+    Do you wish to remove it?\n
+    this will stop the pipeline"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) rm -rf; break;;
+            No ) exit;;
+        esac
+    done
+fi
+
 #----------------OrthoDB and Other Protein data -------------- #
 target=$orthoDBspecies
 
@@ -85,13 +100,14 @@ else
     clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
     if [[ ${clades[@]} =~ $target ]]
     then
-    rm -rf obd11 2>/dev/null
-        mkdir odb11 2>/dev/null ; cd odb11
+        rm -rf odbd11 2>/dev/null
+        mkdir odb11 2>/dev/null 
+	cd odb11
     if [ -f "$target".fa* ]; then
         echo "warning file $target.fa already present "
         echo "please verify if this is the file that you need"
         exit 1 
-        else
+    else
         wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
             gunzip ${target}.fa.gz
             cd ../ 
@@ -105,20 +121,6 @@ else
     fi  
 fi
 
-
-#------------------ check ----------------------------------#
-if [[ -d 06_braker ]]
-then
-    echo "WARNING directory 06_braker already exists! check its content first
-    Do you wish to remove it?\n
-    this will stop the pipeline"
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) rm -rf; break;;
-            No ) exit;;
-        esac
-    done
-fi
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
 ## Note on braker: we found that running on RNAseq & proteins separately and combining afterwards 
