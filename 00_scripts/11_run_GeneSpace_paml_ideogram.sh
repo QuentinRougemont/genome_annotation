@@ -289,10 +289,10 @@ fi
 is_anc='TRUE'
 if [ ! -z "${ancestral_genome}" ] ; then
 
-	is_anc='TRUE'
+    is_anc='TRUE'
 else
 
-	is_anc='FALSE'
+    is_anc='FALSE'
 fi
 
 path_orthofinder='genespace/orthofinder/Results_*/'
@@ -326,30 +326,73 @@ python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} 
 ##---------------------------------- step7 -- run minimap between the genomes -----------------------------#
 #run minimap on the genome 
 #assumption : each genome MUST BE located in folder 03-genome
+
+echo -e "\n------- running minimap for genome broad synteny plots  -------\n" 
 minimap2 -cx asm5 haplo1/03_genome/"$haplo1".fa haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
+if [ $? -eq 0 ]; then
+     echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+ else
+     echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
+     PLEASE CHECK INTPUT DATA------------------${NC}\n"
+     exit 1
+fi
 
 if [ -n ${ancestral_sp} ] ; then
-    minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa haplo2/03_genome/"$haplo2".fa > aln."$ancestral_sp"_"$haplo2".paf 
-    minimap2 -cx asm5 $ancestral_sp/$ancestral_sp.fa haplo1/03_genome/"$haplo1".fa > aln."$ancestral_sp"_"$haplo1".paf 
+    echo -e "\n------- an ancestral genome was provided ------ "
+    echo -e "running minimap for genome broad synteny plots  -------\n" 
+
+    minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo2/03_genome/"$haplo2".fa > aln."ancestral_sp"_"$haplo2".paf 
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+    minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo1/03_genome/"$haplo1".fa > aln."ancestral_sp"_"$haplo1".paf 
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+
+
     #preparing scaffold to highlight in dotplot:
     awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo1.txt
     awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
     awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
 
     Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo1".paf 
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$ancestral_sp"_"$haplo2".paf 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo1".paf 
+    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo2".paf 
 
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
+    Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
     Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
 
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
 else 
     awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt
     
     #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
     Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
     Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+
 
 fi
 
@@ -357,3 +400,11 @@ fi
 #------------------------ step 8 -- model comparison -------------------------------------------------#
 
 Rscript 00_scripts/Rscripts/06.MCP_model_comp.R
+
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall Changepoint worked successfully\nALL ANALYSES COMPLETE!------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: Changepoint Failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi

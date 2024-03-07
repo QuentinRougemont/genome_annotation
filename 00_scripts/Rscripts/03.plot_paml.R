@@ -60,7 +60,7 @@ if (length(argv)<3) {
 	sp2 <- argv[2]     # only the basename is needed !
 	chr <- argv[3]     # table with chr\tstatus [Reversed or Not]
 
-	scaf <- read.table(chr) %>% set_colnames(., c("haplo","chr","order"))
+	scaf <- read.table(chr, sep="\t") %>% set_colnames(., c("haplo","chr","order"))
 
 	#orthofinder single copy orthologs:
 	single_cp <- read.table("paml/single.copy.orthologs", sep = "\t") %>% 

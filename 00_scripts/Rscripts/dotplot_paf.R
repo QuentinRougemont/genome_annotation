@@ -6,10 +6,13 @@ if("ggplot2" %in% rownames(installed.packages()) == FALSE)
 {install.packages("ggplot2", repos="https://cloud.r-project.org") }
 if("ggpubr" %in% rownames(installed.packages()) == FALSE)
 {install.packages("ggpubr", repos="https://cloud.r-project.org") }
+if("knitr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("knitr", repos="https://cloud.r-project.org") }
 
 library(ggplot2)
 library(pafr)
 library(ggpubr)
+library(knitr)
 
 argv <- commandArgs(T)
 paf <- argv[1] #paf file
