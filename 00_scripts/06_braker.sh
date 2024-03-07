@@ -31,7 +31,8 @@ trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
 #  ---- external data required arguments --------------- #
-if [ $# -ne 4 ] ; then
+#if [ $# -ne 5 ] ; then
+if (( $# < 5 )) ; then
     echo "USAGE: $0 reference_genome species RNAseq(YES/NO) fungus(YES/NO)" 
     echo -e "Expecting the following parameters:\n
         1 - the reference genome\n
@@ -44,7 +45,8 @@ else
     species=$2
     RNAseq=$3 #YES/NO
     fungus=$4
-    NCPUS=$5
+    bamlist=$5
+    NCPUS=$6
 fi
 
 base=$(basename $genome )

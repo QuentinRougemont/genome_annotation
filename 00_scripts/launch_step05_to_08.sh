@@ -43,7 +43,7 @@ fi
 # ------------------ run RepeatModeler and RepeatMasker ------------------  ##
 
 #check that no repeatmodeler output already exist:
-rm_file="03_genome/genome.wholemask_no_unknown.fa"
+rm_file="03_genome/genome.wholemask.fa"
 
 if [  -e "$rm_file" ] ; then 
     echo -e "repeatmodeler output already exist\nwill skip this step"; 
@@ -88,7 +88,7 @@ sed -i "s#AUGSC_PATH#export AUGUSTUS_SCRIPTS_PATH=$augscripts#" ../00_scripts/06
 
 echo "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
-../00_scripts/06_braker.sh 03_genome/genome.wholemask_no_unknown.fa $haplotype $RNAseq $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
+../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa $haplotype $RNAseq $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
 
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
