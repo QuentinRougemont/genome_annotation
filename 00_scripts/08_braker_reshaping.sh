@@ -38,8 +38,8 @@ done
 
 
 if [ -z "${haplo}" ] || [ -z "${RNAseq}" ]  ; then
-	Help
-	exit 2 
+    Help
+    exit 2 
 fi
 
 #------------------------------ step 1 find best run ---------------------------------------------------------#
@@ -67,8 +67,8 @@ cd ../
 #optionally make a report:
 mkdir 08_best_run 2>/dev/null
 python3 ../00_scripts/utility_scripts/generateReport.py 06_braker/"$best_round"/braker.gtf \
-	06_braker/"$best_round"/hintsfile.gff  \
-	08_best_run/report_"$best_round".pdf
+    06_braker/"$best_round"/hintsfile.gff  \
+    08_best_run/report_"$best_round".pdf
 
 
 
@@ -77,60 +77,60 @@ python3 ../00_scripts/utility_scripts/generateReport.py 06_braker/"$best_round"/
 if [[ $RNAseq = "YES" ]]
 then
 
-	#make a report on rnaseq:
+    #make a report on rnaseq:
         python3 ../00_scripts/utility_scripts/generateReport.py \
-		06_braker/rnaseq/braker.gtf \
-		06_braker/rnaseq/hintsfile.gff  \
-		08_best_run/report_rnaseq.pdf
-
-
-	echo -e "\nrunning tsebra\n" 
-
-	#2 -- run tsebra
-	#test if default.cfg can be found:
-	tsebraconf=default.cfg
-	cp ../config/$tsebraconf .
-	#[ -f $tsebraconf ] && { echo " $tsebraconf exist";  cp "$tsebraconf" . } || {echo "no config file for tsebra"; exit } 
-	if [ -f $tsebraconf ] ; then 
-		echo " $tsebraconf exist";  cp "$tsebraconf" . 
-	else 	
-		echo "FATAL ERROR: no config file for tsebra"
-		exit
-	fi
-
-	#then run tsebra:
-	../00_scripts/09_tsebra.sh $haplo $best_round
-
-	#remove any existing folder:
-	#rm -rf 08_best_run 2>/dev/null
-
-	#mkdir 08_best_run 2>/dev/null
-	cd 08_best_run
-
-	ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
-	cd ../
-	file=08_best_run/$haplo.gtf
-	nb_genes=$(awk '$3=="gene" ' $file |wc -l)
-	echo -e "\nthere is $nb_genes genes after running tsebra\n" 
+        06_braker/rnaseq/braker.gtf \
+        06_braker/rnaseq/hintsfile.gff  \
+        08_best_run/report_rnaseq.pdf
+    
+    
+    echo -e "\nrunning tsebra\n" 
+    
+    #2 -- run tsebra
+    #test if default.cfg can be found:
+    tsebraconf=default.cfg
+    cp ../config/$tsebraconf .
+    #[ -f $tsebraconf ] && { echo " $tsebraconf exist";  cp "$tsebraconf" . } || {echo "no config file for tsebra"; exit } 
+    if [ -f $tsebraconf ] ; then 
+        echo " $tsebraconf exist";  cp "$tsebraconf" . 
+    else 
+        echo "FATAL ERROR: no config file for tsebra"
+        exit
+    fi
+    
+    #then run tsebra:
+    ../00_scripts/09_tsebra.sh $haplo $best_round
+    
+    #remove any existing folder:
+    #rm -rf 08_best_run 2>/dev/null
+    
+    #mkdir 08_best_run 2>/dev/null
+    cd 08_best_run
+    
+    ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
+    cd ../
+    file=08_best_run/$haplo.gtf
+    nb_genes=$(awk '$3=="gene" ' $file |wc -l)
+    echo -e "\nthere is $nb_genes genes after running tsebra\n" 
 
 else 
-	#----------------------------------------------------------------------#
-	#2 -- copy best run based on database in a final folder
-
-	#DEPRCETATED :
-	#run_id=${best_round%_braker_on_refprot} 
-	#mkdir 08_best_run"$run_id"
-	#cp 06_braker/$best_round/braker.gtf 08_best_run"$run_id"/$haplo.gtf
-	#sed -i 's/_pilon//g' 08_best_run"$run_id"/$haplo.gtf
-	#file=08_best_run$run_id/$haplo.gtf
-	
-	echo "running on protein only - not running tsebra" 
-
-	#mkdir 08_best_run
-	cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.gtf
-	file=08_best_run/$haplo.gtf
-
-	nb_genes=$(awk '$3=="gene" ' $file |wc -l)
+    #----------------------------------------------------------------------#
+    #2 -- copy best run based on database in a final folder
+    
+    #DEPRCETATED :
+    #run_id=${best_round%_braker_on_refprot} 
+    #mkdir 08_best_run"$run_id"
+    #cp 06_braker/$best_round/braker.gtf 08_best_run"$run_id"/$haplo.gtf
+    #sed -i 's/_pilon//g' 08_best_run"$run_id"/$haplo.gtf
+    #file=08_best_run$run_id/$haplo.gtf
+    
+    echo "running on protein only - not running tsebra" 
+    
+    #mkdir 08_best_run
+    cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.gtf
+    file=08_best_run/$haplo.gtf
+    
+    nb_genes=$(awk '$3=="gene" ' $file |wc -l)
         echo -e "\nthere is $nb_genes in the best protein run\n"
 fi
 
@@ -191,8 +191,8 @@ cd 08_best_run/02_haplo_prot
 #assumption : all transcript finishes by ".t1, .t2, .t3 so the dot (.) iis the delimiter
 
 awk '/^>/ {if (seqlen){print seqlen}; printf(">%s\t",substr($0,2)) ;seqlen=0;next; } { seqlen += length($0)}END{print seqlen}' "${haplo}".prot |\
-	awk -F ".t[0-9]_1 " '{print $1"\t"$0}'  |\
-	awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
+    awk -F ".t[0-9]_1 " '{print $1"\t"$0}'  |\
+    awk '$3>max[$1]{max[$1]=$3; row[$1]=$2} END{for (i in row) print row[i]}' > longest.transcript.tmp
 
 #linearize file so that the next command will work:
 awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$haplo".prot > "$haplo".prot.lin.fasta
@@ -211,12 +211,12 @@ cd 08_best_run
 
 #look for putative fragented gene (this should be zero):
 cut -f 9 "$gtf" |\
-	sed 's/^gene_id//g' |\
-	sed 's/transcript_id//g' |\
-	cut -d ";" -f 1 |\
-	sed 's/.t[1-9]//g' |\
-	sort |uniq -c |\
-	awk '$1==1 {print}'  > fragmented_gene.txt 
+    sed 's/^gene_id//g' |\
+    sed 's/transcript_id//g' |\
+    cut -d ";" -f 1 |\
+    sed 's/.t[1-9]//g' |\
+    sort |uniq -c |\
+    awk '$1==1 {print}'  > fragmented_gene.txt 
 
 loss=$(wc -l fragmented_gene.txt |awk '{print $1}' )
 echo " there is $loss fragmented gene"
@@ -285,7 +285,7 @@ source ../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco_env
-busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein 
+busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein -f  
 
 #then launch quality check on the final dataset: 
 chmod +x ../../00_scripts/quality.check.sh

@@ -3,12 +3,27 @@
 #AUTHOR: QR
 #Date updated: 10-03-2023
 set -e
+
+#------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
 source ../config/config
 
+#------------- CONDA ACTIVATION  -------------- #
 eval "$(conda shell.bash hook)"
 conda activate braker_env
 
+
 echo "relatedProt is $RelatedProt"
+
+#--- start of setting path ---- " 
+CDB_PATH
+TSEBR_PATH
+PROTH_PATH
+GMARK_PATH
+AUGCO_PATH
+AUGBI_PATH
+AUGSC_PATH
+#--- end of setting path ---- " 
+
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
@@ -17,12 +32,12 @@ trap 'echo "\"${last_command}\" command filed with exit code $?."' EXIT
 
 #  ---- external data required arguments --------------- #
 if [ $# -ne 4 ] ; then
-	echo "USAGE: $0 reference_genome species RNAseq(YES/NO) fungus(YES/NO)" 
-        echo -e "Expecting the following parameters:\n
-                1 - the reference genome\n
-                2 - a species name\n
-                3 - a string YES/NO for wether RNAseq should be considered or not\n\n
-		4 - a string YES/NO stating wether data are from fungus or not \n\n" 
+    echo "USAGE: $0 reference_genome species RNAseq(YES/NO) fungus(YES/NO)" 
+    echo -e "Expecting the following parameters:\n
+        1 - the reference genome\n
+        2 - a species name\n
+        3 - a string YES/NO for wether RNAseq should be considered or not\n\n
+        4 - a string YES/NO stating wether data are from fungus or not \n\n" 
         exit 1
 else
     genome=$1 #the reference genome here! "genome.wholemask.fa"
@@ -49,10 +64,10 @@ if [ -z $bamlist ] ; then
 else
    assuming list of bam already exist !
     for i in $(cat $bamlist ) ; do
-	    mkdir 04_mapped ;
-	    cd 04_mapped
-	    ln -s $i . 
-	    cd ../ ; 
+        mkdir 04_mapped ;
+        cd 04_mapped
+        ln -s $i . 
+        cd ../ ; 
     done
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 fi
@@ -69,20 +84,21 @@ else
     clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
     if [[ ${clades[@]} =~ $target ]]
     then
+    rm -rf obd11 2>/dev/null
         mkdir odb11 2>/dev/null ; cd odb11
-	if [ -f "$target".fa* ]; then
-	    echo "warning file $target.fa already present "
-	    echo "please verify if this is the file that you need"
-	    exit 1 
+    if [ -f "$target".fa* ]; then
+        echo "warning file $target.fa already present "
+        echo "please verify if this is the file that you need"
+        exit 1 
         else
-	    wget https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
+        wget https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
             gunzip ${target}.fa.gz
             cd ../ 
             cat $RelatedProt  odb11/"${target}".fa > relatProt.fa
-	    relatProt="relatProt.fa"
-
-	fi
-
+        relatProt="relatProt.fa"
+    
+    fi
+    
     else
         echo "No Protein database specified"
     fi  
@@ -92,8 +108,8 @@ fi
 #------------------ check ----------------------------------#
 if [[ -d 06_braker ]] 
 then
-	echo "WARNING directory 06_braker already exists! check its content first"
-	exit 1
+    echo "WARNING directory 06_braker already exists! check its content first"
+    exit 1
 fi
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
@@ -113,11 +129,11 @@ then
 
     if [[ $fungus = "YES" ]]
     then
-	    echo -e "------ \n running braker on rnaseq data \n -------"
-	    echo -e "------ \n data are from fungus \n -------"
+        echo -e "------ \n running braker on rnaseq data \n -------"
+        echo -e "------ \n data are from fungus \n -------"
             braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     else
-	    echo -e "------ \n running braker on rnaseq data \n -------"
+        echo -e "------ \n running braker on rnaseq data \n -------"
             braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     fi
 fi 

@@ -46,8 +46,8 @@ while [ $# -gt 0 ] ; do
 done 
 
 if [ -z "${haplo1}" ] && [ -z "${haplo2}" ]  && [ -z "${scaffold}" ]    ; then
-	Help
-	exit 2
+    Help
+    exit 2
 fi
 
 #test if ancestral genome is provided or not:
@@ -109,9 +109,9 @@ fi
 
 ##---  linearise the cds file ---#
 cat "${cdsfile2}" | \
-	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo2".linearised.cds
+    awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo2".linearised.cds
 cat "$cdsfile1" | \
-	awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo1".linearised.cds
+    awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}'  > paml/"$haplo1".linearised.cds
 
 
 ##---- recover the wanted sequences in the CDS file #
@@ -223,30 +223,30 @@ paste ID1 ID2 |sed 's/>//g' > wanted_sequence
 
 while IFS=$'\t' read -r -a line
 do
-	mkdir sequence_files/tmp.${line[0]}.vs.${line[1]}
-
-	grep -A1 ${line[0]}  $newf1 > sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
-	grep -A1 ${line[1]}  $newf2 >> sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
-	
-	#run muscle from within translatorX, so we also have gblocks output and the html files:
-	translatorx_vLocal.pl -i sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta -o sequence_files/tmp.${line[0]}.vs.${line[1]}/results 2>&1 |tee log.translator
-
-	cp ../config/yn00_template.ctl sequence_files/tmp.${line[0]}.vs.${line[1]}/
-
-        cd sequence_files/tmp.${line[0]}.vs.${line[1]}/
-	
-	#configure paml:
-	path=$(pwd)
-	echo $path
-	sed -i "s|PATH|$path|g" 	 yn00_template.ctl #"
-
-	#run paml : 
-	yn00 yn00_template.ctl  
-
+    mkdir sequence_files/tmp.${line[0]}.vs.${line[1]}
+    
+    grep -A1 ${line[0]}  $newf1 > sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
+    grep -A1 ${line[1]}  $newf2 >> sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta
+    
+    #run muscle from within translatorX, so we also have gblocks output and the html files:
+    translatorx_vLocal.pl -i sequence_files/tmp.${line[0]}.vs.${line[1]}/sequence.fasta -o sequence_files/tmp.${line[0]}.vs.${line[1]}/results 2>&1 |tee log.translator
+    
+    cp ../config/yn00_template.ctl sequence_files/tmp.${line[0]}.vs.${line[1]}/
+    
+    cd sequence_files/tmp.${line[0]}.vs.${line[1]}/
+    
+    #configure paml:
+    path=$(pwd)
+    echo $path
+    sed -i "s|PATH|$path|g" 	 yn00_template.ctl #"
+    
+    #run paml : 
+    yn00 yn00_template.ctl  
+    
         cd ../../
-
-	#extract the dS, dN and SE from the output: 
-	awk '/\+\-/ && !/(dS|SE)/ {split(FILENAME, a, "."); print $(NF-2), $(NF), $(NF-5), $(NF-3),"'${line[0]}'","'${line[1]}'"}'  sequence_files/tmp.${line[0]}.vs.${line[1]}/out_yn00_orthogp >  sequence_files/tmp.${line[0]}.vs.${line[1]}/resultat_Yang_Nielsen_2000_method.orthogp.txt 
+    
+    #extract the dS, dN and SE from the output: 
+    awk '/\+\-/ && !/(dS|SE)/ {split(FILENAME, a, "."); print $(NF-2), $(NF), $(NF-5), $(NF-3),"'${line[0]}'","'${line[1]}'"}'  sequence_files/tmp.${line[0]}.vs.${line[1]}/out_yn00_orthogp >  sequence_files/tmp.${line[0]}.vs.${line[1]}/resultat_Yang_Nielsen_2000_method.orthogp.txt 
 
 
 done < wanted_sequence 2>&1 |tee log.paml 

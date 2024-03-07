@@ -8,6 +8,8 @@
 #------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
 source ../config/config
 
+
+#------------- CONDA ACTIVATION  -------------- #
 eval "$(conda shell.bash hook)"
 conda activate repeatmodeler_env
 
@@ -15,8 +17,8 @@ conda activate repeatmodeler_env
 echo TEdatabase is $TEdatabase
 echo "NCBI species is $ncbi_species"
 echo "genome is $genome"
-#echo "database is $haplotype1"
 
+#------------- CHECK PARAMETERS -------------- #
 if [ $# -ne 3  ]; then
     echo "USAGE: $0 reference_genome database name rm_unknwon(yes/no)"
     echo -e "Expecting the following parameters:\n
@@ -101,21 +103,21 @@ FOLDER2=FOLDER2_"${base}"_mask.$TIMESTAMP
 ## without Unknwon repeat ##
 if [[ $rm_unknown = "YES" ]]
 then
-        echo "removing Unknown TE Repeats ..."
-        awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
-        sed -e '/Unknown/,+1d' |\
-        cat $lib1 - > $base.no_unknown.repbase.fa
-	libcat="$base".no_unknown.repbase.fa
+    echo "removing Unknown TE Repeats ..."
+    awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
+    sed -e '/Unknown/,+1d' |\
+    cat $lib1 - > $base.no_unknown.repbase.fa
+    libcat="$base".no_unknown.repbase.fa
 else
-	#with known repeat
-        echo "keep all candidate TEs... "
-        cat $database-families.fa $lib1 > $base.repbase.fa
-	libcat="$base".repbase.fa
+    #with known repeat
+    echo "keep all candidate TEs... "
+    cat $database-families.fa $lib1 > $base.repbase.fa
+    libcat="$base".repbase.fa
 fi
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
-	tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIMESTAMP.log
+    tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIMESTAMP.log
 
 
 ## ----- step 2.3: based on online data ----- ## 
@@ -125,14 +127,14 @@ mkdir "$FOLDER3"
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
-	tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIMESTAMP.log
+    tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIMESTAMP.log
 
 cd ../03_genome
 
 if [[ $rm_unknown = "YES" ]]
 then
-        ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask_no_unknown.fa
+    ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask.fa
 else
-        ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask.fa
+    ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask.fa
 fi
 

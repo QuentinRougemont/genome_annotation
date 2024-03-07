@@ -32,17 +32,17 @@ NCPU=8
 
 
 java -jar -Xmx10G Trimmomatic-0.39/trimmomatic-0.39.jar PE \
-        -threads 8 \
-        -phred33 \
-        "$file1" \
-        "$file2" \
-        02_trimmed/"$base"_R1.paired.fastq.gz \
-        02_trimmed/"$base"_R1.single.fastq.gz \
-        02_trimmed/"$base"_R2.paired.fastq.gz \
-        02_trimmed/"$base"_R2.single.fastq.gz \
-        ILLUMINACLIP:"$ADAPTERFILE":2:30:10:2:True \
-	HEADCROP:9 \
-        LEADING:20 \
-        TRAILING:20 \
-        SLIDINGWINDOW:30:30 \
-        MINLEN:36 2> $LOG_FOLDER/log.trimmomatic.pe."$base"."$TIMESTAMP"
+    -threads 8 \
+    -phred33 \
+    "$file1" \
+    "$file2" \
+    02_trimmed/"$base"_R1.paired.fastq.gz \
+    02_trimmed/"$base"_R1.single.fastq.gz \
+    02_trimmed/"$base"_R2.paired.fastq.gz \
+    02_trimmed/"$base"_R2.single.fastq.gz \
+    ILLUMINACLIP:"$ADAPTERFILE":2:30:10:2:True \
+    HEADCROP:9 \
+    LEADING:20 \
+    TRAILING:20 \
+    SLIDINGWINDOW:30:30 \
+    MINLEN:36 2> $LOG_FOLDER/log.trimmomatic.pe."$base"."$TIMESTAMP"

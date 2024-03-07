@@ -50,8 +50,8 @@ while [ $# -gt 0 ] ; do
 done 
 
 if [ -z "${haplo1}" ] || [ -z "${haplo2}" ]  ; then
-	Help
-	exit 2
+    Help
+    exit 2
 fi
 
 
@@ -118,22 +118,22 @@ echo -e "bedisze1  size is $bedsize1"
 #check that all is matching:
 if [ "$bedsize1" = "$check1" ]
 then
-	echo "input1 is ok" 
-	rm tmp1
+    echo "input1 is ok" 
+    rm tmp1
 else
-	echo "input1 is not ok"
-	echo "check your data"
-	exit 2
+    echo "input1 is not ok"
+    echo "check your data"
+    exit 2
 fi
 
 if [ "$bedsize2" = "$check2" ]
 then
-	echo "input2 is ok" 
-	rm tmp2
+    echo "input2 is ok" 
+    rm tmp2
 else
-	echo "input2 is not ok"
-	echo "check your data"
-	exit 2
+    echo "input2 is not ok"
+    echo "check your data"
+    exit 2
 fi
 
 rm tmp1 tmp2
@@ -294,7 +294,7 @@ else
 
 	is_anc='FALSE'
 fi
-	
+
 path_orthofinder='genespace/orthofinder/Results_*/'
 path_bed='genespace/bed/'
 

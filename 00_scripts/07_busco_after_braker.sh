@@ -4,7 +4,7 @@
 lineage=$1 
 RNAseq=$2  #YES/NO
 
-#activate braker 
+#------------- CONDA ACTIVATION  -------------- #
 eval "$(conda shell.bash hook)"
 conda activate braker_env
 
@@ -28,10 +28,10 @@ if [ -z "$RNAseq" ] ; then
    #run for the database:
    cd 06_braker/ 
    for i in round* ; do
-	   echo "----- running busco on: $i ------" 
-       cd $i
-       busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein #--updata-data #to update the database if there's a warning
-       cd ../
+        echo "----- running busco on: $i ------" 
+        cd $i
+        busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein -f #--
+        cd ../
    done 
 fi
 
@@ -41,16 +41,16 @@ if [[ $RNAseq = "YES" ]]
 then
    echo "running busco on RNAseq data"
    cd 06_braker/rnaseq
-   busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein #--updata-data #to update the database if there's a warning
+   busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein -f #--
    cd ../
 
    #run for the database:
    cd 06_braker/ 
    for i in round* ; do
-	   echo "----- running busco on: $i ------" 
-       cd $i
-       busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein #--updata-data #to update the database if there's a warning
-       cd ../
+        echo "----- running busco on: $i ------" 
+        cd $i
+        busco -c8 -o busco_augustus -i $input_fa -l $lineage -m protein -f #--
+        cd ../
    done 
 
 fi

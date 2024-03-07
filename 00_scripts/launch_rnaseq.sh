@@ -14,9 +14,9 @@ genome=03_genome/"$haplotype".fa*
 #check that the raw_data for RNAseq are present:
 
 if [ -f Trimmomatic-0.39/trimmomatic-0.39.jar ] ; then 
-	echo "found trimmomatic jar " ; 
+    echo "found trimmomatic jar " ; 
 else 
-	echo "trimmmatic jar not found\nwill attempt to download" 
+    echo "trimmmatic jar not found\nwill attempt to download" 
         wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-0.39.zip
         unzip Trimmomatic-0.39.zip
 fi
@@ -39,8 +39,8 @@ if [[ $ncol = 2 ]] ; then
 
     if [ $? -eq 0 ]; then
         echo $trimmomatic complete
-	echo $counting the number of retained reads        #rm file1file2.tmp 
-	../00_scripts/utility_scripts/count_read_fastq.sh 02_trimmed/*gz > read_count.txt
+    echo "counting the number of retained reads"        #rm file1file2.tmp 
+    ../00_scripts/utility_scripts/count_read_fastq.sh 02_trimmed/*gz > read_count.txt
 
     else
         echo -e "\n#ERROR : Runnning trimmomatic failed. please check your input files"

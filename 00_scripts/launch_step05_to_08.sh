@@ -26,8 +26,8 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ -z "$genome" ] || [ -z "$haplotype" ] ; then
-	echo >&2 "Fatal error: Ref genome (-g), and haplotype name (-s) not defined\n
-	see manual with -h or --help"
+    echo >&2 "Fatal error: Ref genome (-g), and haplotype name (-s) not defined\n
+    see manual with -h or --help"
 exit 2
 fi
 
@@ -42,13 +42,23 @@ fi
 
 # ------------------ run RepeatModeler and RepeatMasker ------------------  ##
 
-../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
-if [ $? -eq 0 ]; then
-    echo -e "---- repeatmodeler run successfull ----\n"
-else
-    echo repeatmodeler failed. check the provided libraries and whether all software and dependancies are correctly installed   
-    exit 
+#check that no repeatmodeler output already exist:
+rm_file="03_genome/genome.wholemask_no_unknown.fa"
+
+if [  -e "$rm_file" ] ; then 
+    echo -e "repeatmodeler output already exist\nwill skip this step"; 
+else 
+    echo -e "no repeatmodeller output \n will launch repeatmodeller " ; 
+    ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+    if [ $? -eq 0 ]; then
+        echo -e "---- repeatmodeler run successfull ----\n"
+    else
+        echo -e "repeatmodeler failed.\n
+        check the provided libraries and software dependancies"   
+        exit 
+    fi
 fi
+
 
 # -------------------- run Braker  ---------------------------- #
 #setting up path prior to running busco: 
@@ -61,25 +71,20 @@ augscripts=$(echo $augbin  |sed 's/bin/scripts/' )
 augconf=$(echo $augbin  |sed 's/bin/config/' )
 
 #verify again that all path exist -----
-[[ -z "tsebrapath" ]] && { echo "Error: tsebra.py not found"; exit 1; }
-[[ -z "cdbpath" ]] && { echo "Error: cdbfasta not found"; exit 1; }
-[[ -z "prothpath" ]] && { echo "Error: prothint not found"; exit 1; }
-[[ -z "gmarkpath" ]] && { echo "Error: genemark not found"; exit 1; }
-[[ -z "augbin" ]] && { echo "Error: Augustus binaries not found"; exit 1; }
+[[ -z "$tsebrapath" ]] && { echo "Error: tsebra.py not found"; exit 1; }
+[[ -z "$cdbpath" ]] && { echo "Error: cdbfasta not found"; exit 1; }
+[[ -z "$prothpath" ]] && { echo "Error: prothint not found"; exit 1; }
+[[ -z "$gmarkpath" ]] && { echo "Error: genemark not found"; exit 1; }
+[[ -z "$augbin" ]] && { echo "Error: Augustus binaries not found"; exit 1; }
 
 # reshape braker code prior to run:
-sed -i "11i #--- end of setting path ---- " ../00_scripts/06_braker.sh
-sed -i "11i export CDBTOOLS_PATH=$cdbpath" ../00_scripts/06_braker.sh
-sed -i "11i export TSEBRA_PATH=$tsebrapath" ../00_scripts/06_braker.sh
-sed -i "11i export PROTHINT_PATH=$protpath" ../00_scripts/06_braker.sh
-sed -i "11i export GENEMARK_PATH=$gmarkpath " ../00_scripts/06_braker.sh
-
-sed -i "11i export AUGUSTUS_CONFIG_PATH=$augconf" ../00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_BIN_PATH=$augbin " ../00_scripts/06_braker.sh
-sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augscripts " ../00_scripts/06_braker.sh
-
-sed -i "11i # ---- start of setting path --- " ../00_scripts/06_braker.sh
-
+sed -i "s#CDB_PATH#export CDBTOOLS_PATH=$cdbpath#" ../00_scripts/06_braker.sh
+sed -i "s#TSEBR_PATH#export TSEBRA_PATH=$tsebrapath#" ../00_scripts/06_braker.sh
+sed -i "s#PROTH_PATH#export PROTHINT_PATH=$protpath#" ../00_scripts/06_braker.sh
+sed -i "s#GMARK_PATH#export GENEMARK_PATH=$gmarkpath#" ../00_scripts/06_braker.sh
+sed -i "s#AUGCO_PATH#export AUGUSTUS_CONFIG_PATH=$augconf#" ../00_scripts/06_braker.sh
+sed -i "s#AUGBI_PATH#export AUGUSTUS_BIN_PATH=$augbin#" ../00_scripts/06_braker.sh
+sed -i "s#AUGSC_PATH#export AUGUSTUS_SCRIPTS_PATH=$augscripts#" ../00_scripts/06_braker.sh
 
 echo "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
@@ -106,5 +111,3 @@ else
     echo ERROR - verfiy braker outputs!   
     exit 1
 fi
-
-
