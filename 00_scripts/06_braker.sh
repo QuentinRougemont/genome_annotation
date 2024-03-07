@@ -79,7 +79,7 @@ if [[ -d 06_braker ]]
 then
     echo "WARNING directory 06_braker already exists! check its content first
     Do you wish to remove it?\n
-    this will stop the pipeline"
+    this will stop braker script and launch the rest of the analysis\n"
     select yn in "Yes" "No"; do
         case $yn in
             Yes ) rm -rf; break;;

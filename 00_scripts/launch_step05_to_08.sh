@@ -4,6 +4,7 @@
 # WARNING STILL BETA #! 
 
 source ../config/config
+source config/colors 
 
 ##  ------------------------ general parameters --------------------------------  ##
 while [ $# -gt 0 ] ; do

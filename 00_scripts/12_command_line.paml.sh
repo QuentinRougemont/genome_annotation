@@ -74,19 +74,24 @@ sed -i 's/ CDS=.*$//g' $cdsfile2
 
 scopy=$(echo "genespace/orthofinder/Results_*/Orthogroups/Orthogroups_SingleCopyOrthologues.txt" ) 
 
+#remove the trailing^M from OrthoFinder:
+sed -i -e "s/\r//g" $scopy
+sed -i -e "s/\r//g" genespace/orthofinder/Results_*/Orthologues/*/*tsv
+
+
 #first we test if an ancestral ref is provided an extract orthologs accordingly:
 if [ -n "$ancestral_genome" ] ; then
     echo "using ancestral genome"
     ancestral_vs_hap1=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo1".tsv ")
     ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
-    sed -i -e "s/\r//g" $ancestral_vs_hap1
-    sed -i -e "s/\r//g" $ancestral_vs_hap2
+    #sed -i -e "s/\r//g" $ancestral_vs_hap1
+    #sed -i -e "s/\r//g" $ancestral_vs_hap2
 
     paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
-        grep -Ff $scaffold - |\
+	    grep -Ff <(cut -f 2 $scaffold) - |\
         awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
         
-        sed -i -e "s/\r//g"  paml/single.copy.orthologs
+        #sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
         cut  -f3 paml/single.copy.orthologs > paml/sco.$haplo1.txt
         cut  -f4 paml/single.copy.orthologs > paml/sco.$haplo2.txt
@@ -100,7 +105,7 @@ else
     paste <(grep -Ff "$(echo $scopy )" "$(echo $hap1_vs_hap2)" ) |\
         grep -f <(cut -f 2 $scaffold ) - > paml/single.copy.orthologs  
        
-        sed -i -e "s/\r//g"  paml/single.copy.orthologs
+        #sed -i -e "s/\r//g"  paml/single.copy.orthologs
 
         cut  -f2 paml/single.copy.orthologs > paml/sco.$haplo1.txt
         cut  -f3 paml/single.copy.orthologs > paml/sco.$haplo2.txt
