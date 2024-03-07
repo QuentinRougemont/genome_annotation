@@ -63,13 +63,20 @@ TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 if [ -z $bamlist ] ; then
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 else
-   assuming list of bam already exist !
+
+    #assuming list of bam already exist !
+    #these will be soft linked in 04_mapped
+    if [ ! -d "04_mapped" ] ; then
+           mkdir 04_mapped
+    fi
+
+    cd 04_mapped
+
     for i in $(cat $bamlist ) ; do
-        mkdir 04_mapped ;
-        cd 04_mapped
         ln -s $i . 
-        cd ../ ; 
     done
+    cd ../ ; 
+
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 fi
 
