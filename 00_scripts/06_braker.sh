@@ -113,7 +113,7 @@ else
     if [ -f "$target".fa* ]; then
         echo "warning file $target.fa already present "
         echo "please verify if this is the file that you need"
-        exit 1 
+    #    exit 1 
     else
         wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
             gunzip ${target}.fa.gz
