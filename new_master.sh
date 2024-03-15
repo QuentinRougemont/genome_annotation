@@ -665,7 +665,7 @@ if [ $option = 6 ]; then
             exit 1
         fi
     
-        if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -n "$ancestral_genome" ] ; then
+    elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -n "$ancestral_genome" ] ; then
         cd haplo1
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided" 
