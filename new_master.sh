@@ -570,7 +570,7 @@ fi
 # -------------- section for option 5 : GeneSpace/Synteny analyses ------------#
 ################################################################################
 
-if [ $option == 3 ] || [ $option == 4] || [ $option == 5 ]; then 
+if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then 
 
     #test input data:
     if [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
@@ -649,7 +649,7 @@ if [ $option = 6 ]; then
 
 
     # option = 6 - only genome 1 - No RNAseq : 
-    if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO"]   && [ -z "$ancestral_genome" ] ; then
+    if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO" ]   && [ -z "$ancestral_genome" ] ; then
         cd haplo1
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
         echo "only the genome of one species was provided" 
@@ -684,7 +684,7 @@ if [ $option = 6 ]; then
     
     
     # option = 6 - only genome 2 & RNAseq : 
-    elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES"] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
+    elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES" ] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         cd haplo1/
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided with RNAseq data" 
