@@ -870,28 +870,43 @@ if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then
 
     #test input data:
     if [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
-        echo "gtf and genomes file were provided" 
-        echo "we will run geneSpace, compute Ds and other kind of analyses"
-        mkdir -p haplo1/08_best_run haplo1/03_genome 
-        mkdir -p haplo2/08_best_run haplo2/03_genome
-        cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf
-        cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf
- 
-        gffread -g $genome1 -w haplo1/08_best_run/"$haplotype1".spliced_cds.fa  $gtf1 
-        gffread -g $genome2 -w haplo2/08_best_run/"$haplotype2".spliced_cds.fa  $gtf2 
         
-        transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq haplo1/08_best_run/"$haplotype1"_prot.fa
-        transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq haplo2/08_best_run/"$haplotype2"_prot.fa
+        #test if the architecture and data are already present from a previous incomplete run  :
+        if [ -f haplo1/08_best_run/"$haplotype1"_prot.fa ] && [ -f haplo1/03_genome/"$haplotype1".fa ]  ; then
+            echo "genome1 already present ---- cleaned protein file for genome1 already present "
 
-        if [ -z "$ancestral_genome" ] ; then
+            if [ -f haplo2/08_best_run/"$haplotype2"_prot.fa ]  && [ -f haplo2/03_genome/"$haplotype2".fa ] ; then
+                echo "genome1 already present ---- cleaned protein file for genome1 already present "
+                echo "it seems all data for GeneSpace/Synteny and Ds are present, will try running from here"
+                
+            fi
+        fi
+            
+        else 
         
-             #leave the variable empty
-             #do nothing 
-        else [ -n "$ancestral_genome" ] ; then
-        #    #do stuff related to ancestral genome
-        #    #gffread transeq....
-        #    #
-        #fi
+        #else we expect them to be provided in the config file 
+            echo "gtf and genomes file were provided" 
+            echo "we will run geneSpace, compute Ds and other kind of analyses"
+            mkdir -p haplo1/08_best_run haplo1/03_genome 
+            mkdir -p haplo2/08_best_run haplo2/03_genome
+            cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf
+            cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf
+    
+            gffread -g $genome1 -w haplo1/08_best_run/"$haplotype1".spliced_cds.fa  $gtf1 
+            gffread -g $genome2 -w haplo2/08_best_run/"$haplotype2".spliced_cds.fa  $gtf2 
+            
+            transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq haplo1/08_best_run/"$haplotype1"_prot.fa
+            transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq haplo2/08_best_run/"$haplotype2"_prot.fa
+    
+            if [ -z "$ancestral_genome" ] ; then
+            
+                #leave the variable empty
+                #do nothing 
+            else [ -n "$ancestral_genome" ] ; then
+            #    #do stuff related to ancestral genome
+            #    #gffread transeq....
+            #    #
+            #fi
     fi
 fi
 

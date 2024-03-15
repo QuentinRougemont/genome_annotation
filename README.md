@@ -54,6 +54,14 @@ cd genome annotation
 ./requirements.sh #will work with mamba. alternatively replace by conda (sed -i 's/mamba/conda/g' requirements.sh) 
 ``` 
 
+# HOW TO USE:
+
+After cloning the pipeline, please, work from within it to preserve the architecture  
+
+We recommend that you clone the pipeline ***for each of your new project*** and work within it.   
+
+Keep all project separated otherwise it will be difficult to recover your results.   
+
  
 # Input data: 
 
