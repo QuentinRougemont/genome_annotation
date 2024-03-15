@@ -655,7 +655,7 @@ if [ $option = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
         
         cd ../
         else
@@ -671,7 +671,7 @@ if [ $option = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
         
         cd ../
         else
@@ -688,7 +688,7 @@ if [ $option = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
-            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
         
         cd ../
         else
@@ -704,7 +704,7 @@ if [ $option = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
-            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r NO -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
         
         cd ../
         else
