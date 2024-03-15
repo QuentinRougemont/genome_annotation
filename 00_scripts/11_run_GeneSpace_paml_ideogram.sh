@@ -26,6 +26,7 @@ Help()
    echo " -g |--ancestral_gff: the name of the ancestral gff associated with the ancestral genome"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
+   echo " -o|--option : the type of analysis to be performed: either 'synteny_and_Ds' (GeneSpace+Minimap2+Ds+changepoint), 'snyteny_only' (GeneSpace+Minimap2), 'Ds_only' (paml and changepoint)"
    echo " "
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
@@ -44,6 +45,7 @@ while [ $# -gt 0 ] ; do
     -g  | --ancestral_gff) ancestral_gff="$2" ; echo -e "ancestral gff  Name is ***${ancestral_gff}*** \n" >&2;;
     -f  | --folderpath  ) folderpath="$2"   ; echo -e "global folder is  ${folderpath} \n" >&2;;
     -c  | --chromosome )  chromosome="$2"   ; echo -e "target chromosome are ${chromosome} \n" >&2 ;; 
+    -o  | --options ) options="$2" ; echo -e "options for computation are ***${options}*** \n" >&2 ;;
     -h  | --help ) Help ; exit 2 ;;
    esac
    shift
@@ -81,15 +83,21 @@ if [ ! -z "${ancestral_genome}" ] ; then
 
 fi
 
+
 #------------------------------ step 1 prepare bed file for each haplo -------------------------------------#
-#really simple:
+#
 
-#cd $folderpath
-
-#remove any existing folder:
-rm genespace peptide paml plots -rf 2>/dev/null
-#to do: insert alert message for the user.
-mkdir -p genespace/bed genespace/peptide paml plots
+#test options :
+if [[ $options = "Ds_only" ]] ; then
+    mkdir paml plots
+elif [[ $options = "synteny_and_Ds" ]] ; then
+    rm genespace peptide paml plots -rf 2>/dev/null
+    mkdir -p genespace/bed genespace/peptide 
+    mkdir paml plots 
+elif [[ $options = "synteny_only" ]] ; then
+    rm genespace peptide paml plots -rf 2>/dev/null
+    mkdir -p genespace/bed genespace/peptide 
+fi
 
 # create bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
@@ -151,263 +159,271 @@ if [ ! -z "${ancestral_genome}" ] ; then
 fi
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
-cd genespace 
 
-MCScanpath=$(command -v MCScanX |xargs dirname )
-sed -i "s#mcpath#$MCScanpath#" ../00_scripts/Rscripts/01.run_geneSpace.R
-
-Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
-if [ $? -eq 0 ]; then
-    echo -e "\n${BLU}------------------- \n\tgenespace worked successfully \n --------------------------${NC}\n"
-else
-    echo -e "\n${RED}------------------- \n\t ERROR : genespace failed   \n----------------------${NC}\n"
-    exit 1
-fi
-
-#plot genespace subspace of target chromosomes: 
-#a refaire en fonction de si ancestral species or not:
-echo scaffold is $scaffold
-ln -s $scaffold scaffold.txt
-
-echo -e "---------- making subplots using scaffold data ----------------"
-if [ ! -z "${ancestral_genome}" ] ; then
-    Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R ancestral_sp
-else
-    Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R $haplo1
-fi
-if [ $? -eq 0 ]; then
-    echo -e "\n${BLU}---------------------\n\t\tplots OK\n---------------------------------------${NC}\n"
-else
-    echo -e "\n${RED}---------------------\n\t\tplottings subset failed checks your input scaffold name-----------------------${NC}\n"
-    exit 1
-fi
-
-
-cd ../
-#------------------------------ step 3 run paml  -------------------------------------------------------------#
-
-echo $(pwd)
-echo haplo1 is "$haplo1"
-echo haplo2 is "$haplo2"
-
-
-if [ -n ${anscestral_genome} ]; then
-    #ancestral genome exist
-    ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
-else
-    #ancestral genome not provided	
-    ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" 
-fi
-
-#here insert a test to veryfy that previous code was successful and else exit
-if [ $? -eq 0 ]; then
-    echo -e  "\n${BLU}------------------\npaml worked successfully------------------${NC}\n"
-else
-    echo -e "\n${RED}-------------------\nERROR: PAML failed /!\ \n
-            PLEASE CHECK YOUR INTPUT DATA------------------${NC}\n"
-    exit 1
-fi
-
-pamlsize=$(wc -l paml/results_YN.txt |awk '{print $1}' ) 
-scpo=$(wc -l paml/single.copy.orthologs |awk '{print $1}' )
-
-echo -e "there is $pamlsize results for PAML \n"
-echo -e "there is $scpo single copy orthologs \n" 
-
-#just in case:
-#sed -i 's/  */\t/g' paml/single.copy.orthologs
-
-#----------------------------------- step4 -- plot paml results  -----------------------------------------#
-mkdir plots/ 2>/dev/null
-
-if [ -n ${anscestral_genome} ]; then
-    echo "using ancestral genome"
-    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold ancestral_sp 
-else
-    Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold
-fi
-
-if [ $? -eq 0 ]; then
-    echo -e  "\n${BLU}------------------\nplot worked successfully------------------${NC}\n"
-else
-    echo -e "\n${RED}-------------------\nERROR: plotting PAML failed /!\ \n
-            PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
-    exit 1
-fi
-
-# ---------------------------------- step5 -- plot ideogram -----------------------------------------------#
-#test if previous step was successfull else plot or exit with high levels of pain
-#take advantage of samtools to get length of genome
-samtools faidx haplo1/03_genome/"$haplo1".fa 
-samtools faidx haplo2/03_genome/"$haplo2".fa
-
-eval "$(conda shell.bash hook)"
-conda activate braker_env
-
-if [ ! -z "${ancestral_genome}" ] ; then
-    echo -e "ancestral genome was provided for inference" 
-    #we will make an ideogram with it 
-    awk '{print $1"\t"$2"\t"$3}' paml/single.copy.orthologs > sco_anc	
-    awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs > sco
-    if [ ! -z "${links}" ] ; then    
-    #links were provided and will be colored
-        Rscript ./00_scripts/Rscripts/04.ideogram.R sco     genespace/bed/$haplo1.bed       genespace/bed/$haplo2.bed  \
-        haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai $links 
-        Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed  \
-        "${ancestral_genome}".fai haplo1/03_genome/"$haplo1".fa.fai $links 
-    else
-    #no links were provided
-    Rscript ./00_scripts/Rscripts/04.ideogram.R sco  genespace/bed/$haplo1.bed  genespace/bed/$haplo2.bed  haplo1/03_genome/"$haplo1".fa.fai \
-        haplo2/03_genome/"$haplo2".fa.fai 
-    Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed "${ancestral_genome}".fai \
-        haplo1/03_genome/"$haplo1".fa.fai 
-
-    fi
-else
-    echo -e "no ancestral genome assumed"
-    if [ ! -z "${links}" ] ; then    
-        Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
-        haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai $links 
-    else
-    Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
-        haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai 
-    fi
-
-fi
-
-if [ $? -eq 0 ]; then
-    echo -e  "\n${BLU}------------------\nideogram plot worked successfully------------------${NC}\n"
-else
-    echo -e "\n${RED}-------------------\nERROR: plotting ideogram failed /!\ \n
-            PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
-    exit 1
-fi
-
-
-
-## --------------------------------Make Synteny table -----------------------------------------------
-is_anc='TRUE'
-if [ ! -z "${ancestral_genome}" ] ; then
-
-    is_anc='TRUE'
-else
-
-    is_anc='FALSE'
-fi
-
-path_orthofinder='genespace/orthofinder/Results_*/'
-path_bed='genespace/bed/'
-
-
-python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ancestral_sp
-
-
-
-# ---------------------------------- step6 -- create circos plot ----------------------------------------#
-#circos plot here:
-#if [ ! -z "${ancestral_genome}" ] ; then
-#    echo "ancestral genome was provided" 
-#    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
-#    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
-#else
-#    echo "no ancestral genome" 
-#    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1  $scaffolds $genes_plot
-#    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2  $scaffolds $genes_plot
-#fi
-#
-#if [ $? -eq 0 ]; then
-#    echo -e  "\n${BLU}------------------\ncircos plot worked successfully------------------${NC}\n"
-#else
-#    echo -e "\n${RED}-------------------\nERROR: circos plots failed /!\ \n
-#    PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
-#    exit 1
-#fi
-#
-##---------------------------------- step7 -- run minimap between the genomes -----------------------------#
-#run minimap on the genome 
-#assumption : each genome MUST BE located in folder 03-genome
-
-echo -e "\n------- running minimap for genome broad synteny plots  -------\n" 
-
-minimap2 -cx asm5 haplo1/03_genome/"$haplo1".fa haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
-
-if [ $? -eq 0 ]; then
-     echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
- else
-     echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
-     PLEASE CHECK INTPUT DATA------------------${NC}\n"
-     exit 1
-fi
-
-
-if [ -n ${ancestral_sp} ] ; then
-    echo -e "\n------- an ancestral genome was provided ------ "
-    echo -e "running minimap for genome broad synteny plots  -------\n" 
-
-    minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo2/03_genome/"$haplo2".fa > aln."ancestral_sp"_"$haplo2".paf 
-    if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
-    else
-        echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
-        PLEASE CHECK INTPUT DATA------------------${NC}\n"
-        exit 1
-    fi
-    minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo1/03_genome/"$haplo1".fa > aln."ancestral_sp"_"$haplo1".paf 
-    if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
-    else
-        echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
-        PLEASE CHECK INTPUT DATA------------------${NC}\n"
-        exit 1
-    fi
-
-
-    #preparing scaffold to highlight in dotplot:
-    awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo1.txt
-    awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
-    awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
-
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo1".paf 
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo2".paf 
-
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
-
-    if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
-    else
-        echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
-        PLEASE CHECK INTPUT DATA------------------${NC}\n"
-        exit 1
-    fi
-else 
-    awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt
+if [[ $options == "synteny_and_Ds" ]]  || [ $options == "synteny_only" ]] ; then
+    cd genespace 
     
-    #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
-    Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-    Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+    MCScanpath=$(command -v MCScanX |xargs dirname )
+    sed -i "s#mcpath#$MCScanpath#" ../00_scripts/Rscripts/01.run_geneSpace.R
+    
+    Rscript ../00_scripts/Rscripts/01.run_geneSpace.R
     if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+        echo -e "\n${BLU}------------------- \n\tgenespace worked successfully \n --------------------------${NC}\n"
     else
-        echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
+        echo -e "\n${RED}------------------- \n\t ERROR : genespace failed   \n----------------------${NC}\n"
+        exit 1
+    fi
+    
+    #plot genespace subspace of target chromosomes: 
+    #a refaire en fonction de si ancestral species or not:
+    echo scaffold is $scaffold
+    ln -s $scaffold scaffold.txt
+    
+    echo -e "---------- making subplots using scaffold data ----------------"
+    if [ ! -z "${ancestral_genome}" ] ; then
+        Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R ancestral_sp
+    else
+        Rscript ../00_scripts/Rscripts/02.plot_geneSpace.R $haplo1
+    fi
+    if [ $? -eq 0 ]; then
+        echo -e "\n${BLU}---------------------\n\t\tplots OK\n---------------------------------------${NC}\n"
+    else
+        echo -e "\n${RED}---------------------\n\t\tplottings subset failed checks your input scaffold name-----------------------${NC}\n"
+        exit 1
+    fi
+    
+    
+    cd ../
+
+    echo -e "\n--------------------\n perform whole genome synteny ------------------------\n" 
+    echo -e "\n-------------------- running minimap  ------------------------\n\n" 
+    
+    minimap2 -cx asm5 haplo1/03_genome/"$haplo1".fa haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
+    
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
         PLEASE CHECK INTPUT DATA------------------${NC}\n"
         exit 1
     fi
 
 
+    if [ -n ${ancestral_sp} ] ; then
+        echo -e "\n------- an ancestral genome was provided ------ "
+        echo -e "running minimap for genome broad synteny plots  -------\n" 
+    
+        minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo2/03_genome/"$haplo2".fa > aln."ancestral_sp"_"$haplo2".paf 
+        if [ $? -eq 0 ]; then
+            echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+        else
+            echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
+            PLEASE CHECK INTPUT DATA------------------${NC}\n"
+            exit 1
+        fi
+        minimap2 -cx asm5 ancestral_sp/ancestral_sp.fa haplo1/03_genome/"$haplo1".fa > aln."ancestral_sp"_"$haplo1".paf 
+        if [ $? -eq 0 ]; then
+            echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+        else
+            echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
+            PLEASE CHECK INTPUT DATA------------------${NC}\n"
+            exit 1
+        fi
+    
+    
+        #preparing scaffold to highlight in dotplot:
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
+        awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
+    
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo1".paf 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."ancestral_sp"_"$haplo2".paf 
+    
+        Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo1".paf scaff.anc.haplo1.txt 
+        Rscript 00_scripts/Rscripts/synteny_plot.R aln."ancestral_sp"_"$haplo2".paf scaff.anc.haplo2.txt 
+        Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+    
+        if [ $? -eq 0 ]; then
+            echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+        else
+            echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
+            PLEASE CHECK INTPUT DATA------------------${NC}\n"
+            exit 1
+        fi
+    else 
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt
+        
+        #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
+        Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
+        if [ $? -eq 0 ]; then
+            echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+        else
+            echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
+            PLEASE CHECK INTPUT DATA------------------${NC}\n"
+            exit 1
+        fi
+    
+    
+    fi
+
+
+
 fi
 
 
-#------------------------ step 8 -- model comparison -------------------------------------------------#
+#------------------------------ step 3 run paml  -------------------------------------------------------------#
+if [[ $options == "synteny_and_Ds" ]] || [[ $options == "Ds_only" ]] ; then
 
-Rscript 00_scripts/Rscripts/06.MCP_model_comp.R
+    echo haplo1 is "$haplo1"
+    echo haplo2 is "$haplo2"
+    
+    
+    if [ -n ${anscestral_genome} ]; then
+        #ancestral genome exist
+        ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
+    else
+        #ancestral genome not provided	
+        ./00_scripts/12_command_line.paml.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" 
+    fi
+    
+    #here insert a test to veryfy that previous code was successful and else exit
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\npaml worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: PAML failed /!\ \n
+                PLEASE CHECK YOUR INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+    
+    pamlsize=$(wc -l paml/results_YN.txt |awk '{print $1}' ) 
+    scpo=$(wc -l paml/single.copy.orthologs |awk '{print $1}' )
+    
+    echo -e "there is $pamlsize results for PAML \n"
+    echo -e "there is $scpo single copy orthologs \n" 
+    
+    #just in case:
+    #sed -i 's/  */\t/g' paml/single.copy.orthologs
+    
+    #----------------------------------- step4 -- plot paml results  -----------------------------------------#
+    mkdir plots/ 2>/dev/null
+    
+    if [ -n ${anscestral_genome} ]; then
+        echo "using ancestral genome"
+        Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold ancestral_sp 
+    else
+        Rscript ./00_scripts/Rscripts/03.plot_paml.R $haplo1 $haplo2 $scaffold
+    fi
+    
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nplot worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: plotting PAML failed /!\ \n
+                PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+    
+    # ---------------------------------- step5 -- plot ideogram -----------------------------------------------#
+    #test if previous step was successfull else plot or exit with high levels of pain
+    #take advantage of samtools to get length of genome
+    samtools faidx haplo1/03_genome/"$haplo1".fa 
+    samtools faidx haplo2/03_genome/"$haplo2".fa
+    
+    eval "$(conda shell.bash hook)"
+    conda activate braker_env
+    
+    if [ ! -z "${ancestral_genome}" ] ; then
+        echo -e "ancestral genome was provided for inference" 
+        #we will make an ideogram with it 
+        awk '{print $1"\t"$2"\t"$3}' paml/single.copy.orthologs > sco_anc	
+        awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs > sco
+        if [ ! -z "${links}" ] ; then    
+        #links were provided and will be colored
+            Rscript ./00_scripts/Rscripts/04.ideogram.R sco     genespace/bed/$haplo1.bed       genespace/bed/$haplo2.bed  \
+            haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai $links 
+            Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed  \
+            "${ancestral_genome}".fai haplo1/03_genome/"$haplo1".fa.fai $links 
+        else
+        #no links were provided
+        Rscript ./00_scripts/Rscripts/04.ideogram.R sco  genespace/bed/$haplo1.bed  genespace/bed/$haplo2.bed  haplo1/03_genome/"$haplo1".fa.fai \
+            haplo2/03_genome/"$haplo2".fa.fai 
+        Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  genespace/bed/$haplo1.bed "${ancestral_genome}".fai \
+            haplo1/03_genome/"$haplo1".fa.fai 
+    
+        fi
+    else
+        echo -e "no ancestral genome assumed"
+        if [ ! -z "${links}" ] ; then    
+            Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
+            haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai $links 
+        else
+        Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs genespace/bed/$haplo1.bed genespace/bed/$haplo2.bed \
+            haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai 
+        fi
+    
+    fi
+    
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nideogram plot worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: plotting ideogram failed /!\ \n
+                PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
+    
+    
+    
+    ## --------------------------------Make Synteny table -----------------------------------------------
+    is_anc='TRUE'
+    if [ ! -z "${ancestral_genome}" ] ; then
+    
+        is_anc='TRUE'
+    else
+    
+        is_anc='FALSE'
+    fi
+    
+    path_orthofinder='genespace/orthofinder/Results_*/'
+    path_bed='genespace/bed/'
+    
+    
+    python3 00_scripts/utility_scripts/02.Make_synteny_table.py ${haplo1} ${haplo2} ${path_orthofinder} ${path_bed} ${is_anc} ancestral_sp
+    
+    
+    # ---------------------------------- step6 -- create circos plot ----------------------------------------#
+    #circos plot here:
+    #if [ ! -z "${ancestral_genome}" ] ; then
+    #    echo "ancestral genome was provided" 
+    #    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1 $ancestral_sp $scaffolds $genes_plot
+    #    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2 $ancestral_sp $scaffolds $genes_plot
+    #else
+    #    echo "no ancestral genome" 
+    #    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo1  $scaffolds $genes_plot
+    #    Rscript 00_scripts/Rscripts/05_plot_circos.R $haplo2  $scaffolds $genes_plot
+    #fi
+    #
+    #if [ $? -eq 0 ]; then
+    #    echo -e  "\n${BLU}------------------\ncircos plot worked successfully------------------${NC}\n"
+    #else
+    #    echo -e "\n${RED}-------------------\nERROR: circos plots failed /!\ \n
+    #    PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
+    #    exit 1
+    #fi
+    #
+    ##---------------------------------- step7 -- run minimap between the genomes -----------------------------#
+    #run minimap on the genome 
+    #assumption : each genome MUST BE located in folder 03-genome
+    
+    
+    #------------------------ step 8 -- model comparison -------------------------------------------------#
+    Rscript 00_scripts/Rscripts/06.MCP_model_comp.R
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\nall Changepoint worked successfully\nALL ANALYSES COMPLETE!------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: Changepoint Failed /!\ \n
+        PLEASE CHECK INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
 
-if [ $? -eq 0 ]; then
-     echo -e  "\n${BLU}------------------\nall Changepoint worked successfully\nALL ANALYSES COMPLETE!------------------${NC}\n"
-else
-     echo -e "\n${RED}-------------------\nERROR: Changepoint Failed /!\ \n
-     PLEASE CHECK INTPUT DATA------------------${NC}\n"
-     exit 1
-fi
+
+fi 
