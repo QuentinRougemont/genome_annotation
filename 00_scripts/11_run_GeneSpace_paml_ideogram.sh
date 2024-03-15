@@ -88,16 +88,23 @@ fi
 #
 
 #test options :
-if [[ $options = "Ds_only" ]] ; then
+if [[ $options = "Ds_only" ]] ; 
+then
     mkdir paml plots
-elif [[ $options = "synteny_and_Ds" ]] ; then
-    rm genespace peptide paml plots -rf 2>/dev/null
+elif [[ $options = "synteny_and_Ds" ]] ; 
+then
+    rm -rf genespace peptide paml plots  #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
     mkdir paml plots 
-elif [[ $options = "synteny_only" ]] ; then
-    rm genespace peptide paml plots -rf 2>/dev/null
+elif [[ $options = "synteny_only" ]] ; 
+then
+    echo "test"
+    rm -rf genespace peptide paml plots #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
+    mkdir plots 
 fi
+
+exit
 
 # create bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed

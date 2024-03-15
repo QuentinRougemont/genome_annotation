@@ -611,7 +611,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     #step1: 
@@ -665,7 +665,7 @@ then
         fi
 
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     #step1: 
@@ -705,7 +705,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold  $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
@@ -746,7 +746,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
         
@@ -787,7 +787,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold $o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
     
@@ -844,7 +844,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt = "snyteny_only"
+        opt="snyteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
 
     fi    # launched earlier
@@ -868,21 +868,21 @@ fi
 
 if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then 
 
-    #test input data:
-    if [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
         
-        #test if the architecture and data are already present from a previous incomplete run  :
-        if [ -f haplo1/08_best_run/"$haplotype1"_prot.fa ] && [ -f haplo1/03_genome/"$haplotype1".fa ]  ; then
-            echo "genome1 already present ---- cleaned protein file for genome1 already present "
+    #test if the architecture and data are already present from a previous incomplete run  :
+    if [ -f haplo1/08_best_run/"$haplotype1"_prot.fa ] && [ -f haplo1/03_genome/"$haplotype1".fa ]  ; then
+        echo "genome1 already present ---- cleaned protein file for genome1 already present "
 
-            if [ -f haplo2/08_best_run/"$haplotype2"_prot.fa ]  && [ -f haplo2/03_genome/"$haplotype2".fa ] ; then
-                echo "genome1 already present ---- cleaned protein file for genome1 already present "
-                echo "it seems all data for GeneSpace/Synteny and Ds are present, will try running from here"
-                
-            fi
-        fi
+        if [ -f haplo2/08_best_run/"$haplotype2"_prot.fa ]  && [ -f haplo2/03_genome/"$haplotype2".fa ] ; then
+            echo "genome1 already present ---- cleaned protein file for genome1 already present "
+            echo "it seems all data for GeneSpace/Synteny and Ds are present, will try running from here"
             
-        else 
+        fi
+    fi
+        
+    else 
+
+    if [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
         
         #else we expect them to be provided in the config file 
             echo "gtf and genomes file were provided" 
@@ -898,14 +898,12 @@ if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then
             transeq -sequence haplo1/08_best_run/$haplotype1.spliced_cds.fa -outseq haplo1/08_best_run/"$haplotype1"_prot.fa
             transeq -sequence haplo2/08_best_run/$haplotype2.spliced_cds.fa -outseq haplo2/08_best_run/"$haplotype2"_prot.fa
     
-            if [ -z "$ancestral_genome" ] ; then
-            
-                #leave the variable empty
-                #do nothing 
-            else [ -n "$ancestral_genome" ] ; then
-            #    #do stuff related to ancestral genome
-            #    #gffread transeq....
-            #    #
+            #if [ -z "$ancestral_genome" ] ; then
+            #    echo "no ancestral species"
+            #    #leave the variable empty
+            #    #do nothing 
+            #else [ -n "$ancestral_genome" ] ; then
+            #    echo "ancestral species existant"
             #fi
     fi
 fi
@@ -917,9 +915,9 @@ if [ $option == 3 ] ; then
     echo "----------------------------------------------------------------"
     echo "       GeneSpace/Synteny + Ds analyses will be launched         " 
     echo "               checking config files settings                   "
-    echo "----------------------------------------------------------------"
+    echo "----------------------------------------------------------------" 
 
-    opt = "synteny_and_Ds"
+    opt="synteny_and_Ds"
     ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2  -a $ancestral_genome -g $ancestral_gff -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
 
 elif [ $option == 4 ] ; then 
@@ -929,7 +927,7 @@ elif [ $option == 4 ] ; then
     echo "               checking config files settings                   "
     echo "----------------------------------------------------------------"
 
-    opt = "Ds_only"
+    opt="Ds_only"
     #note: in script 11 it would be important to check if a geneSpace run exist already
     ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2  -a $ancestral_genome -g $ancestral_gff -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
 
@@ -940,7 +938,7 @@ elif [ $option == 5 ] ; then
     echo "               checking config files settings                   "
     echo "----------------------------------------------------------------"
 
-    opt = "snyteny_only"
+    opt="snyteny_only"
     ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2  -a $ancestral_genome -g $ancestral_gff -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     #check success here
             
