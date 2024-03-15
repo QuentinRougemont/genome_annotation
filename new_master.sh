@@ -649,30 +649,30 @@ if [ $option = 6 ]; then
 
 
     # option = 6 - only genome 1 - No RNAseq : 
-    if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "NO" ]   && [ -z "$ancestral_genome" ] ; then
+    if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -z "$ancestral_genome" ] ; then
         cd haplo1
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-        echo "only the genome of one species was provided" 
-        echo "genome is ${genome1} "
+            echo "only the genome of one species was provided" 
+            echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype1.fa  -s $haplotype1 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap1
         
         cd ../
         else
             echo "error no fasta file in 03_genome"
-                echo "please copy your genome here"	
+            echo "please copy your genome here"	
             Help
             exit 1
         fi
     
     # option = 6 - only genome 1 - No RNAseq : 
-    elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [ $rnaseq = "NO" ]  && [ -z "$ancestral_genome" ]   ; then
+    elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -z "$ancestral_genome" ]   ; then
         cd haplo2
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
-        echo "only the genome of one species was provided" 
-        echo "genome is ${genome2} "
-        echo "running TE detection and gene prediction"
-        ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
+            echo "only the genome of one species was provided" 
+            echo "genome is ${genome2} "
+            echo "running TE detection and gene prediction"
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/$haplotype2.fa  -s $haplotype2 -r YES -m YES -f YES  2>&1 |tee ../LOGS/log_step05_08_hap2
         
         cd ../
         else
@@ -684,7 +684,7 @@ if [ $option = 6 ]; then
     
     
     # option = 6 - only genome 2 & RNAseq : 
-    elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [ $rnaseq = "YES" ] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
+    elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         cd haplo1/
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided with RNAseq data" 
@@ -712,7 +712,7 @@ if [ $option = 6 ]; then
     
     
     # option = 6 - only genome 1 & RNAseq from bamfiles: 
-    elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -z "$ancestral_genome" ] && [ -n "$bamlist1" ] && [ -z "$bamlist2" ] ; then
+    elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -z "$ancestral_genome" ] && [ -n "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         cd haplo1/
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided along with a list of bam" 
@@ -731,7 +731,7 @@ if [ $option = 6 ]; then
     
     
     # option = 6 - only genome 2 & RNAseq :
-    elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]  ; then
+    elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]  ; then
         cd haplo2/
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided with RNAseq data" 
@@ -759,7 +759,7 @@ if [ $option = 6 ]; then
         fi
     
     # option = 6 - only genome 2 & RNAseq from bam file:
-    elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [ $rnaseq = "YES" ] && [ -z "$ancestral_genome" ]  && [ -z "$bamlist1" ] && [ -n "${bamlist2}" ]  ; then
+    elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -z "$ancestral_genome" ]  && [ -z "$bamlist1" ] && [ -n "${bamlist2}" ]  ; then
         cd haplo2/
         if [ ! -z "$(ls -A 03_genome/ |grep -v Readme )"  ] ; then
             echo "only the genome of one species was provided along with a list of bam" 
