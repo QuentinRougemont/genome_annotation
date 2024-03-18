@@ -23,23 +23,24 @@ ali <- read_paf(paf)
 #filter 
 prim_alignment <- filter_secondary_alignments(ali)
 
-keep <- keep0 %>% filter(V1> 30) %>% select(V2,V3) %>% unique()
+keep <- keep0 %>% filter(V1> 30) %>% #filter those with less than 30 links
+	select(V2,V3) %>% unique()
 to_keep <- list(keep$V3, keep$V2)
 
-pdf(file=paste0("target_scaff_dotplot_",paf, ".pdf"))
+pdf(file=paste0("plots/target_scaff_dotplot_",paf, ".pdf"))
 dotplot(prim_alignment, label_seqs=TRUE, order_by="provided", ordering=to_keep)
 dev.off()
 
 
 ### nrow(keep)
 for(i in 1:nrow(keep) ){
-    pdf(file = paste0("rcT_synteny_",paf,"_", keep$V2[i],"_", keep$V3[i],".pdf"), 10,6 )
+    pdf(file = paste0("plots/rcT_synteny_",paf,"_", keep$V2[i],"_", keep$V3[i],".pdf"), 10,6 )
     print(plot_synteny(prim_alignment, q_chrom = keep$V3[i], t_chrom =  keep$V2[i], centre = T, rc= T))
     dev.off()
 }
 
 for(i in 1:nrow(keep) ){
-    pdf(file = paste0("synteny_",paf,"_", keep$V2[i],"_", keep$V3[i],".pdf") , 10, 6)
+    pdf(file = paste0("plots/synteny_",paf,"_", keep$V2[i],"_", keep$V3[i],".pdf") , 10, 6)
     print(plot_synteny(prim_alignment, q_chrom = keep$V3[i], t_chrom =  keep$V2[i], centre = T, rc= F))
     dev.off()
 }

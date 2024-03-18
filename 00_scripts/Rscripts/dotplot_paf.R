@@ -19,7 +19,7 @@ paf <- argv[1] #paf file
 ali <- read_paf(paf)
 
 
-pdf(file=paste0("divergence", paf, ".pdf") )
+pdf(file=paste0("plots/divergence", paf, ".pdf") )
 ggplot(ali, aes(alen, de)) + 
     geom_point(alpha=0.6, colour="steelblue", size=2) + 
     scale_x_continuous("Alignment length (kb)", label =  function(x) x/ 1e3) +
@@ -38,15 +38,15 @@ long_ali <- subset(ali, alen > 1e4 & mapq > 40)
 long_ali
 
 
-pdf(file=paste0("dotplot_prim_ali",paf,".pdf") )
+pdf(file=paste0("plots/dotplot_prim_ali",paf,".pdf") )
 dotplot(prim_alignment)
 dev.off()
 
-pdf(file=paste0("dotplot_long_ali",paf,".pdf"))
+pdf(file=paste0("plots/dotplot_long_ali",paf,".pdf"))
 dotplot(long_ali)
 dev.off()
 
-pdf(file=paste0("dotplot_prim_ali_bw", paf, ".pdf"))
+pdf(file=paste0("plots/dotplot_prim_ali_bw", paf, ".pdf"))
 dotplot(prim_alignment, label_seqs=TRUE, order_by="qstart") + theme_bw()
 dev.off()
 

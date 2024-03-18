@@ -51,7 +51,7 @@ while [ $# -gt 0 ] ; do
    shift
 done 
 
-if [ -z "${haplo1}" ] || [ -z "${haplo2}" ]  ; then
+if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${chromosome}" ] || [ -z "${option}" ]  ; then
     Help
     exit 2
 fi
@@ -167,7 +167,7 @@ fi
 
 #------------------------------ step 2 run GeneSpace ---------------------------------------------------------#
 
-if [[ $options == "synteny_and_Ds" ]]  || [ $options == "synteny_only" ]] ; then
+if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
     cd genespace 
     
     MCScanpath=$(command -v MCScanX |xargs dirname )
@@ -213,6 +213,16 @@ if [[ $options == "synteny_and_Ds" ]]  || [ $options == "synteny_only" ]] ; t
         echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
         PLEASE CHECK INTPUT DATA------------------${NC}\n"
         exit 1
+    fi
+
+
+
+    if [ -n ${anscestral_genome} ]; then
+        #ancestral genome exist
+        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
+    else
+        #ancestral genome not provided	
+        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" 
     fi
 
 
@@ -280,8 +290,8 @@ fi
 
 
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
-if [[ $options == "synteny_and_Ds" ]] || [[ $options == "Ds_only" ]] ; then
 
+if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then 
     echo haplo1 is "$haplo1"
     echo haplo2 is "$haplo2"
     
