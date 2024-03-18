@@ -157,7 +157,7 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome 
-   if [ -z ${haplotype1+x} ]; then
+   if  [[ $rename_scaffold = N ]]; then
        echo "no haplotype name  provided - skip renaming scaffold ids"
        cp $genome1 .
    else
@@ -170,7 +170,7 @@ else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome 
-   if [ -z ${haplotype1+x} ]; then
+   if  [[ $rename_scaffold = N ]]; then
        echo "no haplotype name  provided - skip renaming scaffold ids"
        cp $genome1 .
    else
@@ -201,7 +201,7 @@ if [[ -n "$genome2" ]] ; then
     gunzip "$genome2"
     genome2=${genome%.gz}
     cd haplo2/03_genome 
-    if [ -z ${haplotype2+x} ]; then
+    if  [[ $rename_scaffold = N ]]; then
         echo "no haplotype name  provided - skip renaming scaffold ids"
         cp $genome2 .
     else
@@ -213,7 +213,7 @@ if [[ -n "$genome2" ]] ; then
     else
     echo "$genome2 is not gzipped"
     cd haplo2/03_genome 
-    if [ -z ${haplotype2+x} ]; then
+    if  [[ $rename_scaffold = N ]]; then
         echo "no haplotype name  provided - skip renaming scaffold ids"
         cp $genome2 .
     else

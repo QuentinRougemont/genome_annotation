@@ -266,7 +266,7 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; th
         Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf scaff.haplo1.haplo2.txt 
     
         if [ $? -eq 0 ]; then
-            echo -e  "\n${BLU}------------------\nall pafr plot worked successfully------------------${NC}\n"
+            echo -e  "\n${BLU}------------------\nall pafr plot worked successfully\n------------------${NC}\n"
         else
             echo -e "\n${RED}-------------------\nERROR: pafr plots failed /!\ \n
             PLEASE CHECK INTPUT DATA------------------${NC}\n"
@@ -295,6 +295,7 @@ fi
 
 
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
+echo -e  "\n${BLU}----------------------\npreparing data for paml\n-----------------------${NC}\n"
 
 if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then 
     echo haplo1 is "$haplo1"
@@ -311,7 +312,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     
     #here insert a test to veryfy that previous code was successful and else exit
     if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\npaml worked successfully------------------${NC}\n"
+        echo -e  "\n${BLU}------------------\npaml worked successfully\n------------------${NC}\n"
     else
         echo -e "\n${RED}-------------------\nERROR: PAML failed /!\ \n
                 PLEASE CHECK YOUR INTPUT DATA------------------${NC}\n"
