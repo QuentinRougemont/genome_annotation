@@ -891,7 +891,10 @@ if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then
             mkdir -p haplo2/08_best_run haplo2/03_genome
             cp $gtf1 haplo1/08_best_run/${haplotype1}.gtf
             cp $gtf2 haplo2/08_best_run/${haplotype2}.gtf
-    
+            cp $genome1 haplo1/03_genome/
+            cp $genome2 haplo2/03_genome/
+
+
             gffread -g $genome1 -w haplo1/08_best_run/"$haplotype1".spliced_cds.fa  $gtf1 
             gffread -g $genome2 -w haplo2/08_best_run/"$haplotype2".spliced_cds.fa  $gtf2 
             

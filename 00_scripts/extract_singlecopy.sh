@@ -71,7 +71,7 @@ if [ -n "$ancestral_genome" ] ; then
     ancestral_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_"$ancestral_genome"/"$ancestral_genome"__v__"$haplo2".tsv ")
 
     paste <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap1 )" )  <(grep -Ff "$(echo $scopy )" "$(echo $ancestral_vs_hap2 )" )  |\
-	    grep -Ff <(cut -f 2 $scaffold) - |\
+	    grep -Ff <(awk '{print $2}' $scaffold) - |\
         awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
         
 

@@ -114,9 +114,9 @@ then
     #mkdir 08_best_run 2>/dev/null
     cd 08_best_run
     
-    ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.gtf
+    ln -s ../07-tsebra_results/$haplo.combined.gtf $haplo.tmp.gtf
     cd ../
-    file=08_best_run/$haplo.gtf
+    file=08_best_run/$haplo.tmp.gtf
     nb_genes=$(awk '$3=="gene" ' $file |wc -l)
     echo -e "\nthere is $nb_genes genes after running tsebra\n" 
 
@@ -134,8 +134,8 @@ else
     echo "running on protein only - not running tsebra" 
     
     #mkdir 08_best_run
-    cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.gtf
-    file=08_best_run/$haplo.gtf
+    cp 06_braker/$best_round/braker.gtf 08_best_run/$haplo.tmp.gtf
+    file=08_best_run/$haplo.tmp.gtf
     
     nb_genes=$(awk '$3=="gene" ' $file |wc -l)
         echo -e "\nthere is $nb_genes in the best protein run\n"
@@ -254,7 +254,7 @@ echo -e there is $(wc -l "$haplo".longest_transcript.gtf |awk '{print $1}' ) lin
 #declare new gtf for new work:
 gtf="$haplo".longest_transcript.gtf
 gtf2="gtf.tmp"                                      
-gtf3="$haplo".longest_transcript_dedup.gtf
+gtf3="$haplo".gtf
 
 # now removing fully overlapping CDS
 # rule  adopted here: 
@@ -285,6 +285,9 @@ transeq -clean -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.clean.fa 
 
 echo -e "there is $( grep -c ">" "$haplo"_prot.fa |awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
 
+rm *tmp*
+rm *renamed.*gtf
+rm *IDchecked.gtf
 #now run busco to validate. the score should be close to the initial score 
 #insert call to busco here
 path=$(pwd)

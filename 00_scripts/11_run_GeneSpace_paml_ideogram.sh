@@ -111,8 +111,8 @@ fi
 
 
 # create bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/$haplo2.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/$haplo2.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
 sed 's/_1 CDS=.*$//g' haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
@@ -253,6 +253,7 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; th
     
     
         #preparing scaffold to highlight in dotplot:
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 '  > scaff.anc.haplo1.txt
         awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.anc.haplo2.txt
         awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|sort |uniq -c|awk '$1>10 ' > scaff.haplo1.haplo2.txt 
     
