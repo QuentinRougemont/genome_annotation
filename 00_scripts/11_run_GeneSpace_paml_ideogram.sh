@@ -206,13 +206,13 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; th
     
     cd ../
 
-    echo -e "\n--------------------\n perform whole genome synteny ------------------------\n" 
+    echo -e "\n--------------------\n \tperform whole genome synteny \n------------------------\n" 
     echo -e "\n-------------------- running minimap  ------------------------\n\n" 
     
     minimap2 -cx asm5 haplo1/03_genome/"$haplo1".fa haplo2/03_genome/"$haplo2".fa > aln."$haplo1"_"$haplo2".paf 
     
     if [ $? -eq 0 ]; then
-        echo -e  "\n${BLU}------------------\nall minimap worked successfully------------------${NC}\n"
+        echo -e  "\n${BLU}------------------\n\t\tall minimap worked successfully \n------------------${NC}\n"
     else
         echo -e "\n${RED}-------------------\nERROR: minimap2 failed /!\ \n
         PLEASE CHECK INTPUT DATA------------------${NC}\n"

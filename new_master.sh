@@ -143,7 +143,7 @@ echo "Generate Architecture"
 mkdir -p haplo1/03_genome 
 
 if [[ -z "${haplotype1}" ]] ; then
-    haplotype1="haplo1"
+    haplotype1="$(basename ${genome1%.fa**})"
 fi
 
 # ----- check compression of fasta  ------ ##
@@ -189,7 +189,7 @@ if [[ -n "$genome2" ]] ; then
         mkdir -p haplo2/03_genome ; 
     fi
     if [[ -z "${haplotype2}" ]] && [[ -n "${genome2}" ]]; then 
-        haplotype2="haplo2"
+        haplotype2="$(basename ${genome2%.fa**})"
         mkdir -p haplo2/03_genome ; 
     fi
     
@@ -611,7 +611,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     #step1: 
@@ -665,7 +665,7 @@ then
         fi
 
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     #step1: 
@@ -705,7 +705,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold  $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
@@ -746,7 +746,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
         
@@ -787,7 +787,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold $o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
     
@@ -844,7 +844,7 @@ then
         fi
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
-        opt="snyteny_only"
+        opt="synteny_only"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
 
     fi    # launched earlier
@@ -878,11 +878,8 @@ if [ $option == 3 ] || [ $option == 4 ] || [ $option == 5 ]; then
             echo "it seems all data for GeneSpace/Synteny and Ds are present, will try running from here"
             
         fi
-    fi
         
-    else 
-
-    if [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
+    elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
         
         #else we expect them to be provided in the config file 
             echo "gtf and genomes file were provided" 
@@ -941,7 +938,7 @@ elif [ $option == 5 ] ; then
     echo "               checking config files settings                   "
     echo "----------------------------------------------------------------"
 
-    opt="snyteny_only"
+    opt="synteny_only"
     ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2  -a $ancestral_genome -g $ancestral_gff -c $scaffold  -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     #check success here
             
