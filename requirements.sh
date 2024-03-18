@@ -270,7 +270,7 @@ then
 	make
 	cd ../filterBam
 	make
-	cd ../../
+	cd ../../../
     else
 	    echo "installation of augustus failed, look at the logs ! "
 	    echo "see details here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md"
@@ -299,7 +299,7 @@ if ! command -v $command &> /dev/null
     echo -e "export GENEMARK_PATH=$gmarkpath/ " >> ~/.bashrc
     echo -e "\nexport PATH=\$PATH:$gmarkpath" >> ~/.bashrc
     source ~/.bashrc  
-    cd ../ 
+    cd ../../../ 
 fi
 
 
@@ -425,8 +425,12 @@ if ! command -v $command &> /dev/null
 then
    #direct install: 
    mkdir muscle ; cd muscle
-   wget wget https://github.com/rcedgar/muscle/releases/download/5.1.0/muscle5.1.linux_intel64
-   ln -s muscle5.1.linux_intel64 muscle
+   #wget https://github.com/rcedgar/muscle/releases/download/5.1.0/muscle5.1.linux_intel64
+   #ln -s muscle5.1.linux_intel64 muscle
+   #if using muscle5 then modify the -in option into -align in the perl code of translocator
+   wget https://drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86linux64.tar.gz
+   tar zxf muscle3.8.31_i86linux64.tar.gz
+   ln -s muscle3.8.31_i86linux64 muscle
    chmod +x muscle
    path=$(pwd)
    echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
