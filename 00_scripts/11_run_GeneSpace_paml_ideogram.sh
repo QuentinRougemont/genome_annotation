@@ -26,7 +26,7 @@ Help()
    echo " -g |--ancestral_gff: the name of the ancestral gff associated with the ancestral genome"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
-   echo " -o|--option : the type of analysis to be performed: either 'synteny_and_Ds' (GeneSpace+Minimap2+Ds+changepoint), 'snyteny_only' (GeneSpace+Minimap2), 'Ds_only' (paml and changepoint)"
+   echo " -o|--options : the type of analysis to be performed: either 'synteny_and_Ds' (GeneSpace+Minimap2+Ds+changepoint), 'snyteny_only' (GeneSpace+Minimap2), 'Ds_only' (paml and changepoint)"
    echo " "
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }
@@ -51,7 +51,7 @@ while [ $# -gt 0 ] ; do
    shift
 done 
 
-if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${chromosome}" ] || [ -z "${option}" ]  ; then
+if [ -z "${haplo1}" ] || [ -z "${haplo2}" ] || [ -z "${chromosome}" ] || [ -z "${options}" ]  ; then
     Help
     exit 2
 fi
@@ -75,7 +75,12 @@ if [ ! -z "${ancestral_genome}" ] ; then
 
     fi
     
-    cd ancestral_sp ; rm ancestral_sp.fa ; ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
+    cd ancestral_sp ; 
+    if [ -f ancestral_sp.fa ] ; then
+        rm ancestral_sp.fa
+    fi
+
+    ln -s "${ancestral_genome}" ancestral_sp.fa ; samtools faidx ancestral_sp.fa ; cd ../
     gffread -g "${ancestral_genome}" -w ancestral_sp/ancestral_sp.spliced_cds.fa  "${ancestral_gff}" 
     transeq -sequence ancestral_sp/ancestral_sp.spliced_cds.fa -outseq ancestral_sp/ancestral_sp_prot.fa
     awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' $ancestral_gff |sed 's/"//g' > ancestral_sp/ancestral_sp.bed
@@ -88,10 +93,10 @@ fi
 #
 
 #test options :
-if [[ $options = "Ds_only" ]] ; 
+if [[ $options = "Ds_only" ]] ;  
 then
     mkdir paml plots
-elif [[ $options = "synteny_and_Ds" ]] ; 
+elif [[ $options = "synteny_and_Ds" ]] ; 
 then
     rm -rf genespace peptide paml plots  #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
@@ -104,7 +109,6 @@ then
     mkdir plots 
 fi
 
-exit
 
 # create bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.longest_transcript_dedup.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
