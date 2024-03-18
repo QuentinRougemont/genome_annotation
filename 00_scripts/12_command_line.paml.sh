@@ -60,8 +60,8 @@ fi
 
 #------------------------------ step 1 prepare input files  -------------------------------------#
 #cds file:
-cdsfile1=$haplo1/08_best_run/$haplo1.spliced_cds.fa
-cdsfile2=$haplo2/08_best_run/$haplo2.spliced_cds.fa
+cdsfile1=haplo1/08_best_run/$haplo1.spliced_cds.fa
+cdsfile2=haplo2/08_best_run/$haplo2.spliced_cds.fa
 
 #remove the CDS length info that is introduced by gffread:
 #sed -i 's/ CDS=.*$//g' $cdsfile1
