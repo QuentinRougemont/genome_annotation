@@ -311,7 +311,7 @@ if [ $option == 1 ]; then
         
         #if all is OK then run GeneSpace - paml etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold 2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
     #step1: 
@@ -367,7 +367,7 @@ if [ $option == 1 ]; then
         fi
         
         #then run GeneSpace etc :
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
     #step1: 
@@ -407,7 +407,7 @@ if [ $option == 1 ]; then
         fi
         
         #then run GeneSpace etc :
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
     #step1: 
@@ -448,7 +448,7 @@ if [ $option == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
         
     #step1: 
@@ -489,7 +489,7 @@ if [ $option == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
         
         
     
@@ -549,7 +549,7 @@ if [ $option == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold   2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
 
     fi
 fi
@@ -706,7 +706,7 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold  $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -c $scaffold -o $opt 2>&1 |tee LOGS/log_GeneSpace_and_Co
     
     
     #step1: 
@@ -788,7 +788,7 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
-        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold $o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
+        ./00_scripts/11_run_GeneSpace_paml_ideogram.sh -s1 $haplotype1 -s2 $haplotype2 -a $ancestral_genome -g $ancestral_gff -c $scaffold -o $opt  2>&1 |tee LOGS/log_GeneSpace_and_Co
         
     
     #step1: 

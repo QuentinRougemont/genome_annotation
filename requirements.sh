@@ -199,11 +199,12 @@ then
         echo $command installation worked successfully
 	cd $(find . -name "include" )
 	bt_inc=$(pwd)
-	cd ../
+	cd ../../
 	cd $(find . -name "lib" )
 	bt_lib=$(pwd)
 
-	cd ../build/src
+	cd ../src
+	#$(find . -name "bamtools" )
         path=$(pwd)
         echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
         source ~/.bashrc  
@@ -236,20 +237,22 @@ then
     echo "you may encounter several error and have to comment/uncomment or change path in "common.mk" especially without root privilege"
     git clone https://github.com/Gaius-Augustus/Augustus.git
     cd Augustus
-    sed -i 's/COMPGENEPRED = true/COMPGENEPRED = false/g' common.mk
+    sed -i.bkp 's/COMPGENEPRED = true/COMPGENEPRED = false/g' common.mk
     sed -i 's/ZIPINPUT = true/ZIPINPUT = false\nBOOST = false/g' common.mk
     #bt=$(command -v bamtools)
-    sed -i.bkp '31s/#//g' common.mk #we make a backup before modifications :
-    sed -i "31s#usr/include/bamtools#$bt_inc/bamtools#" common.mk
-    sed -i '32s/#//g' common.mk 
-    sed -i "32s#usr/lib/x86_64-linux-gnu#$bt_lib#g" common.mk
+    sed -i 's/#INCLUDE_PATH_BAMTOOLS/INCLUDE_PATH_BAMTOOLS/g' common.mk
+    sed -i 's/#LIBRARY_PATH_BAMTOOLS/LIBRARY_PATH_BAMTOOLS/g' common.mk
+    sed -i 's/#INCLUDE_PATH_HTSLIB/INCLUDE_PATH_HTSLIB/g' common.mk
+    sed -i 's/#LIBRARY_PATH_HTSLIB/LIBRARY_PATH_HTSLIB/g' common.mk
+    sed -i 's|usr/include/bamtools|baminclude|g' common.mk
+    sed -i "s#baminclude#$bt_inc/bamtools#" common.mk
+    sed -i "33s#usr/lib/x86_64-linux-gnu#$bt_lib#g" common.mk
 
     #same with HTSLIB:
-    sed -i "33,34s/#//g" common.mk
-    sed -i "33s#usr#$htpath#g" common.mk
-    sed -i "34s#usr/lib/x86_64-linux-gnu#$htpath/lib#g" common.mk
-    #echo "INCLUDE_PATH_BAMTOOLS     := -I$bt/src" >> common.mk
-    #echo "LIBRARY_PATH_BAMTOOLS     := -L$bt/usr/local/lib -Wl,-rpath,$bt/usr/local/lib" >> common.mk
+    sed -i "s#usr/include/htslib#$htpath/include/htslib#g" common.mk
+
+    n=$(grep -n "LIBRARY_PATH_HTSLIB" common.mk |awk -F":" '{print $1}' )
+    sed -i  "${n}s#usr/lib/x86_64-linux-gnu#$htpath/lib#g" common.mk
     #attempt to make augustus:
     make augustus
     #if all was succesffull: ""

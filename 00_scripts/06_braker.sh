@@ -107,8 +107,13 @@ else
     clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
     if [[ ${clades[@]} =~ $target ]]
     then
-        rm -rf odbd11 2>/dev/null
-        mkdir odb11 2>/dev/null 
+        if [ -d odbd11 ] ; then
+	    rm -rf odb11 
+	    mkdir odb11 
+        else 
+	    mkdir odb11
+	fi
+
 	cd odb11
     if [ -f "$target".fa* ]; then
         echo "warning file $target.fa already present "

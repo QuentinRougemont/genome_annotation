@@ -32,7 +32,7 @@ df <- read.table("dS.values.forchanepoint.txt", h = T) #a table with two columns
 #                   perform the changepoint analyis here: 
 ################################################################################
 #define the model we want to test:
-model5strata = list(Ds ~ 1, 1~ 1, 1 ~ 1, 1 ~ 1, 1 ~ 1)
+model5strata = list(Ds ~ 1, 1~ 1, 1 ~ 1, 1 ~ 1, 1 ~ 1)
 model4strata = list(Ds ~ 1, 1~ 1, 1 ~ 1, 1 ~ 1)
 model3strata = list(Ds ~ 1, 1~ 1, 1 ~ 1)
 model2strata = list(Ds ~ 1, 1~ 1)
