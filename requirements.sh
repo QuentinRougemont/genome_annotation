@@ -229,7 +229,7 @@ htpath=$(pwd)
 cd ../
 
 #**Augustus**
-command='Augustus'
+command='augustus'
 if ! command -v $command &> /dev/null
 then
     echo "$command could not be found"

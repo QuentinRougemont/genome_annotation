@@ -110,8 +110,9 @@ fi
 
 
 #**Augustus**
-command='Augustus'
+command='augustus'
 if ! command -v $command &> /dev/null
+then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
 
@@ -120,6 +121,7 @@ fi
 #**genemark** 
 command="gms2hints.pl" 
 if ! command -v $command &> /dev/null
+then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
 fi
@@ -127,6 +129,7 @@ fi
 #**TSEBRA** available [here](https://github.com/Gaius-Augustus/TSEBRA)
 command='tsebra.py'
 if ! command -v $command &> /dev/null
+then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
 
@@ -135,7 +138,7 @@ fi
 #**GSNAP** for read mappig available [here](http://research-pub.gene.com/gmap/)
 command='gsnap'
 if ! command -v $command &> /dev/null
-    then
+then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
 
@@ -144,7 +147,7 @@ fi
 #**gffread** to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
 command='gffread'
 if ! command -v $command &> /dev/null
-    then
+then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
 fi
