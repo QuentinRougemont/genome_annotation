@@ -71,10 +71,23 @@ if [ ! -z "${ancestral_genome}" ] ; then
        gunzip "$ancestral_genome"
        ancestral_genome=${ancestral_genome%.gz}
     else
+       #trim any eventual .gz extension from file
+       ancestral_genome=${ancestral_genome%.gz}
        echo "$ancestral_genome is not gzipped"
 
     fi
-    
+   
+    if file --mime-type "$ancestral_gff" | grep -q gzip$; then
+       echo "$ancestral_gff is gzipped"
+       gunzip "$ancestral_gff"
+       ancestral_gff=${ancestral_gff%.gz}
+    else
+       echo "$ancestral_gff is not gzipped"
+       #trim any eventual .gz extension from file
+       ancestral_gff=${ancestral_gff%.gz}
+
+    fi
+
     cd ancestral_sp ; 
     if [ -f ancestral_sp.fa ] ; then
         rm ancestral_sp.fa
@@ -111,12 +124,12 @@ fi
 
 
 # create bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
-awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/$haplo2.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/$haplo1.final.gtf |sed 's/"//g' > genespace/bed/$haplo1.bed
+awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/$haplo2.final.gtf |sed 's/"//g' > genespace/bed/$haplo2.bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
-sed 's/_1 CDS=.*$//g' haplo1/08_best_run/"$haplo1"_prot.fa > genespace/peptide/$haplo1.fa
-sed 's/_1 CDS=.*$//g' haplo2/08_best_run/"$haplo2"_prot.fa > genespace/peptide/$haplo2.fa
+sed 's/_1 CDS=.*$//g' haplo1/08_best_run/"$haplo1"_prot.final.clean.fa > genespace/peptide/$haplo1.fa
+sed 's/_1 CDS=.*$//g' haplo2/08_best_run/"$haplo2"_prot.final.clean.fa > genespace/peptide/$haplo2.fa
 
 #verify that IDs in bed and fasta file are matching - else exit  
 grep ">" genespace/peptide/$haplo1.fa |sed 's/>//g' > tmp1

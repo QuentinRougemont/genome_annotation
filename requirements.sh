@@ -70,6 +70,7 @@ mamba install conda-forge::jags
 mamba install conda-forge::r-rjags
 mamba install conda-forge::r-rsvg
 mamba install conda-forge::r-igraph
+mamba install conda-forge::r-devtools
 
 
 #----------- a few tools to install directly with mamba :---------------------- 

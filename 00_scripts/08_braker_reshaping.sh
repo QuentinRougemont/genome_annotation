@@ -254,7 +254,7 @@ echo -e there is $(wc -l "$haplo".longest_transcript.gtf |awk '{print $1}' ) lin
 #declare new gtf for new work:
 gtf="$haplo".longest_transcript.gtf
 gtf2="gtf.tmp"                                      
-gtf3="$haplo".gtf
+gtf3="$haplo".final.gtf
 
 # now removing fully overlapping CDS
 # rule  adopted here: 
@@ -280,8 +280,8 @@ echo "-----------------------------------------------------------------\n"
 
 gffread -w "$haplo".spliced_cds.fa -g ../03_genome/$haplo.fa $gtf3 #"$haplo".longest_transcript.gtf
 echo "translate CDS into amino acid "
-transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.fa
-transeq -clean -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.clean.fa #for interproscan and other pipelines
+transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.final.fa
+transeq -clean -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.final.clean.fa #for interproscan and other pipelines
 
 echo -e "there is $( grep -c ">" "$haplo"_prot.fa |awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
 

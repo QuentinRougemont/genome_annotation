@@ -26,8 +26,6 @@
 <img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png" width = "490" heigth = "490">
 
 
-**Braker3** does not produced results of as good quality as braker for now, but could be used due to the simplicity of implementation through **singularity** 
-
 # Dependencies: 
 
 basic requirements: **git**, **gcc** , **R**, **make**, **cmake**, **wget** or **curl** , **java** 
@@ -75,7 +73,17 @@ more details on the config file are [here](https://github.com/QuentinRougemont/g
 
 ### note on input naming: 
 
-we recommend to use short name for each haplotype and avoid any special characters appart from underscore.  
+we recommend to use short name for each haplotype and avoid any special characters appart from underscore. 
+
+For instance:  
+
+species-1.fasta **will not be valid in GeneSpace**. Use Species1.fasta instead.  
+
+For the chromosome we recommand a standard naming including the Species name within it like so:
+
+**Species1_chr1** or **Species1_contig1** 
+
+kepp things as simple as possible 
 
 
 # Example input data:  
