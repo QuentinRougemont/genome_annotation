@@ -157,26 +157,26 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome 
-   if  [[ $rename_scaffold = N ]]; then
-       echo "no haplotype name  provided - skip renaming scaffold ids"
+   #if  [[ $rename_scaffold = N ]]; then
+   #    echo "no haplotype name  provided - skip renaming scaffold ids"
        cp $genome1 .
-   else
-       echo "renaming scaffold ids "
-       ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
-   fi
+   #else
+   #    echo "renaming scaffold ids "
+   #    #../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
+   #fi
 
    cd ../../
 else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome 
-   if  [[ $rename_scaffold = N ]]; then
-       echo "no haplotype name  provided - skip renaming scaffold ids"
+   #if  [[ $rename_scaffold = N ]]; then
+   #    echo "no haplotype name  provided - skip renaming scaffold ids"
        cp $genome1 .
-   else
-       echo "renaming scaffold ids "
-       ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
-   fi
+   #else
+   #    echo "renaming scaffold ids "
+   #    ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
+   #fi
 
 
    cd ../../
@@ -201,25 +201,25 @@ if [[ -n "$genome2" ]] ; then
     gunzip "$genome2"
     genome2=${genome%.gz}
     cd haplo2/03_genome 
-    if  [[ $rename_scaffold = N ]]; then
-        echo "no haplotype name  provided - skip renaming scaffold ids"
+    #if  [[ $rename_scaffold = N ]]; then
+    #    echo "no haplotype name  provided - skip renaming scaffold ids"
         cp $genome2 .
-    else
-        echo "renaming scaffold ids "
-        ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
-    fi
+    #else
+    #    echo "renaming scaffold ids "
+    #    ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
+    #fi
     
     cd ../../
     else
     echo "$genome2 is not gzipped"
     cd haplo2/03_genome 
-    if  [[ $rename_scaffold = N ]]; then
-        echo "no haplotype name  provided - skip renaming scaffold ids"
+    #if  [[ $rename_scaffold = N ]]; then
+    #    echo "no haplotype name  provided - skip renaming scaffold ids"
         cp $genome2 .
-    else
-        echo "renaming scaffold ids "
-        ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
-    fi
+    #else
+    #    echo "renaming scaffold ids "
+    #    ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
+    #fi
     
     genome2=$genome2
     cd ../../
