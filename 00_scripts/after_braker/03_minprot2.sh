@@ -88,8 +88,6 @@ if [ ! -s "PR.${refbase%.fa}.gff" ]; then
     exit 1
 else
 	echo "base is $base"
-	#make a backup of the original alignment to PR:
-	grep -A1 "$PRinPROT" whole."$protbase"_on_"$refbase".gff > PR.miniprot.bkp
 	cat $gff_file PR.${refbase%.fa}.gff > 09_gff_final/"$base"
 	
 	#-------------------------------- step 3 ---------------------------------------"
@@ -98,17 +96,5 @@ else
 
 	#extract Proteins!!
 	gffread -g $refgenome -y 09_gff_final/${base%.gtf}_prot.fa 09_gff_final/$base
-
-	eval "$(conda shell.bash hook)"
-	conda activate busco_env #cluster
-	#conda activate env_busco #on me
-	#script to run busco
-	cd 09_gff_final
-	input_fa=${base%.gtf}_prot.fa 
-
-	#for braker:
-	busco -c10 -o busco_"$input_fa" -i "$input_fa" -l basidiomycota_odb10 -m protein #
-	#count the number of protein:
-  	cd ../	
-
+	
 fi
