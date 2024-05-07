@@ -54,6 +54,9 @@ else
     echo -e "\n-----------------------------------------------------"
     echo -e "no repeatmodeller output \n will launch repeatmodeller " ; 
     echo -e "-----------------------------------------------------\n"
+    #remove any empty rm_file
+    rm -rf $rm_file 2>/dev/null
+
     ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
     if [ $? -eq 0 ]; then
         echo -e "\n${BLU}---- repeatmodeler run successfull ----\n${NC}"
