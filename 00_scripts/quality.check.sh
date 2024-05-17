@@ -54,7 +54,7 @@ diamond blastx -d ../../uniprot/uniprot_sprot.fasta \
 #------ Inter pro scan --------------#
 if [[ $interpro = "YES" ]]
 then
-    interproscan.sh -i "$haplo"_prot.clean.fa -goterms 2>&1 |tee interpro.log
+    interproscan.sh -i "$haplo"_prot.final.clean.fa -goterms 2>&1 |tee interpro.log
     
 fi
 

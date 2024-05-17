@@ -295,7 +295,7 @@ source ../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco_env
-busco -c8 -o busco_final -i "$haplo"_prot.fa -l $busco_lineage -m protein -f  
+busco -c8 -o busco_final -i "$haplo"_prot_final.fa -l $busco_lineage -m protein -f  
 
 #then launch quality check on the final dataset: 
 chmod +x ../../00_scripts/quality.check.sh
