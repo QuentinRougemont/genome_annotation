@@ -159,7 +159,7 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    cd haplo1/03_genome 
    #if  [[ $rename_scaffold = N ]]; then
    #    echo "no haplotype name  provided - skip renaming scaffold ids"
-       cp $genome1 .
+       cp $genome1 $haplotype1.fa
    #else
    #    echo "renaming scaffold ids "
    #    #../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
@@ -172,7 +172,7 @@ else
    cd haplo1/03_genome 
    #if  [[ $rename_scaffold = N ]]; then
    #    echo "no haplotype name  provided - skip renaming scaffold ids"
-       cp $genome1 .
+       cp $genome1 $haplotype1.fa
    #else
    #    echo "renaming scaffold ids "
    #    ../../00_scripts/00_rename_fasta.py $genome1 $current_name1 $haplotype1
@@ -203,7 +203,7 @@ if [[ -n "$genome2" ]] ; then
     cd haplo2/03_genome 
     #if  [[ $rename_scaffold = N ]]; then
     #    echo "no haplotype name  provided - skip renaming scaffold ids"
-        cp $genome2 .
+        cp $genome2 $haplotype2.fa
     #else
     #    echo "renaming scaffold ids "
     #    ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2
@@ -215,7 +215,7 @@ if [[ -n "$genome2" ]] ; then
     cd haplo2/03_genome 
     #if  [[ $rename_scaffold = N ]]; then
     #    echo "no haplotype name  provided - skip renaming scaffold ids"
-        cp $genome2 .
+        cp $genome2 $haplotype2.fa
     #else
     #    echo "renaming scaffold ids "
     #    ../../00_scripts/00_rename_fasta.py $genome2 $current_name2 $haplotype2

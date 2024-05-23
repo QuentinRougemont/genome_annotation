@@ -53,6 +53,7 @@ if file --mime-type "$genome" | grep -q gzip$; then
 else
    echo "$genome is not gzipped"
    genome=$genome
+   echo $genome 
 fi
 
 
