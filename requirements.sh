@@ -66,11 +66,7 @@ mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkm
 mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
 mamba install -c conda-forge json5 matplotlib
 #stuff for R:
-mamba install conda-forge::jags 
-mamba install conda-forge::r-rjags
-mamba install conda-forge::r-rsvg
-mamba install conda-forge::r-igraph
-mamba install conda-forge::r-devtools
+mamba install conda-forge jags r-rjags r-rsvg r-igraph r-devtools r-biostrings r-ragg r-curl
 
 
 #----------- a few tools to install directly with mamba :---------------------- 

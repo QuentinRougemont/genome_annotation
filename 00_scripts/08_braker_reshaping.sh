@@ -72,25 +72,34 @@ echo -e "best_round is $best_round\n--------------------------------------------
 cd ../
 
 #optionally make a report:
+#------------- CONDA ACTIVATION  -------------- #
+eval "$(conda shell.bash hook)"
+conda activate braker_env
+
 mkdir 08_best_run 2>/dev/null
 python3 ../00_scripts/utility_scripts/generateReport.py 06_braker/"$best_round"/braker.gtf \
     06_braker/"$best_round"/hintsfile.gff  \
     08_best_run/report_"$best_round".pdf
 
 
-
+conda deactivate
 #------------------------------ step 2 finding runs --------------------------------------------#
 
 if [[ $RNAseq = "YES" ]]
 then
 
     #make a report on rnaseq:
-        python3 ../00_scripts/utility_scripts/generateReport.py \
+    #------------- CONDA ACTIVATION  -------------- #
+    eval "$(conda shell.bash hook)"
+    conda activate braker_env
+
+    python3 ../00_scripts/utility_scripts/generateReport.py \
         06_braker/rnaseq/braker.gtf \
         06_braker/rnaseq/hintsfile.gff  \
         08_best_run/report_rnaseq.pdf
     
-    
+    conda deactivate
+
     echo -e "\nrunning tsebra\n" 
     
     #2 -- run tsebra
