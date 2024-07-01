@@ -292,8 +292,9 @@ echo "translate CDS into amino acid "
 transeq -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.final.fa
 transeq -clean -sequence "$haplo".spliced_cds.fa -outseq "$haplo"_prot.final.clean.fa #for interproscan and other pipelines
 
-echo -e "there is $( grep -c ">" "$haplo"_prot.fa |awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
+echo -e "there is $( grep -c ">" "$haplo"_prot.final.fa |awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
 
+rm p1 p3
 rm *tmp*
 rm *renamed.*gtf
 rm *IDchecked.gtf
@@ -304,7 +305,7 @@ source ../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco_env
-busco -c8 -o busco_final -i "$haplo"_prot_final.fa -l $busco_lineage -m protein -f  
+busco -c8 -o busco_final -i "$haplo"_prot.final.fa -l $busco_lineage -m protein -f  
 
 #then launch quality check on the final dataset: 
 chmod +x ../../00_scripts/quality.check.sh

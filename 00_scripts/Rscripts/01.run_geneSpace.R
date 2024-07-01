@@ -3,6 +3,8 @@
 if("BiocManager" %in% rownames(installed.packages()) == FALSE)            
 {install.packages("BiocManager", repos="https://cloud.r-project.org") }   
 
+BiocManager::install("Biostrings")
+
 if("devtools" %in% rownames(installed.packages()) == FALSE)
 {install.packages("devtools", repos="https://cloud.r-project.org") }
 
