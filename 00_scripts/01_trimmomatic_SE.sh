@@ -10,9 +10,11 @@ else
     file=$1
     echo "fastq file is : ${file}"
     echo " "
+    NCPU=$2 #number of CPU (optional)
 fi
+
 #file : read1.fastq.gz located in 01_raw folder 
-base=$(basename $file)
+base=$(basename "$file")
 
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 LOG_FOLDER="log"
@@ -22,10 +24,14 @@ mkdir $LOG_FOLDER 2>/dev/null
 mkdir 02_trimmed  2>/dev/null
 
 ADAPTERFILE="Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa"
-NCPU=8
+
+if [[ -z "$NCPU" ]]
+then
+    NCPU=8
+fi
 
 java -jar -Xmx10G Trimmomatic-0.39/trimmomatic-0.39.jar SE \
-        -threads 8 \
+        -threads $NCPU \
         -phred33 \
         "$file".fastq.gz \
         02_trimmed/"$base"_R1.fastq.gz \

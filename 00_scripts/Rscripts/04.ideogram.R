@@ -187,5 +187,5 @@ karyo <- rbind(index1, small, index2)
 
 all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) 
 
-ideogram(karyotype = karyo, synteny = all, output=paste0(sp1,sp2,'.svg'))
-convertSVG(paste(sp1,sp2,'.svg', sep=''), file = paste0(sp1,sp2,'.pdf'), device = "pdf")
+ideogram(karyotype = karyo, synteny = all, output=paste0('plots', sp1,sp2,'.svg'))
+convertSVG(paste('plots/', sp1,sp2,'.svg', sep=''), file = paste0('plots', sp1,sp2,'.pdf'), device = "pdf")

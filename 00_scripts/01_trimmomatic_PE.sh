@@ -32,7 +32,7 @@ NCPU=8
 
 
 java -jar -Xmx10G Trimmomatic-0.39/trimmomatic-0.39.jar PE \
-    -threads 8 \
+    -threads "$NCPU" \
     -phred33 \
     "$file1" \
     "$file2" \

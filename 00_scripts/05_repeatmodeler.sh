@@ -4,8 +4,7 @@
 #Date: 11-2022
 #script to detect repeated sequences
 
-
-#------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
+#------------ EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
 source ../config/config
 
 
@@ -14,9 +13,9 @@ eval "$(conda shell.bash hook)"
 conda activate repeatmodeler_env
 
 
-echo TEdatabase is $TEdatabase
-echo "NCBI species is $ncbi_species"
-echo "genome is $genome"
+echo -e "TEdatabase is ""$TEdatabase"" "
+echo -e "NCBI species is ""$ncbi_species"" "
+echo -e "genome is ""$genome"" "
 
 #------------- CHECK PARAMETERS -------------- #
 if [ $# -ne 3  ]; then
@@ -37,7 +36,7 @@ else
 fi
 
 
-base=$(basename $genome)
+base=$(basename "$genome")
 #--------------DECLARE THE USUAL GENERIQ STUFF: -----------------#
 TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 LOG_FOLDER="log_files"
@@ -53,7 +52,7 @@ if file --mime-type "$genome" | grep -q gzip$; then
 else
    echo "$genome is not gzipped"
    genome=$genome
-   echo $genome 
+   echo "$genome" 
 fi
 
 
@@ -70,68 +69,59 @@ fi
 #sed 's/ [0-9A-Za-z=-]*//g' $genome > ${genome%.fa}.simpl.fa
 #genome=${genome%.fa}.simpl.fa
 
-base=$(basename $genome )
+base=$(basename "$genome" )
 
 mkdir 05_TE 2>/dev/null
-cd 05_TE
+cd 05_TE || exit
 
 #--------------STEP1 : RUN REPEATMODELER  -----------------------#
 
 ##build db:
-BuildDatabase -name $database -engine ncbi ../$genome 2>&1 | tee ../$LOG_FOLDER/buildDatabase.$base.$TIME.log
+BuildDatabase -name "$database" -engine ncbi ../"$genome" 2>&1 |\
+    tee ../$LOG_FOLDER/buildDatabase."$base"."$TIME".log
 
 #de novo TE annotations:
-RepeatModeler -threads 18 -engine ncbi -database $database 2>&1 | tee ../$LOG_FOLDER/repeatmodeler_$base.$TIME.log
-if [ $? -eq 0 ]; then
-   echo -e "RepeatModeler run successfull\n"
-else
-   echo -e "${RED} ERROR! RepeatModeler failed - check your data and installation\n${NC}"
-   exit 1
-fi
+RepeatModeler -threads 18 -engine ncbi -database "$database" 2>&1 |\
+    tee ../$LOG_FOLDER/repeatmodeler_"$base"."$TIME".log ||\
+    { echo -e " ${RED} ERROR! RepeatModeler failed - check your data and installation\n${NC} " ; 
+        exit 1 ; }
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
 
 # BASED ON DATABASE : 
-FOLDER1=FOLDER1_"${base}"_mask.$TIME
-mkdir $FOLDER1
-lib1=$TEdatabase 
-RepeatMasker -pa 18 -e ncbi -lib $lib1 -xsmall -dir "$FOLDER1" ../$genome 2>&1 | tee ../$LOG_FOLDER/F1_repeatmasker_$base.$TIME.log
-if [ $? -eq 0 ]; then
-   echo -e "RepeatMasker run successfull\n"
-else
-   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
-exit 1
-fi
+FOLDER1=FOLDER1_"${base}"_mask."$TIME"
+mkdir "$FOLDER1"
+lib1="$TEdatabase" 
+RepeatMasker -pa 18 -e ncbi -lib "$lib1" -xsmall -dir "$FOLDER1" ../"$genome" 2>&1 |\
+    tee ../"$LOG_FOLDER"/F1_repeatmasker_"$base"."$TIME".log || \
+    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
+        exit 1 ; }
 
 # Based on de-novo repeat + database:
-FOLDER2=FOLDER2_"${base}"_mask.$TIME
+FOLDER2=FOLDER2_"${base}"_mask."$TIME"
 
 # test if we keep Unknwon repeat or not
 ## without Unknwon repeat ##
-if [[ $rm_unknown = "YES" ]]
+if [[ "$rm_unknown" = "YES" ]]
 then
     echo "removing Unknown TE Repeats ..."
-    awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' $database-families.fa |\
+    awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$database"-families.fa |\
     sed -e '/Unknown/,+1d' |\
-    cat $lib1 - > $base.no_unknown.repbase.fa
+    cat "$lib1" - > "$base".no_unknown.repbase.fa
     libcat="$base".no_unknown.repbase.fa
 else
     #with known repeat
     echo "keep all candidate TEs... "
-    cat $database-families.fa $lib1 > $base.repbase.fa
+    cat "$database"-families.fa "$lib1" > "$base".repbase.fa
     libcat="$base".repbase.fa
 fi
 
 #run repeatmasker:
-RepeatMasker -pa 18 -e ncbi -lib $libcat -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
-    tee ../$LOG_FOLDER/F2_repeatmasker_$base.$TIME.log
+RepeatMasker -pa 18 -e ncbi -lib "$libcat" -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
+    tee ../$LOG_FOLDER/F2_repeatmasker_"$base"."$TIME".log  ||\
+    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
+        exit 1 ; }
 
-if [ $? -eq 0 ]; then
-   echo -e "RepeatMasker run successfull\n"
-else
-   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
-exit 1
-fi
 
 ## ----- step 2.3: based on online data ----- ## 
 #online database
@@ -140,21 +130,16 @@ mkdir "$FOLDER3"
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
-    tee ../$LOG_FOLDER/F3_repeatmasker_$base.$TIME.log
+    tee ../$LOG_FOLDER/F3_repeatmasker_"$base"."$TIME".log  ||\
+    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
+        exit 1 ; }
 
-if [ $? -eq 0 ]; then
-   echo -e "RepeatMasker run successfull\n"
-else
-   echo -e "${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC}"
-exit 1
-fi
-
-cd ../03_genome
+cd ../03_genome || exit
 
 if [[ $rm_unknown = "YES" ]]
 then
-    ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask.fa
+    ln -s ../05_TE/"$FOLDER3"/"$base".masked.masked.masked genome.wholemask.fa
 else
-    ln -s ../05_TE/$FOLDER3/$base.masked.masked.masked genome.wholemask.fa
+    ln -s ../05_TE/"$FOLDER3"/"$base".masked.masked.masked genome.wholemask.fa
 fi
 

@@ -25,12 +25,12 @@ NCPUS=8
 
 # For genome
 #check:
-genome=$(basename $genome )
+genome=$(basename "$genome" )
 GENOMEFOLDER="03_genome"
 GENOME=gmap_"${genome%.fa**}"
 platform="Illumina"
 
-input=$(basename $fq)
+input=$(basename "$fq")
 base=${input%_R1.fastq.gz}
 
 # Align reads
@@ -55,7 +55,7 @@ echo "Creating sorted bam for $base"
 samtools sort "$DATAOUTPUT"/"$base".concordant_uniq.bam -o "$DATAOUTPUT"/"$base".sorted.bam
 samtools index "$DATAOUTPUT"/"$base".sorted.bam
 # Clean up
-echo "Removing "$TMP"/"$base".bam"
+echo "Removing ""$TMP""/""$base"".bam"
 
 rm $DATAOUTPUT/"$base".concordant*
 rm $DATAOUTPUT/"$base".halfmapping*

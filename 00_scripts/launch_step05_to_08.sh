@@ -11,7 +11,7 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -g | --genome) genome="$2" ;echo "the genome file  is: $genome" >&2;;
     -s | --haplotype) haplotype="$2" ;echo "the haplotype name will be $haplotype" >&2;;
-    -b | --bam )    bamlist="$2" ; echo "the optional bamlist of bam files will be $bamlist " >&2;;
+    -b | --bam )    bamlist="$2" ; echo "the optional bamlist of bam files will be $bamlist"  >&2;;
     -m | --mask )   Mask="$2" ; echo "unknown TE will be removed after repeatemasking" >&2;;
     -r | --rna )    RNAseq="$2" ; echo "Is RNAseq provided ? $RNAseq " >&2;; 
     -f | --fungus ) fungus="$2" ; echo "Do species belong to fungi? $fungus" >&2;;
@@ -27,7 +27,7 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ -z "$genome" ] || [ -z "$haplotype" ] ; then
-    echo >&2 "Fatal error: Ref genome (-g), and haplotype name (-s) not defined\n
+    echo -e  >&2 "Fatal error: Ref genome (-g), and haplotype name (-s) not defined\n
     see manual with -h or --help"
 exit 2
 fi
@@ -57,14 +57,14 @@ else
     #remove any empty rm_file
     rm -rf $rm_file 2>/dev/null
 
-    ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
-    if [ $? -eq 0 ]; then
-        echo -e "\n${BLU}---- repeatmodeler run successfull ----\n${NC}"
-    else
+    if ! ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+    then
         echo -e "${RED} ERROR: repeatmodeler failed.\n
         check the provided libraries and software dependancies  \n${NC}"   
         exit 
-    fi
+    else
+        echo -e "\n${BLU}---- repeatmodeler run successfull ----\n${NC}"
+        fi
 fi
 
 
@@ -76,8 +76,8 @@ cdbpath=$(command -v cdbfasta |xargs dirname )
 protpath=$(command -v prothint.py |xargs dirname)
 gmarkpath=$(command -v gmes_petap.pl |xargs dirname)
 augbin=$(command -v augustus |xargs dirname)
-augscripts=$(echo $augbin  |sed 's/bin/scripts/' )
-augconf=$(echo $augbin  |sed 's/bin/config/' )
+augscripts="${augbin//bin/scripts}"
+augconf="${augbin//bin/config}"
 
 #verify again that all path exist -----
 [[ -z "$tsebrapath" ]] && { echo "Error: tsebra.py not found"; exit 1; }
@@ -95,35 +95,42 @@ sed -i "s#AUGCO_PATH#export AUGUSTUS_CONFIG_PATH=$augconf#" ../00_scripts/06_bra
 sed -i "s#AUGBI_PATH#export AUGUSTUS_BIN_PATH=$augbin#" ../00_scripts/06_braker.sh
 sed -i "s#AUGSC_PATH#export AUGUSTUS_SCRIPTS_PATH=$augscripts#" ../00_scripts/06_braker.sh
 
-echo "---- running braker now on $haplotype ----- " 
+echo -e "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
-../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa $haplotype $RNAseq \
-    $fungus $bamlist 2>&1 |tee braker_log  #NO for no rnaseq  
-
-if [ $? -eq 0 ]; then
-    echo -e "${BLU}------\nbraker successfully run\n------${NC}"
-else
+if ! ../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa "$haplotype" $RNAseq \
+    "$fungus" "$bamlist" 2>&1 |tee braker_log  #NO for no rnaseq  
+then
     echo -e "${RED} ERROR! FAILED RUNNING BRAKER - verfiy braker_log!  \n${NC}"
     exit 1
+else
+    echo -e "${BLU}------\nbraker successfully run\n------${NC}"
 fi
 # -------------------- run Busco  ---------------------------- #
 if [[ $RNAseq = "YES" ]]
 then
-    ../00_scripts/07_busco_after_braker.sh $busco_lineage YES 2>&1 |tee log_busco
+    ../00_scripts/07_busco_after_braker.sh "$busco_lineage" YES 2>&1 |tee log_busco
 else
-   ../00_scripts/07_busco_after_braker.sh $busco_lineage 2>&1 |tee log_busco 
+   ../00_scripts/07_busco_after_braker.sh "$busco_lineage" 2>&1 |tee log_busco 
 fi
 
 # ---------------------reshape Braker output ----------------- #
 if [[ $RNAseq = "YES" ]]
 then
-    ../00_scripts/08_braker_reshaping.sh -s  $haplotype -r YES 2>&1 |tee reshape_log 
+    if ! ../00_scripts/08_braker_reshaping.sh -s  "$haplotype" -r YES 2>&1 |tee reshape_log 
+    then
+        echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
+        exit 1
+    else
+        echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+    fi
 else
-   ../00_scripts/08_braker_reshaping.sh -s $haplotype -r NO 2>&1 |tee reshape_log 
+   if ! ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -r NO 2>&1 |tee reshape_log 
+   then
+       echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
+       exit 1
+    else
+       echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+    fi
+
 fi
-if [ $? -eq 0 ]; then
-    echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
-else
-    echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
-    exit 1
-fi
+

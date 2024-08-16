@@ -2,7 +2,6 @@
 #PURPOSE: script to run braker
 #AUTHOR: QR
 #Date updated: 10-03-2023
-set -e
 
 #------------- EXTERNAL VARIABLE FROM CONFIG FILE -------------- #
 source ../config/config
@@ -12,7 +11,7 @@ eval "$(conda shell.bash hook)"
 conda activate braker_env
 
 
-echo "relatedProt is $RelatedProt"
+echo relatedProt is "$RelatedProt"
 
 #--- start of setting path ---- " 
 CDB_PATH
@@ -24,6 +23,10 @@ AUGBI_PATH
 AUGSC_PATH
 #--- end of setting path ---- " 
 
+#set -e
+
+current_command=$BASH_COMMAND
+last_command=""
 
 # keep track of the last executed command
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
@@ -48,7 +51,6 @@ else
     NCPUS=$6
 fi
 
-base=$(basename $genome )
 
 if [[ -z "$NCPUS" ]]
 then
@@ -60,7 +62,7 @@ TIME=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 #----------------- BAM data for RNAseq ------------------------ #
 #previously we used a concatenated and filtered bam.
 #however, providing a list of all bam gives similar results with a significant gain in time:
-if [ -z $bamlist ] ; then
+if [ -z "$bamlist" ] ; then
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 else
 
@@ -72,9 +74,11 @@ else
 
     cd 04_mapped
 
-    for i in $(cat $bamlist ) ; do
-        ln -s $i . 
-    done
+    #for i in $(cat "$bamlist" ) ; do
+    while read -r line 
+    do 
+        ln -s "$line" . 
+    done < "$bamlist" 
     cd ../ ; 
 
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
@@ -84,7 +88,7 @@ fi
 #------------------ check if the folder already exits ----------------------------------#
 if [[ -d 06_braker ]]
 then
-    echo "WARNING directory 06_braker already exists! check its content first
+    echo -e "WARNING directory 06_braker already exists! check its content first
     Do you wish to remove it?\n
     this will stop braker script and launch the rest of the analysis\n"
     select yn in "Yes" "No"; do
@@ -96,7 +100,7 @@ then
 fi
 
 #----------------OrthoDB and Other Protein data -------------- #
-target=$orthoDBspecies
+target="$orthoDBspecies"
 
 if [ -z ${orthoDBspecies+x} ]; then
     echo "no orthoDB species provided"
@@ -105,33 +109,41 @@ if [ -z ${orthoDBspecies+x} ]; then
 
 else
     clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
-    if [[ ${clades[@]} =~ $target ]]
+    if [[ ${clades[*]} =~ $target ]]
     then
         if [ -d odbd11 ] ; then
-	    rm -rf odb11 
-	    mkdir odb11 
+            rm -rf odb11 
+            mkdir odb11 
         else 
-	    mkdir odb11
-	fi
+           mkdir odb11
+        fi
 
-	cd odb11
-    if [ -f "$target".fa* ]; then
-        echo "warning file $target.fa already present "
-        echo "please verify if this is the file that you need"
-    #    exit 1 
-    else
-        wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
-            gunzip ${target}.fa.gz
-            cd ../ 
-            cat $RelatedProt  odb11/"${target}".fa > relatProt.fa
-        relatProt="relatProt.fa"
-    
-    fi
-    
+        cd odb11
+        for file in "$target".fa.*
+        do 
+            if [ -f "$file" ] 
+            then
+                echo "warning file $target.fa already present "
+                echo "please verify if this is the file that you need"
+        #       exit 1 
+            else
+                wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
+                gunzip "${target}".fa.gz
+                cd ../ 
+                if [ -z ${RelatedProt+x} ] ; then
+                    echo "no related protein"
+                    cp odb11/"${target}".fa  relatProt.fa
+                else
+                    cat "$RelatedProt"  odb11/"${target}".fa > relatProt.fa
+                    relatProt="relatProt.fa"
+                fi
+            fi
+        done 
     else
         echo "No Protein database specified"
-    fi  
+    fi
 fi
+
 
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
@@ -153,10 +165,12 @@ then
     then
         echo -e "------ \n running braker on rnaseq data \n -------"
         echo -e "------ \n data are from fungus \n -------"
-            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus \
+                --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     else
         echo -e "------ \n running braker on rnaseq data \n -------"
-            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" \
+                --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
     fi
 fi 
 
@@ -173,56 +187,66 @@ FOLDER5=06_braker/round5_braker_on_refprot #_$TIME
 mkdir -p $FOLDER1 $FOLDER2 $FOLDER3 $FOLDER4 $FOLDER5 2>/dev/null
 
 echo "----------- round 1 ------------" 
-echo AUGUSTUS_SCRIPTS_PATH is $AUGUSTUS_SCRIPTS_PATH 
-echo AUGUSTUS_BINS_PATH is $AUGUSTUS_BIN_PATH 
-echo AUGUSTUS_CONFIG_PATH is $AUGUSTUS_CONFIG_PATH 
+echo AUGUSTUS_SCRIPTS_PATH is "$AUGUSTUS_SCRIPTS_PATH" 
+echo AUGUSTUS_BINS_PATH is "$AUGUSTUS_BIN_PATH"
+echo AUGUSTUS_CONFIG_PATH is "$AUGUSTUS_CONFIG_PATH" 
 
 
 wd=${FOLDER1}
 
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
+    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
 else
-    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd 
+    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd 
 fi
 
 echo "----------- round 2 ------------" 
 wd=${FOLDER2}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
 else
-    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
 fi
 
 echo "----------- round 3 ------------" 
 wd=${FOLDER3}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
 else
-    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
 fi
 
 echo "----------- round 4 ------------" 
 wd=${FOLDER4}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
 else
-    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
 fi
 
 echo "----------- round 5 ------------" 
 wd=${FOLDER5}
 if [[ $fungus = "YES" ]]
 then
-    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
 else
-    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS"  --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
+    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
+        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
 fi
 echo -e "\n${BLU}-----------------------------\n
-	\t ALL BRAKER REPLICATES finished\n
-	------------------------------------${NC}\n\n" 
+    \t ALL BRAKER REPLICATES finished\n
+    ------------------------------------${NC}\n\n" 
 

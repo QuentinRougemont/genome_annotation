@@ -73,7 +73,7 @@ FigMCP5Strata  <- plot(fit_5st, q_fit = TRUE) + ggplot2::ggtitle("Posterior fit 
   xlab(xl) + ylab(expression(italic(d[s])))
 
 #plot them all
-pdf(file = "Strata_comp.pdf", 12,14)
+pdf(file = "modelcomp/Strata_comp.pdf", 12,18)
 plot_grid(FigMCP2Strata, FigMCP3Strata, FigMCP4Strata, FigMCP5Strata, labels = "AUTO", ncol = 1)
 dev.off()
 
@@ -161,6 +161,11 @@ plot5cp <- ggplot(df, aes(x = five_strata, y = Ds, fill = five_strata)) +
     scale_fill_manual(values=mycolor[1:5])  + theme(legend.position="none")
 
 
+#plot them all
+pdf(file = "modelcomp/Strata_comp2.pdf", 12,18)
+plot_grid(plot2cp, plot3cp, plot4cp, plot5cp labels = "AUTO", ncol = 1)
+dev.off()
+
 #----------------  a bit of model choice --------------------------------------#
 #to be considered precautionously!
 fit_2st$loo <- loo(fit_2st)
@@ -198,21 +203,21 @@ h3st4 <-hypothesis(fit_3st, c("int_1 < int_2", "int_2 > int_3" ))
 
 #----------------save the data -------------------------------------------------#
 #summaries:
-write.table(m1, "summary_1strata.txt", quote = F)
-write.table(m2, "summary_2strata.txt", quote = F)
-write.table(m3, "summary_3strata.txt", quote = F)
-write.table(m4, "summary_4strata.txt", quote = F)
-write.table(m5, "summary_5strata.txt", quote = F)
+write.table(m1, "modelcomp/summary1strata.txt", quote = F)
+write.table(m2, "modelcomp/summary2strata.txt", quote = F)
+write.table(m3, "modelcomp/summary3strata.txt", quote = F)
+write.table(m4, "modelcomp/summary4strata.txt", quote = F)
+write.table(m5, "modelcomp/summary5strata.txt", quote = F)
 
 #model choice attempt: 
 write.table(m.choice ,"model.choice.txt", quote = F)
 
 #hypothesis testing attempt: 
-write.table(h2st,"hypothesis2strata", quote= F)
-write.table(h2st,"hypothesis2strata.rev.txt", quote= F)
-write.table(h3st1,"hypothesis3strata.1.txt", quote= F)
-write.table(h3st2,"hypothesis3strata.2.txt", quote= F)
-write.table(h3st3,"hypothesis3strata.3.txt", quote= F)
-write.table(h3st4,"hypothesis3strata.4.txt", quote= F)
+write.table(h2st,"modelcomp/hypothesis2strata", quote= F)
+write.table(h2st,"modelcomp/hypothesis2strata.rev.txt", quote= F)
+write.table(h3st1,"modelcomp/hypothesis3strata.1.txt", quote= F)
+write.table(h3st2,"modelcomp/hypothesis3strata.2.txt", quote= F)
+write.table(h3st3,"modelcomp/hypothesis3strata.3.txt", quote= F)
+write.table(h3st4,"modelcomp/hypothesis3strata.4.txt", quote= F)
 
-save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "changepoint_analysis.RData")
+save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "modelcomp/changepoint_analysis.RData")

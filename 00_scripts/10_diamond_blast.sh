@@ -6,32 +6,32 @@ source ../config/colors
 #Purpose: script to blast the CDS against A1 and A2 of M-lagerheimii-1253-A1/A2 
 
 input=$1 #fasta file containing CDS nucleotid
-name=$(basename $input )
+name=$(basename "$input" )
 
-if [ -z '${input}' ] 
+if [ -z "${input}" ] 
 then
     echo "FATAL ERROR: no input file provided"
     exit
 fi
 
 databaseA1=$2
-diamond makedb --in ${databaseA1} -d  ${databaseA1} 
+diamond makedb --in "${databaseA1}" -d  "${databaseA1}" 
 
-diamond blastx -d $databaseA1 \
-        -q $input --ultra-sensitive\
+diamond blastx -d "$databaseA1" \
+        -q "$input" --ultra-sensitive\
         --outfmt 6 qseqid sseqid pident length qstrand mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq \
         --threads 20 \
-        -o matches."$name".on_"$(basename $databaseA1 )".tsv 
+        -o matches."$name".on_"$(basename "$databaseA1" )".tsv 
 
 #databaseA2=/scratch/qrougemont/diamond_blast_resultsA1_A2_HD_PR/HD_PR_MvSv_A2.prot.fa
 databaseA2=$3 
-diamond makedb --in ${databaseA2} -d  ${databaseA2} 
+diamond makedb --in "${databaseA2}" -d  "${databaseA2}" 
 
-diamond blastx -d $databaseA2 \
-        -q $input --ultra-sensitive\
+diamond blastx -d "$databaseA2" \
+        -q "$input" --ultra-sensitive\
         --outfmt 6 qseqid sseqid pident length qstrand mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq \
         --threads 20 \
-        -o matches."$name".on_"$(basename $databaseA2 )".tsv 
+        -o matches."$name".on_"$(basename "$databaseA2" )".tsv 
 
 echo -e "\n${BLU}---- diamond finished----\n"
 

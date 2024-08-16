@@ -39,20 +39,20 @@ input="$haplo".spliced_cds.fa
 
 
 #---------------- run blast/diamond against the cds ----#
-name=$(basename $input )
+name=$(basename "$input" )
 
 output=diamond_blastx
 mkdir $output 2>/dev/null
 
 diamond blastx -d ../../uniprot/uniprot_sprot.fasta \
-        -q $input --ultra-sensitive\
+        -q "$input" --ultra-sensitive\
         --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq \
         --threads 20 \
         -o $output/matches."$name".tsv
 
 
 #------ Inter pro scan --------------#
-if [[ $interpro = "YES" ]]
+if [[ "$interpro" = "YES" ]]
 then
     interproscan.sh -i "$haplo"_prot.final.clean.fa -goterms 2>&1 |tee interpro.log
     

@@ -22,19 +22,19 @@ fi
 
 DATAOUTPUT="04_mapped/"
 DATAINPUT="02_trimmed"
-mkdir -p $DATAOUTPUT 2>/dev/null
+mkdir -p "$DATAOUTPUT" 2>/dev/null
 
 NCPUS=8
 
 
 # For genome
 #check:
-genome=$(basename $genome )
+genome=$(basename "$genome" )
 GENOMEFOLDER="03_genome"
 GENOME=gmap_"${genome%.fa**}"
 platform="Illumina"
 
-input=$(basename $fq)
+input=$(basename "$fq")
 base=${input%_R1.paired.fastq.gz}
 
 # Align reads
@@ -58,7 +58,7 @@ gsnap --gunzip -t "$NCPUS" -A sam \
     samtools sort "$DATAOUTPUT"/"$base".concordant_uniq.bam -o "$DATAOUTPUT"/"$base".sorted.bam
     samtools index "$DATAOUTPUT"/"$base".sorted.bam
 # Clean up
-    echo "Removing "$TMP"/"$base".bam"
+    echo "Removing ""$TMP""/""$base"".bam"
 
     rm $DATAOUTPUT/"$base".concordant*
     rm $DATAOUTPUT/"$base".halfmapping*
@@ -67,13 +67,13 @@ gsnap --gunzip -t "$NCPUS" -A sam \
     rm $DATAOUTPUT/"$base".unpaired*
 
 #counting the number of mapped reads :
-cd $DATAOUTPUT
+cd "$DATAOUTPUT" || exit
 
-samtools view -c "$base".sorted.bam |awk -v var=$base 'END {print var"\t"$1}' > comptage_brute.${base}.txt
-samtools view -F 0x4 $base.sorted.bam | cut -f 1 | sort | uniq | wc -l |\
-            awk -v var="$base" 'END {print var"\t"$1}' > comptage_F04.${base}.txt ;
+samtools view -c "$base".sorted.bam |awk -v var="$base" 'END {print var"\t"$1}' > comptage_brute."${base}".txt
+samtools view -F 0x4 "$base".sorted.bam | cut -f 1 | sort | uniq | wc -l |\
+            awk -v var="$base" 'END {print var"\t"$1}' > comptage_F04."${base}".txt ;
 
-samtools view "$base".sorted.bam |cut -f 3-5|uniq |awk -v var=$base '{print var"\t"$0}' |gzip > mapq.${base}.txt.gz
+samtools view "$base".sorted.bam |cut -f 3-5|uniq |awk -v var="$base" '{print var"\t"$0}' |gzip > mapq."${base}".txt.gz
 samtools depth "$base".sorted.bam |gzip > "$base".dp.gz  
 
 #plot depth along the genome:

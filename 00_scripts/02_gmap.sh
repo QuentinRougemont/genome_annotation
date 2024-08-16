@@ -16,8 +16,7 @@ fi
 #source config/config
 
 GENOMEFOLDER="03_genome/"
-base=$(basename $FASTA )
+base=$(basename "$FASTA" )
 GENOME=gmap_"${base%.fa**}"  # "gmap_genome_MspDse1_assembly.fa"
 
 gmap_build --dir="$GENOMEFOLDER" "$FASTA" -d "$GENOME"
-
