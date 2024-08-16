@@ -33,7 +33,7 @@ dependencies:
   - json5=0.9.24
   - matplotlib
   - jags=4.3.2
-  - r-rjags=4_14
+  - r-rjags=4.14
   - r-rsvg=2.6.0
   - r-igraph=2.0.2
   - cdbtools=0.99

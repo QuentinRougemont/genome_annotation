@@ -11,7 +11,10 @@ then
     then
         echo uniprot already indexed 
     else #index:
+        echo indexing uniprot
+        cd uniprot
         diamond makedb --in uniprot_sprot.fasta -d uniprot_sprot.fasta
+        cd ../
     fi
 
 else
