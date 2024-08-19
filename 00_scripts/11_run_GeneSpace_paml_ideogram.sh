@@ -26,7 +26,7 @@ Help()
    echo " -g|--ancestral_gff: the name of the ancestral gff associated with the ancestral genome"
    echo " -f|--folderpath: the path to the global folder containing haplo1 and haplo 2"
    echo " -c|--chromosome: a tab separated txt file listing the name of the reference species (e.g sp1), the corresponding set of chromosomes (e.g.: chrX , supergene, etc) and the orientation of the chromosome (N: Normal, R: Reverse) if their is more than one"
-   echo " -o|--options : the type of analysis to be performed: either 'synteny_and_Ds' (GeneSpace+Minimap2+Ds+changepoint), 'snyteny_only' (GeneSpace+Minimap2), 'Ds_only' (paml and changepoint)"
+   echo " -o|--options : the type of analysis to be performed: either 'synteny_and_Ds' (GeneSpace+Minimap2+Ds+changepoint), 'synteny_only' (GeneSpace+Minimap2), 'Ds_only' (paml and changepoint)"
    echo " "
    echo "dependancies: orthofinder, mcscanx, GeneSpace, paml (yn00), Rideogram, translatorX minimap2"
 }

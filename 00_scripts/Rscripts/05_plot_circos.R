@@ -17,13 +17,13 @@
 ####-------------------------- INITIALISATION ------------------------------####
 
 #------------- check that libraries are installed and load them ---------------#
-packages=c('circlize','dplyr','tidyr','wesanderson')
+packages <- c('circlize','dplyr','tidyr','wesanderson')
 #install.packages(setdiff(packages, rownames(installed.packages())))
 install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 invisible(lapply(packages, library, character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
-args=commandArgs(T)
+args <- commandArgs(T)
 
 # test if there are at least 3 arguments: if not, return an error
 if (length(args) < 3) {
@@ -40,22 +40,22 @@ if (length(args) < 3) {
 }
 
 # enter variables
-haplo=args[1]
-reference=args[2]
-chromosomes=read.table(args[3])
+haplo <- args[1]
+reference <- args[2]
+chromosomes <- read.table(args[3])
 
 #------------- Import other files ---------------------------------------------#
 # import synteny data
-syn=read.table(paste0('synteny_',reference,'_',haplo,'.txt'), header=T, as.is=T, sep='\t')
+syn <- read.table(paste0('synteny_',reference,'_',haplo,'.txt'), header=T, as.is=T, sep='\t')
 
 # import contig informations from .fai index
-index_ref=read.table(paste0(reference "/03_genome/", reference,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
-colnames(index_ref)=c("chr","end")
+index_ref <- read.table(paste0(reference "/03_genome/", reference,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
+colnames(index_ref) <- c("chr","end")
 
 #to fix:
-#index_hap=read.table(paste0(haplo,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
+<- index_hap=read.table(paste0(haplo,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
 
-colnames(index_hap)=c("chr","end")
+colnames(index_hap) <- c("chr","end")
 
 ####------------------------ PREPARE CIRCOS DATA ---------------------------####
 #------------- Prepare data sets ----------------------------------------------#
@@ -63,29 +63,29 @@ colnames(index_hap)=c("chr","end")
 if(ncol(chromosomes)==2) {
   chromosomes$inv=0
 }
-colnames(chromosomes)=c("species","chr","inv")
+colnames(chromosomes) <- c("species","chr","inv")
 
 # Get list of focus scaffolds for each species
-chr_ref=chromosomes[which(chromosomes$species == reference),]
-chr_hap=chromosomes[which(chromosomes$species == haplo),]
-chromosomes=chromosomes[(chromosomes$species==reference) | (chromosomes$species==haplo),]
+chr_ref <- chromosomes[which(chromosomes$species == reference),]
+chr_hap <- chromosomes[which(chromosomes$species == haplo),]
+chromosomes <- chromosomes[(chromosomes$species==reference) | (chromosomes$species==haplo),]
 
 # Subset data sets according to the focus contigs
-syn=syn[which(syn$chrom1 %in% chr_ref$chr & syn$chrom2 %in% chr_hap$chr),]
-index_ref=index_ref[match(chr_ref$chr,index_ref$chr),]
-index_hap=index_hap[match(chr_hap$chr,index_hap$chr),]
+syn <- syn[which(syn$chrom1 %in% chr_ref$chr & syn$chrom2 %in% chr_hap$chr),]
+index_ref <- index_ref[match(chr_ref$chr,index_ref$chr),]
+index_hap <- index_hap[match(chr_hap$chr,index_hap$chr),]
 
 # Make a unique contig info table
-index_ref$species=reference
-index_hap$species=haplo
-contigs=rbind.data.frame(index_ref,index_hap)
+index_ref$species <- reference
+index_hap$species <- haplo
+contigs <- rbind.data.frame(index_ref,index_hap)
 
 # Make the database for the genomic links
-nuc1=select(syn, c('chrom1', 'start1','end1'))
-nuc2=select(syn, c('chrom2', 'start2','end2'))
+nuc1 <- select(syn, c('chrom1', 'start1','end1'))
+nuc2 <- select(syn, c('chrom2', 'start2','end2'))
 
 # Invert contig orientation if needed
-to_inv=chromosomes[which(chromosomes$inv == 1),'chr']
+to_inv <- chromosomes[which(chromosomes$inv == 1),'chr']
 
 for (contig in to_inv) {
   end=contigs[which(contigs$chr==contig),]$end
@@ -97,8 +97,8 @@ for (contig in to_inv) {
 }
 
 #make a matrix with the contigs start and end to initialize the circos
-nb_contig=nrow(contigs)
-m=matrix(c(rep(0, nb_contig), c(contigs$end)), ncol=2)
+nb_contig <- nrow(contigs)
+m <- matrix(c(rep(0, nb_contig), c(contigs$end)), ncol=2)
 
 #---------- Optional: Prepare table of genes to highlight ---------------------#
 #Import the gene positions
@@ -116,9 +116,9 @@ print(data_genes)
 ####------------------------ LAUNCH CIRCOS ---------------------------------####
 #------------- Define plotting parameters -------------------------------------#
 # Contig colors
-col_ref="grey"
-col_hap="grey95"
-contig_color=c(rep(col_ref,nrow(chr_ref)),rep(col_hap,nrow(chr_hap)))
+col_ref <- "grey"
+col_hap <- "grey95"
+contig_color <- c(rep(col_ref,nrow(chr_ref)),rep(col_hap,nrow(chr_hap)))
 
 #------------- Initialize circos ----------------------------------------------#
 # Output in pdf

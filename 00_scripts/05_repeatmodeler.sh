@@ -56,13 +56,13 @@ else
 fi
 
 
-if file --mime-type "$database" | grep -q gzip$; then
-   echo "$database is gzipped"
-   gunzip "$database"
+if file --mime-type "$TEdatabase" | grep -q gzip$; then
+   echo "$TEdatabase is gzipped"
+   gunzip "$TEdatabase"
    database=${database%.gz}
 else
-   echo "$database is not gzipped"
-   database=$database
+   echo "$TEdatabase is not gzipped"
+   TEdatabase=$TEdatabase
 fi
 
 #this should be deprecated:
