@@ -10,9 +10,6 @@ source ../config/config
 eval "$(conda shell.bash hook)"
 conda activate braker_env
 
-
-echo relatedProt is "$RelatedProt"
-
 #--- start of setting path ---- " 
 CDB_PATH
 TSEBR_PATH
@@ -72,7 +69,7 @@ else
            mkdir 04_mapped
     fi
 
-    cd 04_mapped
+    cd 04_mapped || exit 
 
     #for i in $(cat "$bamlist" ) ; do
     while read -r line 
@@ -102,23 +99,29 @@ fi
 #----------------OrthoDB and Other Protein data -------------- #
 target="$orthoDBspecies"
 
-if [ -z ${orthoDBspecies+x} ]; then
+if [ -z ${orthoDBspecies+x} ]; 
+then
     echo "no orthoDB species provided"
-    
-    relatProt="$RelatedProt"
-
+        if [ -z ${RelatedProt+x} ] ; 
+        then
+            echo "no related protein"
+            echo "ERROR - you have not provided any external data "
+            echo "braker will try running with RNAseq only" 
+        else
+            relatProt="$RelatedProt"
+        fi
 else
     clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
     if [[ ${clades[*]} =~ $target ]]
     then
-        if [ -d odbd11 ] ; then
+        if [ -d odb11 ] ; then
             rm -rf odb11 
             mkdir odb11 
         else 
            mkdir odb11
         fi
 
-        cd odb11
+        cd odb11 || exit
         for file in "$target".fa.*
         do 
             if [ -f "$file" ] 

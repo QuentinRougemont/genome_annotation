@@ -796,7 +796,7 @@ then
         
             #check that this script was sucessfull else kill:
             if [ $? -eq 0 ]; then
-                    echo rnaseq mapping succesffull
+                echo rnaseq mapping succesffull
                 echo "running TE detection and gene prediction"
                 ../00_scripts/launch_step05_to_08.sh \
                     -g 03_genome/"$haplotype2".fa  \

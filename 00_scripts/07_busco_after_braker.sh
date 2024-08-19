@@ -34,6 +34,8 @@ fi
 eval "$(conda shell.bash hook)"
 conda activate busco_env
 
+run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #-- ")
+
 if [ -z "$RNAseq" ] ; then 
   #RNAseq=NO
   echo -e "\tWARNING: No RNAseq info provided\nassuming no RNAseq data were used" 
@@ -43,6 +45,20 @@ if [ -z "$RNAseq" ] ; then
    for i in round* ; do
         echo -e "----- running busco on: $i ------" 
         cd "$i"
+        if [[ -d busco_augustus ]]
+        then
+                echo -e "WARNING directory busco_augustus already exists! check its content first
+                \t Do you wish to remove it?\n
+                \t if Yes this will rerun  busco computation\n
+                \t if No this will skip busco computation \n"
+                select yn in "Yes" "No"; do
+                        case $yn in
+                        Yes ) rm -rf; bash "$run_busco" ; break ;;
+                        No  ) break ;;
+                        esac
+                done
+        fi
+
         busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #--
         cd ../
    done 

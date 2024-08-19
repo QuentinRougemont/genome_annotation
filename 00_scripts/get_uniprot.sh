@@ -9,12 +9,12 @@ then
     #check diamond
     if [ -f uniprot/uniprot_sprot.fasta.dmd ] ;
     then
-        echo uniprot already indexed 
-    else #index:
         echo indexing uniprot
         cd uniprot
         diamond makedb --in uniprot_sprot.fasta -d uniprot_sprot.fasta
         cd ../
+    else #index:
+        echo uniprot already indexed 
     fi
 
 else
