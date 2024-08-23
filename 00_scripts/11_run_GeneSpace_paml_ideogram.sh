@@ -1,4 +1,3 @@
-#!/bin/bash
 
 #Purpose:
 #master script to prepare bed files, laucnch GeneSpace, run paml and launch downstream Rscript 
@@ -123,10 +122,12 @@ then
     mkdir paml plots 
 elif [[ $options = "synteny_only" ]] ; 
 then
-    echo "test"
     rm -rf genespace peptide paml plots #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
     mkdir plots 
+elif [[ $options == "changepoint" ]] ;
+then
+        echo "only changepoint will be performed"
 fi
 
 
@@ -350,12 +351,12 @@ cut  -f4 paml/single.copy.orthologs_cleaned > paml/sco."$haplo2".txt
 
 
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
-echo -e  "\n${BLU}----------------------\npreparing data for paml\n-----------------------${NC}\n"
 
 if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then 
-    echo haplo1 is "$haplo1"
-    echo haplo2 is "$haplo2"
-    
+    #echo haplo1 is "$haplo1"
+    #echo haplo2 is "$haplo2"
+    echo -e  "\n${BLU}----------------------\npreparing data for paml\n-----------------------${NC}\n"
+   
     
     if [ -n "${ancestral_genome}" ]; then
         #ancestral genome exist
@@ -452,11 +453,13 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     path_orthofinder='genespace/orthofinder/Results_*/'
     path_bed='genespace/bed/'
     
+    #to do: fixed the below script
     python3 00_scripts/utility_scripts/02.Make_synteny_table.py "${haplo1}" "${haplo2}" \
         "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
     
     
     # ---------------------------------- step6 -- create circos plot --------------------------------
+    #to do: entierely rewrite the Rscripts below 
     #circos plot here:
     #if [ ! -z "${ancestral_genome}" ] ; then
     #    echo "ancestral genome was provided" 
@@ -485,4 +488,27 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     mkdir modelcomp/
     Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
         { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; }
+
+elif [[ $options = "changepoint" ]]  ; then
+
+    eval "$(conda shell.bash hook)"
+    conda activate braker_env
+
+    #eventually check its existence - ask user if he wants to remove it
+    mkdir modelcomp/ 2>/dev/null
+    if [[ -d modelcomp ]]
+    then
+        echo -e "WARNING directory modelcomp already exists! check its content first
+        Do you wish to remove it?\n
+        the data will be lost\n"
+        select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) rm -rf; Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
+        { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; } ;
+            break;;
+            No ) exit;;
+        esac
+    done
+    fi
+
 fi 

@@ -103,7 +103,7 @@ cp3m4 <- m4$mean[3]
 cp1m5 <- m5$mean[1] ##alternatively: summary(fit_5st)[2][[1]][1]
 cp2m5 <- m5$mean[2]
 cp3m5 <- m5$mean[3]
-cp4m5 <- m5$mean[3]
+cp4m5 <- m5$mean[4]
 
 #filter data and visualise differences in mean Ds values:
 #note: we could do better using the BF and hypothesis function instead of working with means ....
@@ -163,17 +163,18 @@ plot5cp <- ggplot(df, aes(x = five_strata, y = Ds, fill = five_strata)) +
 
 #plot them all
 pdf(file = "modelcomp/Strata_comp2.pdf", 12,18)
-plot_grid(plot2cp, plot3cp, plot4cp, plot5cp labels = "AUTO", ncol = 1)
+plot_grid(plot2cp, plot3cp, plot4cp, plot5cp , labels = "AUTO", ncol = 1)
 dev.off()
 
 #----------------  a bit of model choice --------------------------------------#
 #to be considered precautionously!
+fit_1st$loo <- loo(fit_1st)
 fit_2st$loo <- loo(fit_2st)
 fit_3st$loo <- loo(fit_3st)
 fit_4st$loo <- loo(fit_4st)
 fit_5st$loo <- loo(fit_5st)
 
-m.choice <- loo::loo_compare(fit_2st$loo, fit_3st$loo, fit_4st$loo, fit_5st$loo)
+m.choice <- loo::loo_compare(fit_1st$loo, fit_2st$loo, fit_3st$loo, fit_4st$loo, fit_5st$loo)
 
 # ----- rule of thumb - to be used as a helper for model choice ---- : #
 # you should read the manual (https://lindeloev.github.io/mcp/articles/comparison.html)
@@ -210,7 +211,7 @@ write.table(m4, "modelcomp/summary4strata.txt", quote = F)
 write.table(m5, "modelcomp/summary5strata.txt", quote = F)
 
 #model choice attempt: 
-write.table(m.choice ,"model.choice.txt", quote = F)
+write.table(m.choice ,"modelcomp/model.choice.txt", quote = F)
 
 #hypothesis testing attempt: 
 write.table(h2st,"modelcomp/hypothesis2strata", quote= F)
@@ -220,4 +221,6 @@ write.table(h3st2,"modelcomp/hypothesis3strata.2.txt", quote= F)
 write.table(h3st3,"modelcomp/hypothesis3strata.3.txt", quote= F)
 write.table(h3st4,"modelcomp/hypothesis3strata.4.txt", quote= F)
 
-save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "modelcomp/changepoint_analysis.RData")
+save.image( file = "modelcomp/changepoint_analysis.RData")
+#save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "modelcomp/changepoint_analysis.RData")
+

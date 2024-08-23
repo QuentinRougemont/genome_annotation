@@ -32,7 +32,7 @@ fi
 
 #activate busco
 eval "$(conda shell.bash hook)"
-conda activate busco_env
+conda activate busco570
 
 run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #-- ")
 
@@ -47,19 +47,18 @@ if [ -z "$RNAseq" ] ; then
         cd "$i"
         if [[ -d busco_augustus ]]
         then
-                echo -e "WARNING directory busco_augustus already exists! check its content first
-                \t Do you wish to remove it?\n
-                \t if Yes this will rerun  busco computation\n
-                \t if No this will skip busco computation \n"
-                select yn in "Yes" "No"; do
-                        case $yn in
-                        Yes ) rm -rf; bash "$run_busco" ; break ;;
-                        No  ) break ;;
-                        esac
-                done
+            echo -e "WARNING directory busco_augustus already exists! check its content first
+            \t Do you wish to remove it?\n
+            \t if Yes this will rerun  busco computation\n
+            \t if No this will skip busco computation \n"
+            select yn in "Yes" "No"; do
+                    case $yn in
+                    Yes ) rm -rf; bash "$run_busco" ; break ;;
+                    No  ) break ;;
+                    esac
+            done
         fi
 
-        busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #--
         cd ../
    done 
 fi
@@ -68,17 +67,42 @@ fi
 #run for rnaseq if rnaseq is existent:
 if [[ "$RNAseq" = "YES" ]]
 then
-   echo "running busco on RNAseq data"
-   cd 06_braker/rnaseq
-   busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #--
-   cd ../
+    echo "running busco on RNAseq data"
+    cd 06_braker/rnaseq
+    if [[ -d busco_augustus ]]
+    then
+        echo -e "WARNING directory busco_augustus already exists! check its content first
+        \t Do you wish to remove it?\n
+        \t if Yes this will rerun  busco computation\n
+        \t if No this will skip busco computation \n"
+        select yn in "Yes" "No"; do
+                case $yn in
+                Yes ) rm -rf; bash "$run_busco" ; break ;;
+                No  ) break ;;
+                esac
+        done
+    fi
+    cd ../
 
    #run for the database:
    cd 06_braker/ 
    for i in round* ; do
         echo -e "----- running busco on: $i ------" 
         cd "$i"
-        busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #--
+        if [[ -d busco_augustus ]]
+        then
+            echo -e "WARNING directory busco_augustus already exists! check its content first
+            \t Do you wish to remove it?\n
+            \t if Yes this will rerun  busco computation\n
+            \t if No this will skip busco computation \n"
+            select yn in "Yes" "No"; do
+                    case $yn in
+                    Yes ) rm -rf; bash "$run_busco" ; break ;;
+                    No  ) break ;;
+                    esac
+            done
+        fi
+
         cd ../
    done 
 

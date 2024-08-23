@@ -35,12 +35,14 @@ Help()
     -o 4:  perform step 3 only where :\n
             step 3 : Ds + related analyses ;
 
-    -o 5: performe step2 only where : 
+    -o 5: perform step2 only where : 
             step 2: GeneSapce/Gene Synteny + Whole Genome Synteny
             
-    -o 6 : perorm step1 only where :
+    -o 6 : perform step1 only where :
            step  1 : repeatmodeler + genome annotation + quality checks ; \n
     
+    -o 7 : perfrom only the changepoint analyis of evolutionary strata
+
     All the details of the dat MUST be provided in the config file) \n
     see details in .infos/input_data_info.md
      \n
@@ -1210,9 +1212,25 @@ elif [ "$option" == 5 ] ; then
         -o "$opt" 2>&1 |\
         tee LOGS/log_GeneSpace_and_Co
     #check success here
-            
-fi
 
+elif [ "$option" == 7 ] ; then
+
+    echo "----------------------------------------------------------------"
+    echo "         only changepoint analyses will be launched         "
+    echo "               checking config files settings                   "
+    echo "----------------------------------------------------------------"
+
+    opt="changepoint"
+    ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
+        -s1 "$haplotype1" \
+        -s2 "$haplotype2" \
+        -a "$ancestral_genome" \
+        -g "$ancestral_gff" \
+        -c "$scaffold" \
+        -o "$opt" 2>&1 |\
+        tee LOGS/log_GeneSpace_and_Co
+
+fi
 
 ################################################################################
 # -------------- section for option 6: TE + gene Prediction only --------------#
