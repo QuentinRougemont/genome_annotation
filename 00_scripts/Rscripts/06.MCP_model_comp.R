@@ -180,6 +180,12 @@ m.choice <- loo::loo_compare(fit_1st$loo, fit_2st$loo, fit_3st$loo, fit_4st$loo,
 # you should read the manual (https://lindeloev.github.io/mcp/articles/comparison.html)
 # and associated paper to help in choosing a model.
 
+#finally compute the weight:
+loo_list = list(fit_1st$loo, fit_2st$loo, fit_3st$loo, fit_4st$loo, fit_5st$loo)
+weights <- loo::loo_model_weights(loo_list, method="pseudobma")
+write.table(weights,"modelcomp/model_weights",quote=F, col.names=("weights"))
+
+
 # ----- some hypothesis testing regarding differences among intervals -------- #
 #testing hypothesis
 # interval1 lower than interval2:

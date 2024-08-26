@@ -15,7 +15,7 @@ mkdir $LOG_FOLDER 2>/dev/null
 
 haplotype=$1
 
-genome=03_genome/"$haplotype".fa*
+genome=03_genome/"$haplotype".fa
 
 #check that the file in 03_genome exist:
 

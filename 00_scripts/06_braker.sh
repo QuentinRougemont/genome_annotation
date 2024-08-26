@@ -81,21 +81,6 @@ else
     alnBAM=$(echo 04_mapped/*sorted.bam |sed 's/ /,/g' )
 fi
 
-
-#------------------ check if the folder already exits ----------------------------------#
-if [[ -d 06_braker ]]
-then
-    echo -e "WARNING directory 06_braker already exists! check its content first
-    Do you wish to remove it?\n
-    this will stop braker script and launch the rest of the analysis\n"
-    select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) rm -rf; break;;
-            No ) exit;;
-        esac
-    done
-fi
-
 #----------------OrthoDB and Other Protein data -------------- #
 target="$orthoDBspecies"
 
@@ -111,7 +96,14 @@ then
             relatProt="$RelatedProt"
         fi
 else
-    clades=("Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles")
+    clades=("Metazoa" 
+        "Vertebrata" 
+        "Viridiplantae" 
+        "Arthropoda" 
+        "Eukaryota" 
+        "Fungi" 
+        "Alveolata" 
+        "Stramenopiles")
     if [[ ${clades[*]} =~ $target ]]
     then
         if [ -d odb11 ] ; then
@@ -159,24 +151,31 @@ fi
 ## to modify the code lightly and run through singularity.
 
 #Run braker with RNAseq 
+
+output="braker.gtf"
+
 if [[ $RNAseq = "YES" ]]
 then
     wd=06_braker/rnaseq
-    mkdir -p $wd
-
-    if [[ $fungus = "YES" ]]
+        if [ -f "$wd"/"$output" ]
     then
-        echo -e "------ \n running braker on rnaseq data \n -------"
-        echo -e "------ \n data are from fungus \n -------"
-            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus \
-                --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+	    echo "file $output RNAseq already exist will skip the run"
     else
-        echo -e "------ \n running braker on rnaseq data \n -------"
-            braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" \
-                --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
-    fi
-fi 
+    	mkdir -p $wd
 
+        if [[ $fungus = "YES" ]]
+        then
+            echo -e "------ \n running braker on rnaseq data \n -------"
+            echo -e "------ \n data are from fungus \n -------"
+                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus \
+                    --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+        else
+            echo -e "------ \n running braker on rnaseq data \n -------"
+                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" \
+                    --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
+    	fi
+    fi 
+fi
 
 ##  --------- step 2 : BRAKER WITH REFERENCE DATABASE USING THREE ROUNDS --------- ## 
 
@@ -197,57 +196,90 @@ echo AUGUSTUS_CONFIG_PATH is "$AUGUSTUS_CONFIG_PATH"
 
 wd=${FOLDER1}
 
-if [[ $fungus = "YES" ]]
+if [ -f "$wd"/"$output" ]
 then
-    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
+    echo "file $output round 1 already exist will skip the run"
 else
-    braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd 
+   rm -rf "${wd:?}"/*
+   if [[ $fungus = "YES" ]]
+   then
+       braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
+           --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus  
+   else
+       braker.pl --species="$species"_"$TIME"_round1  --genome="$genome" --threads="$NCPUS" \
+           --softmasking --prot_seq=$relatProt --workingdir=$wd 
+   fi
 fi
 
 echo "----------- round 2 ------------" 
 wd=${FOLDER2}
-if [[ $fungus = "YES" ]]
+
+if [ -f "$wd"/"$output" ]
 then
-    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
+    echo "file $output round 1 already exist will skip the run"
 else
-    braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
+    rm -rf "${wd:?}"/*
+    if [[ $fungus = "YES" ]]
+    then
+        braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER1}/hintsfile.gff 
+    else
+        braker.pl --species="$species"_"$TIME"_round2 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER1}/hintsfile.gff 
+    fi
 fi
 
 echo "----------- round 3 ------------" 
 wd=${FOLDER3}
-if [[ $fungus = "YES" ]]
+
+if [ -f "$wd"/"$output" ]
 then
-    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
+    echo "file $output round 1 already exist will skip the run"
 else
-    braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
+    rm -rf "${wd:?}"/*
+    if [[ $fungus = "YES" ]]
+    then
+        braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER2}/hintsfile.gff 
+    else
+        braker.pl --species="$species"_"$TIME"_round3 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER2}/hintsfile.gff 
+    fi
 fi
 
 echo "----------- round 4 ------------" 
 wd=${FOLDER4}
-if [[ $fungus = "YES" ]]
+if [ -f "$wd"/"$output" ]
 then
-    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
+    echo "file $output round 1 already exist will skip the run"
 else
-    braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
+    rm -rf "${wd:?}"/*
+    if [[ $fungus = "YES" ]]
+    then
+        braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER3}/hintsfile.gff 
+    else
+        braker.pl --species="$species"_"$TIME"_round4 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER3}/hintsfile.gff 
+    fi
 fi
 
 echo "----------- round 5 ------------" 
 wd=${FOLDER5}
-if [[ $fungus = "YES" ]]
+
+if [ -f "$wd"/"$output" ]
 then
-    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
+    echo "file $output round 1 already exist will skip the run"
 else
-    braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
-        --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
+    rm -rf "${wd:?}"/*
+    if [[ $fungus = "YES" ]]
+    then
+        braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd --fungus #--hints=${FOLDER4}/hintsfile.gff 
+    else
+        braker.pl --species="$species"_"$TIME"_round5 --genome="$genome" --threads="$NCPUS" \
+            --softmasking --prot_seq=$relatProt --workingdir=$wd #--hints=${FOLDER4}/hintsfile.gff 
+    fi
 fi
 echo -e "\n${BLU}-----------------------------\n
     \t ALL BRAKER REPLICATES finished\n

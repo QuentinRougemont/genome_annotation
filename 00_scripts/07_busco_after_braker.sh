@@ -34,7 +34,7 @@ fi
 eval "$(conda shell.bash hook)"
 conda activate busco570
 
-run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein -f #-- ")
+run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l ""$lineage"" -m protein -f ")
 
 if [ -z "$RNAseq" ] ; then 
   #RNAseq=NO
@@ -53,10 +53,12 @@ if [ -z "$RNAseq" ] ; then
             \t if No this will skip busco computation \n"
             select yn in "Yes" "No"; do
                     case $yn in
-                    Yes ) rm -rf; bash "$run_busco" ; break ;;
+                    Yes ) rm -rf; $run_busco ; break ;;
                     No  ) break ;;
                     esac
             done
+        else
+            bash $run_busco
         fi
 
         cd ../
@@ -77,15 +79,16 @@ then
         \t if No this will skip busco computation \n"
         select yn in "Yes" "No"; do
                 case $yn in
-                Yes ) rm -rf; bash "$run_busco" ; break ;;
-                No  ) break ;;
+                Yes ) rm -rf; $run_busco ; break ;;
+                No  ) echo "skipping busco" ; break ;;
                 esac
         done
+    else
+        bash $run_busco
     fi
     cd ../
 
    #run for the database:
-   cd 06_braker/ 
    for i in round* ; do
         echo -e "----- running busco on: $i ------" 
         cd "$i"
@@ -97,14 +100,15 @@ then
             \t if No this will skip busco computation \n"
             select yn in "Yes" "No"; do
                     case $yn in
-                    Yes ) rm -rf; bash "$run_busco" ; break ;;
-                    No  ) break ;;
+                    Yes ) rm -rf; $run_busco ; break ;;
+                    No  ) echo "skipping busco" ;break ;;
                     esac
             done
+        else
+            bash $run_busco
         fi
 
         cd ../
    done 
 
 fi
-
