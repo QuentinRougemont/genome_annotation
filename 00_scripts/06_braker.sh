@@ -8,7 +8,7 @@ source ../config/config
 
 #------------- CONDA ACTIVATION  -------------- #
 eval "$(conda shell.bash hook)"
-conda activate braker_env
+conda activate superannot
 
 #--- start of setting path ---- " 
 CDB_PATH

@@ -89,7 +89,7 @@ cd ../
 #optionally make a report:
 #------------- CONDA ACTIVATION  -------------- #
 eval "$(conda shell.bash hook)"
-conda activate braker_env
+conda activate superannot
 
 mkdir 08_best_run 2>/dev/null
 python3 ../00_scripts/utility_scripts/generateReport.py \
@@ -107,7 +107,7 @@ then
     #make a report on rnaseq:
     #------------- CONDA ACTIVATION  -------------- #
     eval "$(conda shell.bash hook)"
-    conda activate braker_env
+    conda activate superannot
 
     python3 ../00_scripts/utility_scripts/generateReport.py \
         06_braker/rnaseq/braker.gtf \

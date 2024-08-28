@@ -55,18 +55,20 @@ then
     exit 1
 fi
 
-mamba create -n braker_env  -c anaconda perl biopython
-eval "$(conda shell.bash hook)"
-conda activate braker_env
-mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
-    perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
-    perl-exception-class perl-test-pod perl-file-which  perl-mce \
-    perl-threaded perl-list-util perl-math-utils cdbtools \
-    perl-list-moreutils
-mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
-mamba install -c conda-forge json5 matplotlib
+#run mamba yml files here!
+
+#mamba create -n braker_env  -c anaconda perl biopython
+#eval "$(conda shell.bash hook)"
+#conda activate braker_env
+#mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
+#    perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
+#    perl-exception-class perl-test-pod perl-file-which  perl-mce \
+#    perl-threaded perl-list-util perl-math-utils cdbtools \
+#    perl-list-moreutils
+#mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
+#mamba install -c conda-forge json5 matplotlib
 #stuff for R:
-mamba install conda-forge jags r-rjags r-rsvg r-igraph r-devtools r-biostrings r-ragg r-curl
+#mamba install conda-forge jags r-rjags r-rsvg r-igraph r-devtools r-biostrings r-ragg r-curl
 
 
 #----------- a few tools to install directly with mamba :---------------------- 
@@ -197,7 +199,7 @@ then
 	cd $(find . -name "include" )
 	bt_inc=$(pwd)
 	cd ../../
-	cd $(find . -name "lib" )
+	cd $(find . -name "lib*" |head -n 1 )
 	bt_lib=$(pwd)
 
 	cd ../src
@@ -212,18 +214,43 @@ then
     fi
 fi
 
+# -- htslib --
+#it is already install through mamba
+ommand='htsfile'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    #download the latest htslib to recover the path for Augustus::
+    wget https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2
+    bzip2 -d htslib-1.18.tar.bz2
+    tar xf htslib-1.18.tar
+    cd htslib-1.18/
+
+    ./configure --prefix=$(pwd)
+    make
+    make install
+    htpath=$(pwd)
+
+    cd ../
+else
+    #note: should be installed from braker_env (through minimap2)
+    htcmd=$(command -v "$command")
+    htpath=$(echo $htcmd |sed 's/bin\/htsfile/include\/htslib/')
+fi
+
+
+#in case this did not work test this: 
 #download the latest htslib to recover the path for Augustus::
-wget https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2
-bzip2 -d htslib-1.18.tar.bz2 
-tar xf htslib-1.18.tar 
-cd htslib-1.18/
+#wget https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2
+#bzip2 -d htslib-1.18.tar.bz2 
+#tar xf htslib-1.18.tar 
+#cd htslib-1.18/
 
-./configure --prefix=$(pwd)
-make
-make install
-htpath=$(pwd)
-
-cd ../
+#./configure --prefix=$(pwd)
+#make
+#make install
+#htpath=$(pwd)
+#cd ../
 
 #**Augustus**
 command='augustus'
@@ -246,7 +273,8 @@ then
     sed -i "33s#usr/lib/x86_64-linux-gnu#$bt_lib#g" common.mk
 
     #same with HTSLIB:
-    sed -i "s#usr/include/htslib#$htpath/include/htslib#g" common.mk
+    #sed -i "s#usr/include/htslib#$htpath/include/htslib#g" common.mk
+    sed -i "s#usr/include/htslib#$htpath#g" common.mk
 
     n=$(grep -n "LIBRARY_PATH_HTSLIB" common.mk |awk -F":" '{print $1}' )
     sed -i  "${n}s#usr/lib/x86_64-linux-gnu#$htpath/lib#g" common.mk

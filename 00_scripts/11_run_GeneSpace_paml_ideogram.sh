@@ -400,7 +400,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     samtools faidx haplo2/03_genome/"$haplo2".fa
     
     eval "$(conda shell.bash hook)"
-    conda activate braker_env
+    conda activate superannot
     
     if [  -n "${ancestral_genome}" ] ; then
         echo -e "ancestral genome was provided for inference" 
@@ -492,7 +492,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 elif [[ $options = "changepoint" ]]  ; then
 
     eval "$(conda shell.bash hook)"
-    conda activate braker_env
+    conda activate superannot
 
     #eventually check its existence - ask user if he wants to remove it
     mkdir modelcomp/ 2>/dev/null

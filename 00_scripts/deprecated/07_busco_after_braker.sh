@@ -47,8 +47,16 @@ if [ -z "$RNAseq" ] ; then
         cd "$i"
         if [[ -d busco_augustus ]]
         then
-            echo -e "WARNING directory busco_augustus already exists! check its content first"
-            rm -rf; $run_busco ; exit ;
+            echo -e "WARNING directory busco_augustus already exists! check its content first
+            \t Do you wish to remove it?\n
+            \t if Yes this will rerun  busco computation\n
+            \t if No this will skip busco computation \n"
+            select yn in "Yes" "No"; do
+                    case $yn in
+                    Yes ) rm -rf; $run_busco ; break ;;
+                    No  ) break ;;
+                    esac
+            done
         else
             bash $run_busco
         fi
@@ -65,8 +73,16 @@ then
     cd 06_braker/rnaseq
     if [[ -d busco_augustus ]]
     then
-        echo -e "WARNING directory busco_augustus already exists! check its content first"
-        rm -rf; $run_busco ; exit ;
+        echo -e "WARNING directory busco_augustus already exists! check its content first
+        \t Do you wish to remove it?\n
+        \t if Yes this will rerun  busco computation\n
+        \t if No this will skip busco computation \n"
+        select yn in "Yes" "No"; do
+                case $yn in
+                Yes ) rm -rf; $run_busco ; break ;;
+                No  ) echo "skipping busco" ; break ;;
+                esac
+        done
     else
         bash $run_busco
     fi
@@ -78,8 +94,16 @@ then
         cd "$i"
         if [[ -d busco_augustus ]]
         then
-        echo -e "WARNING directory busco_augustus already exists! check its content first"
-        rm -rf; $run_busco ; exit ;
+            echo -e "WARNING directory busco_augustus already exists! check its content first
+            \t Do you wish to remove it?\n
+            \t if Yes this will rerun  busco computation\n
+            \t if No this will skip busco computation \n"
+            select yn in "Yes" "No"; do
+                    case $yn in
+                    Yes ) rm -rf; $run_busco ; break ;;
+                    No  ) echo "skipping busco" ;break ;;
+                    esac
+            done
         else
             bash $run_busco
         fi
