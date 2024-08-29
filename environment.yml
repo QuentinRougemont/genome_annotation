@@ -1,11 +1,11 @@
-#mamba env create -f environment.yml
+#mamba env create -p superannot -f environment.yml
 #conda activate superannot
 name: superannot
 channels:
   - anaconda
   - conda-forge
   - bioconda
-  - eumetstat
+  - eumetsat
 dependencies:
   - python=3.9.18
   - wget=1.21.4
