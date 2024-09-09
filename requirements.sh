@@ -508,190 +508,181 @@ then
    cd ../
 fi
 
-
-
-#**BUSCO** for quality assesment (https://busco.ezlab.org/)
-command='busco'
-if ! command -v $command &> /dev/null
-then
-   #direct install - a new env must be created: 
-   mamba create -n busco_env -c bioconda busco=5.5.0
-fi 
-
-cd ../
-
-#RepeatModeler and RepeatMasker through conda (easiest way)
-
-mamba create -n repeatmodeler_env  -c bioconda repeatmasker=4.1.5 repeatmodeler=2.0.5
-#mamba activate repeatmodeler_env
-
-
-#now edit the braker launcher since the export from .bashrc does not always seems to work:
-#sed -i "11i \n" 00_scripts/06_braker.sh
-#sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
-#sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
-#sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
-#sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
-#sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
-#sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
-#sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
-#sed -i "11i \n" 00_scripts/06_braker.sh
+##**BUSCO** for quality assesment (https://busco.ezlab.org/)
+#command='busco'
+#if ! command -v $command &> /dev/null
+#then
+#   #direct install - a new env must be created: 
+#   mamba create -n busco_env -c bioconda busco=5.7.1
+#fi 
 #
-#sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
-
-exit
-
-#DEPRECARTED PART BELOW :
------------ A full installation of repeatmodeller and repeatmasker ------------------#
-
-#repeatModeller
-cd softs
-
-git clone https://github.com/Dfam-consortium/RepeatModeler
-
-
-#install all deps first:
-command='recon.pl'
-if ! command -v $command &> /dev/null
-then
-   wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz
-   tar zxvf RECON-1.08.tar.gz
-   cd RECON-1.08/src
-   make 
-   make install
-   cd ../bin
-   if [ $? -eq 0 ]; then
-     echo recon installation worked successfully
-     path=$(pwd)
-     echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-     source ~/.bashrc  
-     cd ../scripts
-     path=$(pwd)
-     echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-     source ~/.bashrc  
-     cd ../../
-  else
-     echo installation failed\nmake sur to have make and wget
-     exit 1
-  fi
-fi 
-
-#repeatscout:
-command='RepeatScout'
-if ! command -v $command &> /dev/null
-then
-    wget http://www.repeatmasker.org/RepeatScout-1.0.6.tar.gz
-    tar zxvf RepeatScout-1.0.6.tar.gz
-    cd RepeatScout-1.0.6
-    make
-    if [ $? -eq 0 ]; then
-        echo repeatscout installation worked successfully
-        path=$(pwd)
-        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-        source ~/.bashrc  
-        cd ../
-    else
-       echo installation failed\nmake sur to have make and wget
-       exit 1
-    fi
-fi
-
-#trf:
-command='trf'
-if ! command -v $command &> /dev/null
-then
-    mkdir trf 
-    cd trf
-    wget https://github.com/Benson-Genomics-Lab/TRF/releases/download/v4.09.1/trf409.linux64
-    mv trf409.linux64 trf
-    chmod +x trf
-    path=$(pwd)
-    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-    source ~/.bashrc  
-    #other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
-    cd ../
-fi
-
-#rmblast:
-command=rmblastn
-if ! command -v $command &> /dev/null
-then
-    wget https://www.repeatmasker.org/rmblast/rmblast-2.14.1+-x64-linux.tar.gz
-    tar zxf rmblast-2.14.1+-x64-linux.tar.gz
-    cd rmblast-2.14.1+-x64-linux/bin
-    path=$(pwd)
-    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-    source ~/.bashrc  
-    #other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
-    cd ../
-fi
-
-#cd-hit:
-command=cd-hit
-if ! command -v $command &> /dev/null
-then
-    git clone https://github.com/weizhongli/cdhit
-    cd cdhit 
-    make
-    if [ $? -eq 0 ]; then
-       echo recon installation worked successfully
-       path=$(pwd)
-       echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
-       source ~/.bashrc  
-       cd ../
-    else
-       echo installation failed\nmake sur to have make and git installed
-       exit 1
-    fi
-fi
-
-#ucsc tools:
-mkdir twobit
-rsync -aP hgdownload.soe.ucsc.edu::genome/admin/exe/linux.x86_64/ .
-cd ../
-
-pip3 install h5py
-#on a cluster I had to: mamba create -n h5pyenv -c conda-forge h5py
-#mamba activate h5pyenv
-
-#RepeatMasker
-wget https://www.repeatmasker.org/RepeatMasker/RepeatMasker-4.1.5.tar.gz
-tar zxf RepeatMasker-4.1.5
-cd RepeatMasker
-
-#we can try to directly modify the configuration files:
-
-path=$(readlink -f ../trf/trf )
-sed -i "139s#'value' => ''#'value' => '$path'#g" RepeatMaskerConfig.pm
-path=$(readlink -f ../rmblast-2.14.1/bin )
-sed -i "131s#'value' => ''#'value' => '$path'#g" RepeatMaskerConfig.pm
-
-#then configure
-perl ./configure
-#manually set path to the different dependancies
-cd ../
-
-#then we can finally proceed with RepeatModeler:
-#some perl module may be necessary
-cd RepeatModeler
-perl ./configure -rscout_dir $HOME/genome_annotation/softs/RepeatScout-1.0.6 \
-    -recon_dir $HOME/genome_annotation/softs/RECON-1.08/bin \
-    -repeatmasker_dir $HOME/genome_annotation/softs/RepeatMasker \
-    -trf_dir $HOME/genome_annotation/softs/trf \
-    -rmblast_dir $HOME/genome_annotation/softs/rmblast-2.14.1/bin \
-    -ucsctools_dir $HOME/genome_annotation/softs/twobit \
-    -cdhit_dir $HOME/genome_annotation/softs/cdhit 
-
-
-
-
+#cd ../
 #
-
-#**genemark** 
-#wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
-echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
-echo "the gm_key is necessary" 
-echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
-echo "it must be copied to your home"
-echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "
-
+##RepeatModeler and RepeatMasker through conda (easiest way)
+##mamba create -n repeatmodeler_env  -c bioconda repeatmasker=4.1.5 repeatmodeler=2.0.5
+##mamba activate repeatmodeler_env
+#
+#
+##now edit the braker launcher since the export from .bashrc does not always seems to work:
+##sed -i "11i \n" 00_scripts/06_braker.sh
+##sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
+##sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
+##sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
+##sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
+##sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
+##sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
+##sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
+##sed -i "11i \n" 00_scripts/06_braker.sh
+##
+##sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
+#
+#exit
+#
+##DEPRECARTED PART BELOW :
+#----------- A full installation of repeatmodeller and repeatmasker ------------------#
+#
+##repeatModeller
+#cd softs
+#
+#git clone https://github.com/Dfam-consortium/RepeatModeler
+#
+#
+##install all deps first:
+#command='recon.pl'
+#if ! command -v $command &> /dev/null
+#then
+#   wget http://www.repeatmasker.org/RepeatModeler/RECON-1.08.tar.gz
+#   tar zxvf RECON-1.08.tar.gz
+#   cd RECON-1.08/src
+#   make 
+#   make install
+#   cd ../bin
+#   if [ $? -eq 0 ]; then
+#     echo recon installation worked successfully
+#     path=$(pwd)
+#     echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#     source ~/.bashrc  
+#     cd ../scripts
+#     path=$(pwd)
+#     echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#     source ~/.bashrc  
+#     cd ../../
+#  else
+#     echo installation failed\nmake sur to have make and wget
+#     exit 1
+#  fi
+#fi 
+#
+##repeatscout:
+#command='RepeatScout'
+#if ! command -v $command &> /dev/null
+#then
+#    wget http://www.repeatmasker.org/RepeatScout-1.0.6.tar.gz
+#    tar zxvf RepeatScout-1.0.6.tar.gz
+#    cd RepeatScout-1.0.6
+#    make
+#    if [ $? -eq 0 ]; then
+#        echo repeatscout installation worked successfully
+#        path=$(pwd)
+#        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#        source ~/.bashrc  
+#        cd ../
+#    else
+#       echo installation failed\nmake sur to have make and wget
+#       exit 1
+#    fi
+#fi
+#
+##trf:
+#command='trf'
+#if ! command -v $command &> /dev/null
+#then
+#    mkdir trf 
+#    cd trf
+#    wget https://github.com/Benson-Genomics-Lab/TRF/releases/download/v4.09.1/trf409.linux64
+#    mv trf409.linux64 trf
+#    chmod +x trf
+#    path=$(pwd)
+#    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#    source ~/.bashrc  
+#    #other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
+#    cd ../
+#fi
+#
+##rmblast:
+#command=rmblastn
+#if ! command -v $command &> /dev/null
+#then
+#    wget https://www.repeatmasker.org/rmblast/rmblast-2.14.1+-x64-linux.tar.gz
+#    tar zxf rmblast-2.14.1+-x64-linux.tar.gz
+#    cd rmblast-2.14.1+-x64-linux/bin
+#    path=$(pwd)
+#    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#    source ~/.bashrc  
+#    #other versions of trf: https://github.com/Benson-Genomics-Lab/TRF/releases/tag/v4.09.1
+#    cd ../
+#fi
+#
+##cd-hit:
+#command=cd-hit
+#if ! command -v $command &> /dev/null
+#then
+#    git clone https://github.com/weizhongli/cdhit
+#    cd cdhit 
+#    make
+#    if [ $? -eq 0 ]; then
+#       echo recon installation worked successfully
+#       path=$(pwd)
+#       echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+#       source ~/.bashrc  
+#       cd ../
+#    else
+#       echo installation failed\nmake sur to have make and git installed
+#       exit 1
+#    fi
+#fi
+#
+##ucsc tools:
+#mkdir twobit
+#rsync -aP hgdownload.soe.ucsc.edu::genome/admin/exe/linux.x86_64/ .
+#cd ../
+#
+#pip3 install h5py
+##on a cluster I had to: mamba create -n h5pyenv -c conda-forge h5py
+##mamba activate h5pyenv
+#
+##RepeatMasker
+#wget https://www.repeatmasker.org/RepeatMasker/RepeatMasker-4.1.5.tar.gz
+#tar zxf RepeatMasker-4.1.5
+#cd RepeatMasker
+#
+##we can try to directly modify the configuration files:
+#
+#path=$(readlink -f ../trf/trf )
+#sed -i "139s#'value' => ''#'value' => '$path'#g" RepeatMaskerConfig.pm
+#path=$(readlink -f ../rmblast-2.14.1/bin )
+#sed -i "131s#'value' => ''#'value' => '$path'#g" RepeatMaskerConfig.pm
+#
+##then configure
+#perl ./configure
+##manually set path to the different dependancies
+#cd ../
+#
+##then we can finally proceed with RepeatModeler:
+##some perl module may be necessary
+#cd RepeatModeler
+#perl ./configure -rscout_dir $HOME/genome_annotation/softs/RepeatScout-1.0.6 \
+#    -recon_dir $HOME/genome_annotation/softs/RECON-1.08/bin \
+#    -repeatmasker_dir $HOME/genome_annotation/softs/RepeatMasker \
+#    -trf_dir $HOME/genome_annotation/softs/trf \
+#    -rmblast_dir $HOME/genome_annotation/softs/rmblast-2.14.1/bin \
+#    -ucsctools_dir $HOME/genome_annotation/softs/twobit \
+#    -cdhit_dir $HOME/genome_annotation/softs/cdhit 
+#
+##**genemark** 
+##wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
+#echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
+#echo "the gm_key is necessary" 
+#echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
+#echo "it must be copied to your home"
+#echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "

@@ -1,9 +1,7 @@
 #mamba env create -f busco.yml
-#conda activate busco570
-name: busco570
+#conda activate busco571
+name: busco571
 channels:
   - bioconda
 dependencies:
-     - busco=5.7.0
-    # - repeatmasker=4.1.5
-    # - repeatmodeler=2.0.5
+     - busco=5.7.1

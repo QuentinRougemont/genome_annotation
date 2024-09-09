@@ -1,0 +1,8 @@
+#mamba env create -f repeatmodeler.yml
+#conda activate repeatmodeler
+name: repeatmodeler_env
+channels:
+  - bioconda
+dependencies:
+  - repeatmasker=4.1.5
+  - repeatmodeler=2.0.5

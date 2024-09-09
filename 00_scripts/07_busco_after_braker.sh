@@ -32,7 +32,7 @@ fi
 
 #activate busco
 eval "$(conda shell.bash hook)"
-conda activate busco570
+conda activate busco571
 
 run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l ""$lineage"" -m protein -f ")
 
@@ -47,7 +47,7 @@ if [ -z "$RNAseq" ] ; then
         cd "$i"
         if [[ -d busco_augustus ]]
         then
-            echo -e "WARNING directory busco_augustus already exists! check its content first"
+            #echo -e "WARNING directory busco_augustus already exists! check its content first"
             rm -rf; $run_busco ; exit ;
         else
             bash $run_busco
@@ -63,27 +63,30 @@ if [[ "$RNAseq" = "YES" ]]
 then
     echo "running busco on RNAseq data"
     cd 06_braker/rnaseq
-    if [[ -d busco_augustus ]]
-    then
-        echo -e "WARNING directory busco_augustus already exists! check its content first"
-        rm -rf; $run_busco ; exit ;
-    else
-        bash $run_busco
-    fi
+    for file in busco_augustus/short_summary*txt
+    do
+        if [ ! -s "${file}" ]
+        then
+            bash $run_busco
+        else
+            echo "busco already ok"
+        fi
     cd ../
+    done
 
    #run for the database:
    for i in round* ; do
         echo -e "----- running busco on: $i ------" 
         cd "$i"
-        if [[ -d busco_augustus ]]
-        then
-        echo -e "WARNING directory busco_augustus already exists! check its content first"
-        rm -rf; $run_busco ; exit ;
-        else
-            bash $run_busco
-        fi
-
+        for file in busco_augustus/short_summary*txt
+        do
+            if [ ! -s "${file}" ]
+            then
+                bash $run_busco
+            else
+                echo "busco already ok"
+            fi
+        done
         cd ../
    done 
 

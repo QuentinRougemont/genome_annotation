@@ -155,7 +155,7 @@ fi
 # ----- check compression of fasta  ------ ##
 
 eval "$(conda shell.bash hook)"
-conda activate braker_env
+conda activate superannot
 
 #check compression
 if file --mime-type "$genome1" | grep -q gzip$; then
@@ -290,6 +290,7 @@ if [ "$option" == 1 ]; then
         if [ -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
         
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -313,6 +314,7 @@ if [ "$option" == 1 ]; then
         cd haplo2 || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -362,7 +364,7 @@ if [ "$option" == 1 ]; then
                 echo "please check the logs"
                 exit 1
             fi
-                
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -393,6 +395,7 @@ if [ "$option" == 1 ]; then
                 exit 1
             fi
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r YES \
@@ -433,6 +436,7 @@ if [ "$option" == 1 ]; then
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
@@ -458,6 +462,7 @@ if [ "$option" == 1 ]; then
         cd haplo2/ || exit 1 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -499,6 +504,7 @@ if [ "$option" == 1 ]; then
 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -523,6 +529,7 @@ if [ "$option" == 1 ]; then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -568,6 +575,7 @@ if [ "$option" == 1 ]; then
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -593,6 +601,7 @@ if [ "$option" == 1 ]; then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -646,7 +655,7 @@ if [ "$option" == 1 ]; then
                 echo "please check the logs"
                 exit 1
             fi
-
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -679,6 +688,7 @@ if [ "$option" == 1 ]; then
             fi
 
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r YES \
@@ -743,6 +753,7 @@ then
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
         
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -767,6 +778,7 @@ then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -815,6 +827,7 @@ then
             fi
 
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -846,7 +859,9 @@ then
                 exit 1
             fi
 
+
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -889,6 +904,7 @@ then
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -915,6 +931,7 @@ then
         cd haplo2/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -958,6 +975,7 @@ then
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -982,6 +1000,7 @@ then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -1027,6 +1046,7 @@ then
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -1052,6 +1072,7 @@ then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -1103,7 +1124,7 @@ then
                 echo "please check the logs"
                 exit 1
             fi
-
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -1135,6 +1156,7 @@ then
                 exit 1
             fi
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -1205,6 +1227,7 @@ if [ "$option" == 3 ] || [ "$option" == 4 ] || [ "$option" == 5 ]; then
         #else we expect them to be provided in the config file 
             echo "gtf and genomes file were provided" 
             echo "we will run geneSpace, compute Ds and other kind of analyses"
+            echo -e "\----------------------------------------\n"
             mkdir -p haplo1/08_best_run haplo1/03_genome 
             mkdir -p haplo2/08_best_run haplo2/03_genome
             cp "$gtf1" haplo1/08_best_run/"${haplotype1}".final.gtf
@@ -1325,6 +1348,7 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -1351,6 +1375,7 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
@@ -1378,6 +1403,7 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -1404,6 +1430,7 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
@@ -1440,6 +1467,8 @@ if [ "$option" = 6 ]; then
                 exit 1
             fi
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
+
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
@@ -1466,11 +1495,13 @@ if [ "$option" = 6 ]; then
         cd haplo1/ || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "only the genome of one species was provided along with a list of bam" 
-            echo "genome is ${genome2} "
+            echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
+            
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
-                -s "$haplotype2" \
+                -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES \
@@ -1506,6 +1537,8 @@ if [ "$option" = 6 ]; then
             fi
 
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
+
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
@@ -1533,6 +1566,8 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided along with a list of bam" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n"
+
             if ! ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \

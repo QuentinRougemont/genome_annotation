@@ -84,13 +84,13 @@ fi
 #----------------OrthoDB and Other Protein data -------------- #
 target="$orthoDBspecies"
 
-if [ -z ${orthoDBspecies+x} ]; 
+if [ -z "${orthoDBspecies}" ]; 
 then
     echo "no orthoDB species provided"
-        if [ -z ${RelatedProt+x} ] ; 
+        if [ -z "${RelatedProt}" ] ; 
         then
             echo "no related protein"
-            echo "ERROR - you have not provided any external data "
+            echo "WARNING - you have not provided any external data "
             echo "braker will try running with RNAseq only" 
         else
             relatProt="$RelatedProt"
@@ -157,11 +157,11 @@ output="braker.gtf"
 if [[ $RNAseq = "YES" ]]
 then
     wd=06_braker/rnaseq
-        if [ -f "$wd"/"$output" ]
+    if [ -f "$wd"/"$output" ]
     then
-	    echo "file $output RNAseq already exist will skip the run"
+        echo "file $output RNAseq already exist will skip the run"
     else
-    	mkdir -p $wd
+        mkdir -p $wd
 
         if [[ $fungus = "YES" ]]
         then
@@ -173,11 +173,16 @@ then
             echo -e "------ \n running braker on rnaseq data \n -------"
                 braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" \
                     --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
-    	fi
+        fi
     fi 
 fi
 
 ##  --------- step 2 : BRAKER WITH REFERENCE DATABASE USING THREE ROUNDS --------- ## 
+if [[ -z "$relatProt" ]]
+then
+    echo "no related protein - only RNAseq were used"
+    exit
+fi
 
 #prepare architecture:
 FOLDER1=06_braker/round1_braker_on_refprot #_$TIME
@@ -188,7 +193,7 @@ FOLDER5=06_braker/round5_braker_on_refprot #_$TIME
 
 mkdir -p $FOLDER1 $FOLDER2 $FOLDER3 $FOLDER4 $FOLDER5 2>/dev/null
 
-echo "----------- round 1 ------------" 
+echo -e "\n\n----------- round 1 ------------\n\n" 
 echo AUGUSTUS_SCRIPTS_PATH is "$AUGUSTUS_SCRIPTS_PATH" 
 echo AUGUSTUS_BINS_PATH is "$AUGUSTUS_BIN_PATH"
 echo AUGUSTUS_CONFIG_PATH is "$AUGUSTUS_CONFIG_PATH" 

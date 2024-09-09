@@ -48,9 +48,10 @@ Help()
 ############################################################
 while [ $# -gt 0 ] ; do
   case $1 in
-    -s | --haplo ) haplo="$2" ; echo -e "haplotype Name is ***${haplo}*** \n" >&2;;
-    -r | --rnaseq  ) RNAseq="$2"  ;
-        echo -e "annotation was performed with RNAseq ? ${RNAseq} \n" >&2;;
+    -s | --haplo )  haplo="$2" ; 
+    echo -e "haplotype Name is ***${haplo}*** \n" >&2;;
+    -r | --rnaseq ) RNAseq="$2"  ;
+    echo -e "annotation was performed with RNAseq ? ${RNAseq} \n" >&2;;
     -h | --help ) Help ; exit 2 ;;
    esac
    shift
@@ -79,8 +80,7 @@ best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.sp
     sed -e 's/%//g' -e 's/\[/,/g' -e 's/]//g' -e 's/:/\t/g' -e  's/,/\t/g' |\
     LC_ALL=C sort -k3nr -k11n -k9n -k7n -k5  |head -n 1 |cut -d "/" -f 1 ) 
 #alternative sorting: 
-#LC_ALL=C sort  -k11 -k3 -n -k5 -k7 -k9  |tail -n 1 |cut -d "/" -f 1 ) #minimising missing first 
-
+#LC_ALL=C sort  -k11 -k3 -n -k5 -k7 -k9  |tail -n 1 |cut -d "/" -f 1 ) 
 
 echo -e "best_round is $best_round\n----------------------------------------------"
 
@@ -122,7 +122,6 @@ then
     #test if default.cfg can be found:
     tsebraconf=default.cfg
     cp ../config/$tsebraconf .
-    #[ -f $tsebraconf ] && { echo " $tsebraconf exist";  cp "$tsebraconf" . } || {echo "no config file for tsebra"; exit } 
     if [ -f $tsebraconf ] ; then 
         echo " $tsebraconf exist";  cp "$tsebraconf" . 
     else 
@@ -178,7 +177,8 @@ rename_gtf.py --gtf "${file}" --prefix "${haplo}" \
 
 # Fix TSEBRA output (source: https://github.com/Gaius-Augustus/BRAKER/issues/457 )
 # Fix lack of gene_id and transcript_id tags in gtf file column 9
-../00_scripts/utility_scripts/Fix_Augustus_gtf.pl 08_best_run/"${haplo}".renamed.gtf \
+../00_scripts/utility_scripts/Fix_Augustus_gtf.pl \
+    08_best_run/"${haplo}".renamed.gtf \
     > 08_best_run/"${haplo}".renamed.fixed.gtf
 
 #------------------------------ step 4 ----------------------------------------#
@@ -246,7 +246,7 @@ rm longest.transcript.tmp
 cd ../../
 
 
-#~~~~~~~~~~~~~~~~~~~~~~ step 6 : cleaning the GTF based on non-overlapping transcript ~~~~~~~~~~~~~~~~~~"
+#~~~~~~~~~ step 6 : cleaning the GTF based on non-overlapping transcript ~~~~~~~"
 echo -e "\n-----------------------------------------------------------------"
 echo "remove redundant Gene in the CDS and Protein fasta files"
 echo -e "-----------------------------------------------------------------\n"
@@ -310,7 +310,7 @@ awk 'NR == FNR {count[$3]++; next} count[$3]>0 {print $3"\t"$7"\t"$8"\t"$13"\t"$
 
 grep -Ff longest.to.keep.tmp2 "$gtf2"  > "$gtf3"
 
-echo -e "there is $(wc -l "$gtf3"|awk '{print $1}' ) lines in ""$gtf3"" that will be our final gtf "
+echo -e "there is $(wc -l "$gtf3"|awk '{print $1}' ) lines in ""$gtf3"" (final gtf)"
 
 #~~~~~~~~~~~~~~~~~~~~~~ step 7 : re-extracting the proteins ~~~~~~~~~~~~~~~~~~~#
 echo -e "\n-----------------------------------------------------------------"
@@ -338,7 +338,7 @@ rm ./*IDchecked.gtf
 source ../../config/config
 
 eval "$(conda shell.bash hook)"
-conda activate busco570
+conda activate busco571
 busco -c8 -o busco_final -i "$haplo"_prot.final.fa -l "$busco_lineage" -m protein -f  
 
 #then launch quality check on the final dataset: 

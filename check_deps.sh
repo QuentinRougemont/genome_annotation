@@ -49,6 +49,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi 
 
 #**R** with several packages 
@@ -57,6 +58,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi 
 
 #**transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq) 
@@ -65,6 +67,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
  
 command='braker.pl'
@@ -72,6 +75,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 #**Protint** 
@@ -80,7 +84,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
-
+    exit 1
 fi
 
 #**Diamond**
@@ -89,6 +93,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 
@@ -98,6 +103,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 #**bamtools**
@@ -106,6 +112,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 
@@ -115,7 +122,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
-
+    exit 1
 fi
 
 #**genemark** 
@@ -124,6 +131,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 #**TSEBRA** available [here](https://github.com/Gaius-Augustus/TSEBRA)
@@ -132,7 +140,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
-
+    exit 1
 fi 
 
 #**GSNAP** for read mappig available [here](http://research-pub.gene.com/gmap/)
@@ -141,7 +149,7 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
-
+    exit 1
 fi
 
 #**gffread** to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
@@ -150,64 +158,72 @@ if ! command -v $command &> /dev/null
 then
     echo "ERROR: $command could not be found"
     echo "please install it before doing anything else"
+    exit 1
 fi
 
 
 ### test if orthoFinder is installed
-#command='orthofinder'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='orthofinder'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 #
 #
 ##**MCScanX** : 
-#command='MCScanX'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='MCScanX'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 ##**muscle** 
-#command='muscle'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='muscle'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 ##**yn00/paml:** 
-#command='yn00'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='yn00'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 ##**translatorx_vLocal.pl** 
-#command='translatorx_vLocal.pl'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='translatorx_vLocal.pl'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 ##**minimap2** 
 ##direct install: 
-#command='minimap2'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi
+command='minimap2'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi
 #
 ##**BUSCO** for quality assesment (https://busco.ezlab.org/)
-#command='busco'
-#if ! command -v $command &> /dev/null
-#then
-#    echo "ERROR: $command could not be found"
-#    echo "please install it before doing anything else"
-#fi 
+command='busco'
+if ! command -v $command &> /dev/null
+then
+    echo "ERROR: $command could not be found"
+    echo "please install it before doing anything else"
+    exit 1
+fi 
