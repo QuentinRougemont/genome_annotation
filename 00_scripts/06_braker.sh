@@ -167,11 +167,11 @@ then
         then
             echo -e "------ \n running braker on rnaseq data \n -------"
             echo -e "------ \n data are from fungus \n -------"
-                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" --fungus \
+                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species"_"$TIME"_rnaseq --fungus \
                     --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
         else
             echo -e "------ \n running braker on rnaseq data \n -------"
-                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species" \
+                braker.pl --species="$species"_"$TIME"_rnaseq --species="$species"_"$TIME"_rnaseq\
                     --genome="$genome" --threads="$NCPUS"  --softmasking --bam="$alnBAM" --workingdir=$wd 
         fi
     fi 

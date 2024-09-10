@@ -30,11 +30,14 @@ else
     input_fa="augustus.hints.aa" ; 
 fi
 
+echo braker input is $input_fa 
+
+
 #activate busco
 eval "$(conda shell.bash hook)"
 conda activate busco571
 
-run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l ""$lineage"" -m protein -f ")
+run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein")
 
 if [ -z "$RNAseq" ] ; then 
   #RNAseq=NO
@@ -45,16 +48,17 @@ if [ -z "$RNAseq" ] ; then
    for i in round* ; do
         echo -e "----- running busco on: $i ------" 
         cd "$i"
-        if [[ -d busco_augustus ]]
-        then
-            #echo -e "WARNING directory busco_augustus already exists! check its content first"
-            rm -rf; $run_busco ; exit ;
-        else
-            bash $run_busco
-        fi
-
-        cd ../
-   done 
+        for file in busco_augustus/short_summary*txt
+         do
+              if [ ! -s "${file}" ]
+              then 
+                  $run_busco
+              else
+                  echo "busco already ok"
+              fi
+         done
+         cd ../
+   done
 fi
 
 
@@ -67,7 +71,7 @@ then
     do
         if [ ! -s "${file}" ]
         then
-            bash $run_busco
+            $run_busco
         else
             echo "busco already ok"
         fi
@@ -82,7 +86,7 @@ then
         do
             if [ ! -s "${file}" ]
             then
-                bash $run_busco
+                $run_busco
             else
                 echo "busco already ok"
             fi

@@ -19,4 +19,10 @@ GENOMEFOLDER="03_genome/"
 base=$(basename "$FASTA" )
 GENOME=gmap_"${base%.fa**}"  # "gmap_genome_MspDse1_assembly.fa"
 
-gmap_build --dir="$GENOMEFOLDER" "$FASTA" -d "$GENOME"
+if [ ! -s $GENOMEFOLDER/"$GENOME"/"$GENOME".sarray16 ] 
+then
+    #run gmap
+    gmap_build --dir="$GENOMEFOLDER" "$FASTA" -d "$GENOME"
+else
+    echo "gmap index of"
+fi

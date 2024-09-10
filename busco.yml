@@ -4,4 +4,4 @@ name: busco571
 channels:
   - bioconda
 dependencies:
-     - busco=5.7.1
+  - busco=5.7.1
