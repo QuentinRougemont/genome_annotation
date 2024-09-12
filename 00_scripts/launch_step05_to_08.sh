@@ -116,21 +116,29 @@ fi
 # ---------------------reshape Braker output ----------------- #
 if [[ $RNAseq = "YES" ]]
 then
-    if ! ../00_scripts/08_braker_reshaping.sh -s  "$haplotype" -r YES 2>&1 |tee reshape_log 
-    then
-        echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
-        exit 1
+    if [ ! -s 08_best_run/"$haplotype".prot.final.clean.fa ]
+    then 
+        #run reshaping part
+        if ! ../00_scripts/08_braker_reshaping.sh -s  "$haplotype" -r YES 2>&1 |tee log_reshape 
+        then
+            echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
+            exit 1
+        else
+            echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+        fi
     else
-        echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+        echo "reshaping ok"
     fi
 else
-   if ! ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -r NO 2>&1 |tee reshape_log 
-   then
-       echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
-       exit 1
-    else
-       echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+    if [ ! -s 08_best_run/"$haplotype".prot.final.clean.fa ]
+    then 
+        #run reshaping part
+       if ! ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -r NO 2>&1 |tee log_reshape 
+       then
+           echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
+           exit 1
+        else
+           echo -e "${BLU}------\nbraker output successfully processed\n------${NC}"
+        fi
     fi
-
 fi
-

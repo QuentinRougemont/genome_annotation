@@ -3,8 +3,9 @@
 #master file to run the pipeline :
 #Date: 11-2023
 #Author: QR
-
 source config/colors 
+source ./config/config 
+
 ############################################################
 # Help                                                     #
 ############################################################
@@ -57,7 +58,6 @@ Help()
 # Process the input options.                               #
 ############################################################
 
-source ./config/config 
 
 while [ $# -gt 0 ] ; do
   case $1 in
@@ -87,21 +87,34 @@ then
 else 
     if [ -n "${genome1}" ] ; 
     then
-        echo "genome1 is $genome1" 
+        b1=$(basename "${genome1%.fa*}" )
+        if [[ "$b1" =~ [^a-zA-Z0-9.] ]] ; 
+        then 
+            echo "error only alphanumeric character allowed in genomeIDs" 
+            echo "see readme.md on github"
+        else 
+            echo "genome 1 is $genome1" 
+        fi
     fi
     if [ -n "${genome2}" ] ;
     then
-        echo "genome 2 is $genome2"
+        b1=$(basename "${genome2%.fa*}" )
+        if [[ "$b1" =~ [^a-zA-Z0-9.] ]] ; 
+        then 
+            echo "error only alphanumeric character allowed in genomeIDs" 
+            echo "see readme.md on github"
+        else 
+            echo "genome 2 is $genome2" 
+        fi
     fi
 fi
-
 
 # if no TE database then exit
 # if no lineage for busco then exit and ask for it 
 if [ -z "$TEdatabase" ] && [[ "$annotate" = YES ]] ;
 then
     echo "Error NO Database for TE is provided "
-    echo "I will not be able to assess mask TE prior to the genome annotation step "
+    echo "I will not be able to identify and mask TEs prior to the genome annotation step "
     echo "this is very bad" 
     exit
     Help
@@ -124,7 +137,7 @@ fi
 
 echo "------------------------------------------------------------"
 echo "-----check all variables from the configuration file  ------"
-echo "  ancestral genome is ${ancestral_genome}  "
+echo "  ancestral genome ${ancestral_genome}  "
 echo "  ancestral gff is ${ancestral_gff} "
 echo "*** fasta for genome1 is ${genome1} **** "
 echo "*** fasta for genome2 is ${genome2} **** "
@@ -275,6 +288,7 @@ if [ "$option" == 1 ]; then
     echo "               checking config files settings                   "
     echo "----------------------------------------------------------------"
 
+    opt="synteny_and_Ds"
 
     #if both species are provided without RNAseq:
     if [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -z "$ancestral_genome" ]  ; then
@@ -298,19 +312,20 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
             Help
             exit 1
         fi
-        
+       
         cd haplo2 || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
@@ -322,12 +337,12 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
              then
                  echo "error some steps have failed for haplo1" 
                  echo "please check the logs" 
                  exit 1
              fi
+             cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -372,19 +387,20 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
             Help
             exit 1
         fi
-        
+       
         cd haplo2/ || exit 1 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             if ! ../00_scripts/launch_rnaseq.sh "${haplotype2}"   2>&1 |\
@@ -402,12 +418,13 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -445,13 +462,13 @@ if [ "$option" == 1 ]; then
                 -b YES \
                 -b "$bamlist1" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
-        
+            cd ../
+       
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -471,12 +488,13 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
            then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
            fi
+           cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -512,12 +530,12 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -537,13 +555,13 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
-        
+            cd ../
+       
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -584,12 +602,12 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist1"  2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -610,12 +628,12 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -638,7 +656,8 @@ if [ "$option" == 1 ]; then
         
     
     #step1: 
-    elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]   ; then
+    elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]
+    then
         echo "we will perform all analyses including annotation with rnaseq"
         echo "genomes are ${genome1} and ${genome2}"
 
@@ -661,14 +680,14 @@ if [ "$option" == 1 ]; then
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
-                -f YES 2>&1 |\
-                tee ../LOGS/log_step05_08_hap1
-                cd ../
+                -f YES 2>&1 \
+                | tee ../LOGS/log_step05_08_hap1
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -695,12 +714,13 @@ if [ "$option" == 1 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    

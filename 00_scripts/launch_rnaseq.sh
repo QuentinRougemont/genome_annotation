@@ -55,7 +55,7 @@ if [[ $ncol = 2 ]] ; then
     if [ $? -eq 0 ]; then
         echo "trimmomatic complete "
         echo -e "\ncounting the number of retained reads\n"        #rm file1file2.tmp 
-    ../00_scripts/utility_scripts/count_read_fastq.sh 02_trimmed/*gz > read_count.txt
+        ../00_scripts/utility_scripts/count_read_fastq.sh 02_trimmed/*gz > read_count.txt
 
     else
         echo -e "\n${RED}#ERROR : Runnning trimmomatic failed. please check your input files${NC}"
@@ -65,7 +65,7 @@ if [[ $ncol = 2 ]] ; then
     #launch gsnap - samtools and read count:
     for read1 in 02_trimmed/*R1.paired.fastq.gz  ; do
         [ -e "$read1" ] || continue 
-        ../00_scripts/03_gsnap_PE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$read1"_"$TIME".log
+        ../00_scripts/03_gsnap_PE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$(basename "$read1")"_"$TIME".log
     done 
 
 else
@@ -73,7 +73,7 @@ else
     echo "running trimmomatic" 
     while IFS=$'\t' read -r -a read ; 
     do 
-        ../00_scripts/01_trimmomatic_SE.sh "${read[0]}" 2>&1 |tee trimmo_"${read[0]}"_log  
+        ../00_scripts/01_trimmomatic_SE.sh "${read[0]}" 2>&1 |tee "$LOG_FOLDER"/trimmo_"${read[0]}"_log  
     done < "$RNAseqlist" #  file1file2.tmp 
     
     if [ $? -eq 0 ]; then
@@ -87,7 +87,7 @@ else
     #launch gsnap - samtools and read count:
     for read1 in 02_trimmed/*R1.paired.fastq.gz ; do
         [ -e "$read1" ] || continue 
-        ../00_scripts/03_gsnap_SE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$read1"_"$TIME".log
+        ../00_scripts/03_gsnap_SE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$(basename "$read1")"_"$TIME".log
     done 
 
 fi

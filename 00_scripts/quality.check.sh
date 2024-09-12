@@ -44,11 +44,14 @@ name=$(basename "$input" )
 output=diamond_blastx
 mkdir $output 2>/dev/null
 
-diamond blastx -d ../../uniprot/uniprot_sprot.fasta \
+if [ ! -s $output/matches."$name".tsv ]
+then
+    diamond blastx -d ../../uniprot/uniprot_sprot.fasta \
         -q "$input" --ultra-sensitive\
         --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qseq sseq \
         --threads 20 \
         -o $output/matches."$name".tsv
+fi
 
 
 #------ Inter pro scan --------------#

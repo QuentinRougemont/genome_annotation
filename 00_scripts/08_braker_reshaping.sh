@@ -38,6 +38,8 @@ Help()
    genes"
    echo "-r|--RNAseq: a float YES/NO stating whether RNAseq was used to 
    annotate the genome "
+   echo "-g|--genome: the genome name (full path)"
+   echo " "
    echo " "
    echo "dependancies: TSEBRA, samtools, gffread, transeq busco "
 }
@@ -50,6 +52,8 @@ while [ $# -gt 0 ] ; do
   case $1 in
     -s | --haplo )  haplo="$2" ; 
     echo -e "haplotype Name is ***${haplo}*** \n" >&2;;
+    -g | --genome ) genome="$2"  ;
+    echo -e "genome Name is ***${genome}*** \n" >&2;;
     -r | --rnaseq ) RNAseq="$2"  ;
     echo -e "annotation was performed with RNAseq ? ${RNAseq} \n" >&2;;
     -h | --help ) Help ; exit 2 ;;
@@ -58,10 +62,13 @@ while [ $# -gt 0 ] ; do
 done 
 
 
-if [ -z "${haplo}" ] || [ -z "${RNAseq}" ]  ; then
+if [ -z "${haplo}" ] || [ -z "${RNAseq}" ] || [ -z "${genome}" ] ; then
     Help
     exit 2 
 fi
+
+mkdir -p 08_best_run/01_haplo_cds 2>/dev/null
+mkdir 08_best_run/02_haplo_prot 2>/dev/null
 
 #------------------------------ step 1 find best run --------------------------#
 echo -e  "\n-----------------------------------------------------------------"
@@ -82,7 +89,7 @@ best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.sp
 #alternative sorting: 
 #LC_ALL=C sort  -k11 -k3 -n -k5 -k7 -k9  |tail -n 1 |cut -d "/" -f 1 ) 
 
-echo -e "best_round is $best_round\n----------------------------------------------"
+echo -e "best_round is $best_round\n------------------------------------------"
 
 cd ../
 
@@ -91,7 +98,6 @@ cd ../
 eval "$(conda shell.bash hook)"
 conda activate superannot
 
-mkdir 08_best_run 2>/dev/null
 python3 ../00_scripts/utility_scripts/generateReport.py \
     06_braker/"$best_round"/braker.gtf \
     06_braker/"$best_round"/hintsfile.gff  \
@@ -132,10 +138,6 @@ then
     #then run tsebra:
     ../00_scripts/09_tsebra.sh "$haplo" "$best_round"
     
-    #remove any existing folder:
-    #rm -rf 08_best_run 2>/dev/null
-    
-    #mkdir 08_best_run 2>/dev/null
     cd 08_best_run
     
     ln -s ../07-tsebra_results/"$haplo".combined.gtf "$haplo".tmp.gtf
@@ -145,16 +147,7 @@ then
     echo -e "\nthere is $nb_genes genes after running tsebra\n" 
 
 else 
-    #--------------------------------------------------------------------------#
     #2 -- copy best run based on database in a final folder
-    
-    #DEPRCETATED :
-    #run_id=${best_round%_braker_on_refprot} 
-    #mkdir 08_best_run"$run_id"
-    #cp 06_braker/$best_round/braker.gtf 08_best_run"$run_id"/$haplo.gtf
-    #sed -i 's/_pilon//g' 08_best_run"$run_id"/$haplo.gtf
-    #file=08_best_run$run_id/$haplo.gtf
-    
     echo "running on protein only - not running tsebra" 
     
     #mkdir 08_best_run
@@ -165,10 +158,10 @@ else
         echo -e "\nthere is $nb_genes in the best protein run\n"
 fi
 
-#------------------------------ step 3 ----------------------------------------#
-echo -e  "\n-----------------------------------------------------------------"
-echo -e  "\n------------renaming and fixing braker output now------------\n" 
-echo -e  "-----------------------------------------------------------------\n"
+#--------------------------- step 3 ----------------------------------------#
+echo -e  "\n----------------------------------------------------------------"
+echo -e  "\n-----------renaming and fixing braker output now------------\n" 
+echo -e  "--------------------------------------------------------------\n"
 
 #then this is a part common to both RNAseq + Proteins or Proteins only:
 rename_gtf.py --gtf "${file}" --prefix "${haplo}" \
@@ -181,16 +174,14 @@ rename_gtf.py --gtf "${file}" --prefix "${haplo}" \
     08_best_run/"${haplo}".renamed.gtf \
     > 08_best_run/"${haplo}".renamed.fixed.gtf
 
-#------------------------------ step 4 ----------------------------------------#
+#---------------------------- step 4 ----------------------------------------#
 #rename the gene/cds/transcript/exons/ ID in the gtf so they contain 
 #the chromosome and haplo name (easier to parse)
 #1 - declare the gtf:
 cd 08_best_run/
 gtf=${haplo}.renamed.fixed.gtf #current gtf
-#newgtf=${haplo}.ok.gtf #future gtf
 
 #2 - renaming with a simple command: 
-#awk '{gsub("_id \"[A-Za-z0-9-]*_","_id \""  $1 "_", $0); print }' $gtf > "$newgtf"
 ../../00_scripts/utility_scripts/01.recode_braker_output.py "${gtf}" "${haplo}"
 cd ../
 
@@ -201,8 +192,6 @@ echo -e  "\n-----------------------------------------------------------------"
 echo "extract protein and cds from the renamed gtf" 
 echo -e  "-----------------------------------------------------------------\n"
 
-mkdir 08_best_run/01_haplo_cds 2>/dev/null
-mkdir 08_best_run/02_haplo_prot 2>/dev/null
 
 gtffull=08_best_run/$gtf
 
@@ -210,23 +199,19 @@ gtffull=08_best_run/$gtf
 output="$haplo"_cds.fa
 echo output cds is "$output"
 gffread -w 08_best_run/01_haplo_cds/"$output" \
-    -g 03_genome/"${haplo}".fa "$gtffull"
-
-#here capture error if genome and gtf do not match and exit with error 1 
-#here if any error occurs capture it!
+        -g "${genome}" "$gtffull"
 
 #then convert also the file to its cds:
 echo "translate CDS into amino acid "
 transeq -sequence 08_best_run/01_haplo_cds/"$output" \
-    -outseq 08_best_run/02_haplo_prot/"$haplo".prot
-
+        -outseq 08_best_run/02_haplo_prot/"$haplo".prot
 
 echo -e "\n-----------------------------------------------------------------"
 echo "extract longest transcript" 
 echo -e  "-----------------------------------------------------------------\n"
 
 cd 08_best_run/02_haplo_prot
-#assumption : all transcript finishes by ".t1, .t2, .t3 so the dot (.) is the delimiter
+#assumption :transcript finishes by ".t1, .t2, .t3 the dot (.) is the delimiter
 
 awk '/^>/ {if (seqlen){print seqlen}; 
     printf(">%s\t",substr($0,2)) ;seqlen=0;next; } 
@@ -244,7 +229,6 @@ grep -A1 -Ff longest.transcript.tmp "$haplo".prot.lin.fasta > \
     "$haplo".longest_transcript.fa
 rm longest.transcript.tmp
 cd ../../
-
 
 #~~~~~~~~~ step 6 : cleaning the GTF based on non-overlapping transcript ~~~~~~~"
 echo -e "\n-----------------------------------------------------------------"
@@ -271,7 +255,6 @@ protpath=02_haplo_prot
 prot="$protpath"/"$haplo".longest_transcript.fa
 echo -e "there is $(wc -l "$gtf" |awk '{print $1}') lines in ""$gtf"" " 
 
-#----------------------------------------------------
 # subset our gtf to keep only the cds in the cds files!
 #grep ">" $prot |sed 's/>//g' |sed 's/_1$//g'  > wanted.cds.tmp 
 grep ">" "$prot" |sed 's/>//g' |sed 's/_1 CDS=.*//g'  > wanted.cds.tmp 
@@ -317,8 +300,7 @@ echo -e "\n-----------------------------------------------------------------"
 echo "re-extracting protein and CDS from the final non-redundan gtf" 
 echo -e "-----------------------------------------------------------------\n"
 
-
-gffread -w "$haplo".spliced_cds.fa -g ../03_genome/"$haplo".fa "$gtf3" 
+gffread -w "$haplo".spliced_cds.fa -g "${genome}" "$gtf3" 
 echo "translate CDS into amino acid "
 transeq -sequence "$haplo".spliced_cds.fa \
     -outseq "$haplo"_prot.final.fa

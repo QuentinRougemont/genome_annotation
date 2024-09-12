@@ -37,7 +37,7 @@ echo braker input is $input_fa
 eval "$(conda shell.bash hook)"
 conda activate busco571
 
-run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein")
+run_busco=$(echo -e "busco -c8 -o busco_augustus -i "$input_fa" -l "$lineage" -m protein" -f)
 
 if [ -z "$RNAseq" ] ; then 
   #RNAseq=NO
