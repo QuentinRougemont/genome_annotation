@@ -66,7 +66,16 @@ if you prefer, you can install all dependencies one by one, this takes more time
 
 # Launching the whole workflow
 
+After cloning the pipeline, please, work from within it to preserve the architecture  
+
+We recommend that you clone the pipeline ***for each of your new project*** and work within it.   
+
+Keep all project separated otherwise it will be difficult to recover your results.   
+
+
 All options and input must be set in the config file: `config/config`
+
+an example is provided [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/example_data/example.config)
 
 ## General parameters set in config
 
@@ -79,7 +88,7 @@ Your **input data** may be
 \+ RNAseq data for each genome (optional) + a custom TE database (compulsory for annotation) 
 
 
-==Warning names XXX==
+==** Warning names** ==
 we recommend to use short name for each of your genome assemblies name and avoid any special characters appart from underscore.
 
 **For instance:**
@@ -88,45 +97,20 @@ species-1.fasta will not be valid in GeneSpace. => Use **Species1.fasta** instea
 
 For the chromosome/contig/scaffold ids we recommand a standard naming including the Species name within it without any thing else than alhpanumeric character.
 
-
-
-| option in config | description |
-| --- | --- |
-| *genome1* | Full path to the assembly of the genome or haplotype you wish to analyse. |
-| *haplotype1* | Name of the genome1 |
-| \[*genome2*\] | Full path to the assembly of the second haplotype you with to analyse. Only for the case where you have two haplotypes, each containing one of the sex/mating type chromosomes. |
-| \[*haplotype2*\] | Compulsory if *genome2* is given. Name of the second haplotype. |
-
-You can launch the whole workflow by typing:
-
-`bash master.sh -o 1`
-
-This will perform steps I to IV as follows:
-
-
-# HOW TO USE:
-
-After cloning the pipeline, please, work from within it to preserve the architecture  
-
-We recommend that you clone the pipeline ***for each of your new project*** and work within it.   
-
-Keep all project separated otherwise it will be difficult to recover your results.   
-
-
 # Example input data:  
-
    
 **Compulsory** 
+
+see example data folder: 
 
 	* genome1: `example_data/genome1.fa.gz`
 	* genome2: `example_data/genome2.fa.gz`
     * config file: `example_data/example.config`
 
-
 **Optional data** 
 
-	* ancestral genome: `ancestral_genome/Mlag129A1.fa.gz`
-	* ancestral gff: `ancestral_genome/Mlag129A1.gtf.gz`
+	* ancestral genome: `example_data/Mlag129A1.fa.gz`
+	* ancestral gff: `example_data/Mlag129A1.gtf.gz`
 	* RNAseq data:  `example_data/rnaseq.fq.gz`
 
 
@@ -142,85 +126,270 @@ Keep all project separated otherwise it will be difficult to recover your result
 
 
 
-# Quick start:
-
-***before running the pipeline make sure to have ALL dependencies installed***
-
-***make sure to have the correct input data***
-
-### step1 - edit the config file and set the correct path 
-
-the config file is here: `./config/config`
-
-
-
-
-## step2 - run the master script 
-
-once the config file is ready with your path and dataset correctly simply run 
-
-```shell
-./master.sh 2>&1 |tee log
-```
-
-this script should handle automatically the different **use cases**
-
-Use case will be infered from the config file automatically. These can be:
- * annotation only
- * annotation, synteny, arrangement and Ds inference
- * synteny, arrangement and Ds inference (if your already have annotations for your genomes) 
- 
+| option in config | description |
+| --- | --- |
+| *genome1* | Full path to the assembly of the genome or haplotype you wish to analyse. |
+| *haplotype1* | Name of the genome1 |
+| \[*genome2*\] | Full path to the assembly of the second haplotype you with to analyse. Only for the case where you have two haplotypes, each containing one of the sex/mating type chromosomes. |
+| \[*haplotype2*\] | Compulsory if *genome2* is given. Name of the second haplotype. |
 
 for more details run: 
 
 ```shell
-./master.sh --help or ./master -h
+./master.sh --help or ./master -h 
+```
+This will list the different option
+
+
+You can launch the whole workflow by typing:
+
+```shell
+./master.sh -o 1 2>&1 |tee log
 ```
 
+This will perform steps I to IV as follows:
 
 
-# Example Results 
 
+# STEP I - RNA-seq alignment - TE masking - Gene prediction - Quality assessment
 
-   * 1 - Genome Annotations 
+## Input of step I
 
-insert results here 
+### Parameters set in config
 
+|     |     |
+| --- | --- |
+| **option in config** | **description** |
+| *RelatedProt* | Full path to a fasta file containing protein sequences to be used for gene prediction. |
+| \[*RNAseqlist*\] | Compulsory with option *a*. Full path to a .txt file containing the list of RNA-seq data files. |
+| \[*bamlist1*\] | Compulsory with option *b*. Full path to a .txt file containing the list of bam files for *genome1* (alignment of RNA-seq data onto the fasta of *genome 1*). |
+| \[*bamlist2*\] | Compulsory with option *b* and if *genome2* is given. Full path to a .txt file containing the list of bam files for genome2 (alignment of RNA-seq data onto the fasta of *genome 2*). |
+| \[*orthoDBspecies*\] | "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" or "Stramenopiles". Will use a database from **orthoDB** for gene prediction. |
+| *fungus* | "YES" or "NO" (default), whether your species is a fungus. |
+| *TEdatabase* | Full path to a database of TE for your species/genus, used in TE prediction, in fasta format. |
+| *ncbi_species* | Name of the ncbi species, used in TE prediction. ==list available [here](https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi)== |
+| \[*gtf1*\] | Compulsory with option *d*. Full path to a .gtf file for an existing gene prediction on *genome1*. |
+| \[*gtf2*\] | Compulsory with option *d* and if *genome2* is given. Full path to a .gtf file for an  existing gene prediction on *genome2*. |
+| *busco_lineage* | Lineage used for **busco** analysis. You can access the list of available lineages by typing `busco --list-dataset`. |
+| *interpro* | YES or NO (default), whether **interproscan** quality check of the genome annotation should be performed. Warning: this can take up to several days for a big dataset. |
 
-   * 2 - Genome Annotation quality assesment based on busco: 
+Note: If option *d* is set, only *gtf1* and *gtf2* (if you use 2 haplotypes) are needed.
 
-insert busco plot here 
+==Give examples of files for RNAseqlist and bamlist HERE==
 
+### Options
 
-   * 3a -  minimap based divergence along the mating type chromosomes :
+**(*a*) - Align RNA & Annotate:**  
+Will perform alignment of provided RNA-seq data and use it as additional information for genome annotation.
+
+**(*b*) - Annotate, use BAM of RNA**  
+Will use provided BAM of already aligned RNA-seq data and use it as additional information for genome annotation.
+
+**(*c*) - Annotate, no RNA**  
+Will perform genome annotation without using RNA information.
+
+**(*d*) - Skip**  
+If you have already annotated your genome, will use provided gtf for the following steps, effectively skipping genome annotation.
+
+## Operations of step I
+
+With option *d*, all the following operations are skipped.
+
+### 1\. Alignment of RNA-seq data (only with option *a*)
+
+Corresponding script: `00_scripts/launch_rnaseq.sh`
+
+- Reads trimming using **trimmomatic**
+
+The script will detect whether the data is Single-End or Paired-End and launch trimmomatic, then count the number of retained reads.
+
+- Creation of database for **gsnap** using **gmap**
+- Alignment using **gsnap**
+
+Corresponding scripts: `00_scripts/03_gsnap_PE.sh` for PE ; `00_scripts/03_gsnap_SE.sh` for SE
+
+- Mapping quality assessment
+
+Sequencing depth and MAPQ along the genome will be computed and plotted. The resulting plots can be found in ==XXX/Depth/== and ==XXX/mapq/== .
+
+==Insert example plot here==
+
+### 2\. TE discovery and masking
+
+Corresponding script: `00_scripts/launch_step05_to_08.sh`
+
+- *De novo* repeat identification using **repeatmodeler** on the input genome(s) to be annotated
+- Genome masking using **repeatmasker** with known TE libraries
+
+### 3\. Genome annotation, quality assessment and filtering
+
+Corresponding script: ./00_scripts/06_braker.sh
+
+- Five successive rounds of gene prediction based on protein database, using **braker**
+    
+- One round of gene prediction using RNA-seq data, using **braker** (only with options *a* and *b*)
+    
+- Quality assessment and reports production for each round of gene prediction
+    
+
+Two tools can be used at this stage for quality assessment:  
+\- **Busco** (corresponding script: `00_scripts/07_busco_after_braker.sh`)  
+\- **Braker** report on the raw hintsfile  
+This report includes number of genes, number of introns per gene, gene support, number of complete genes and various histograms useful for error checking.
+
+- Combination of protein-based and RNA-seq-based gene models using **TSEBRA** (only with options *a* and *b*)
+
+Please read the [TSEBRA manual](https://github.com/Gaius-Augustus/TSEBRA) before running the script.  
+The best round of protein-based gene prediction and the RNA-seq-based gene prediction are given as input in TSEBRA.  
+Warning: TSEBRA parameters *intron_support* and *stasto_support* are set to 0 in this workflow (default in TSEBRA: 1 and 2 respectively). This means that only overlapping genes between the two gene models will be filtered. You can change this parameter and others to adjust to your desired level of stringency in the TSEBRA config file: `config/default.cfg`
+
+- Final genome annotation reshaping
+
+**For options *a* and *b*:** The final genome annotation  is the output from TSEBRA.  
+**For option *c*:** The final genome annotation is the best protein-based braker round, as evaluated with busco.
+
+Corresponding script: `00_scripts/08_braker_reshaping.sh`  
+The genes will be renamed to insert the scaffold name for clarity in downstream analyses.  
+Because the next steps in the workflow involve single copy ortholog identification, only the longest transcript is kept for each gene.
+
+- Final genome annotation quality assessment
+
+Two more in-depth tools can be used at this stage for quality assessment: (==\+ busco on final genome pred ?==)  
+\- **Blast** against **Uniprot**  
+If you wish to skip this, comment l.295 of the script `00_scripts/08_braker_reshaping.sh`  
+\- **InterProScan** (if option interpro is set to "YES" in the config file and Blast against Uniprot successfully ran)  
+This tool is more time-consuming.
+
+# STEP II - Run GeneSpace - Produce synteny plots
+
+## Input of step II
+
+### Parameters set in config ==in yellow parameters to be set==
+
+|     |     |
+| --- | --- |
+| **option in config** | **description** |
+| *scaffolds* | Full path to the list of focal scaffolds (i.e. the scaffolds composing the sex / mating type chromosomes). |
+| *==ancestral==* | "chromosome" or "outgroup", whether the sequence used as proxy for the ancestral state is one of the sex / mating type chromosomes or an ougroup provided below. |
+| ==\[*ancestral_chromosome_scaffolds*\]== | Compulsory if *ancestral* is set as "chromosome". Full path to the list of scaffolds of the chromosome used as proxy for ancestral state. |
+| \[*==outgroup_orthofinder==*\] | Advised if *ancestral* is set as "chromosome". Full path to a list of genomes to be used as outgroups in OrthoFinder only. |
+| \[*ancestral_genome*\] | Compulsory if *ancestral* is set as "outgroup". Full path to the genome of the species used as proxy for the ancestral state. |
+| \[*ancestral_gff*\] | Compulsory if *ancestral* is set as "outgroup". Full path to the gff (genome annotation) of the species used as proxy for the ancestral state. |
+| ==\[*ancestral_outgroup_scaffolds*\]== | Compulsory if *ancestral* is set as "outgroup". Full path to the list of focal scaffolds for the outgroup used as proxy for ancestral state. |
+
+==Give examples of files for scaffolds, ancestral_chromosome_scaffolds, outgroup_orthofinder and ancestral_outgroup_scaffolds ?==
+
+## Operations of step II
+
+### 4a. Minimizer alignment and plots of target region
+
+Corresponding script: `00_scripts/11_run_genesSpace_paml_ideogram.sh`
+
+- Alignment between the two haplotypes using **minimap2**
+
+If you provided as input two haplotypes containing each one of the sex/mating type chromosomes, the whole haplotypes will be aligned.  
+If you provided one genome containing both sex/mating type chromosomes, only the corresponding focal scaffolds (as indicated with option *scaffold*) will be aligned.
+
+- Alignment between the two haplotypes and an outgroup genome used as proxy for ancestral state if you have one (option B), using **minimap2**
+    
+- Construction of whole genome dotplot using **pafR** (only with two haplotypes as input)
+    
+- Construction of synteny plot on the focal scaffolds using **pafR**
+    
+ex: minimap based divergence along the mating type chromosomes :
 
 ![Fig2.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig2.png)
 
-   * 3b - minimap based whole genome alignment : 
+ex: minimap based whole genome alignment : 
 	
 ![Fig3.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig3.png)
 
 
 
-   * 4 - Synteny plot from GeneSpace
+### 4b. Ortholog reconstruction
+
+- Launching of **GeneSpace**
+
+In short, this will:  
+\- Identify single copy orthologs with **OrthoFinder**  
+\- Construct a dotplot and a riparian plot of whole genome (only with two haplotypes as input) \[==GeneSapce==\]  
+\- Construct a riparian plot on focal scaffolds \[==GeneSpace==\]  
+For more information, consult the [GeneSpace readme](https://github.com/jtlovell/GENESPACE).
+
+ex: Synteny plot from GeneSpace
 
 ![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig4.png)
 
 
-   * 5 - Ds plot : 
+# STEP III - Compute and plot dS - Plot ideogram and rearrangements
+
+## Input of step III
+
+### Parameters set in config
+
+Same as step II (see above).
+
+## Operations of step III
+
+### 5\. Single copy orthologs alignment
+
+Align all coding sequences from the focal scaffolds.
+
+- **TranslatorX**
+- **muscle**
+
+### 6\. dS calculation and plotting
+
+- Calculation of dS & dN using **PAML**
+    
+- Plotting dS values using a custom R script
+    
+
+Corresponding script: `00_scripts/Rscripts/03_plot_paml.R`  
+dS values are plotted along the focal scaffolds, and, if 2 haplotypes were given as input, along the whole genome.  
+The gene order will be that of the genome used as proxy for the ancestral state: either one of the two sex/mating type chromosomes, or an outgroup (see option *ancestral*).  
+It is possible to modify the R script to adapt the plotting options to your needs (for instance position and direction of scaffolds).
+
+Ex: Ds plot : 
 
 ![Fig5.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig5.png)
 
 
+### === - Plot circos (==step III==)
 
-   * 6 - changePoint inference : 
+Corresponding script: `00_scripts/Rscripts/05_plot_circos.R`  
+Construction of a circos plot of the focal scaffolds, tracing links between their single copy ortholog genes, using **circlize**.  
+It is possible to modify the R script to adapt the plotting options to your needs (for instance position and direction of scaffolds).
 
-insert some plot here 
+==insert circos plot here==
+
+The operations automatically performed by the script `master.sh` stop here.
+
+# Step IV
+### 1\. Changepoint analyses
+
+Before launching this step, we strongly suggest that you consult the results of the workflow, especially the dS plot. Once you have deciphered clear hypotheses as to whether there are strata on your focal scaffolds, and where they occur, you can use the R script.
+`00_scripts/Rscripts/06.MCP_model_comp.R` to perform changepoint analyses on the dS, using **mcp**.
+To that end, you can automatically launch the code ```master.sh -o7``` and it will launch 
+
+==insert graph here and how to interpret==
+
+# Options to run part of the workflow
+
+If you wish to perform only part of the workflow or relaunch it from a given step, use option *\-o*
+
+`bash master.sh -o 2` : perform steps I and II  
+now if you have a gtf and and genome assembly (either from running this pipeline or any other annotation tools):
+`bash master.sh -o 3` ; perform steps II and III (if step I already ran successfully in a previous run)  
+`bash master.sh -o 4` : perform step III only (if steps I and II already ran successfully in a previous run)  
+`bash master.sh -o 5` : perform step II only (if step I already ran successfully in a previous run)  
+`bash master.sh -o 6` : perform step I only
+`bash master.sh -o 7`: perform step IV only
 
 
 
-# detailed steps  
 
+# --------------------------------------------------------------------------
 
 # list of operations and tools
 
@@ -250,316 +419,5 @@ This code has been tested with linux.
 Normally, you should only run the script ```./master.sh```
 
 below we provided a description of what will be done at each steps.
-
-
-### Step by step guide: 
-
-# --------------------------------------------------------------------------
-
-All steps will be performed automatically by the ```master.sh``` script once the config file is set appropriately
-
-
-## 0 - rename the contigs/scaffold/chromosome ID in your reference genome. 
-
-We provide a script: 
-```00_scripts/00_rename_fasta.py```
-
-that will rename automatically the contigs_id if provided the current name and a new name of the following form:
-
-``` [species]_[haplotype]```  
-
-to create something like:
-
-``` [species]_[haplotype]_[contigID] ```  
-
-We recommand short name with simple separator such as ```_```      
-
-Note: Long name tend to cause bug with paml.
-
-In the rest of the pipeline, we will insert the contigs/scaffold ID in the gene ID, so they are easier to track.
-
-
-## With RNA seq data: 
-
-the script: 
-```00_scripts/launch_rnaseq.sh```
-
-will be launch automatically  
-
-the following Steps will be performed:  
-
-
-## 1 - trim the reads: trimmomatic 
-
-the script will launch trimmomatic and recognized wether your data are Sinle-End or Paired-End
-at the end the following script is launch to count the number of retained reads:
-
-```sh
-/00_scripts/utility_scripts/count_read_fastq.sh
-```
-
-## 2 - create database for gsnap
-
-the following steps are performed automatically for each of your genome:
-
-```sh
-cd haplo1
-./00_scripts/02_gmap.sh 03_genome/your_genome.fa.gz
-cd ../haplo2
-./00_scripts/02_gmap.sh 03_genome/your_genome.fa.gz
-cd ../
- ```
-
-## 3 - alignment with gsnap:
-
-for a given genome located in the folder `03_genome` and a set of input in `02_trimmed` ;  
-
-a script will launch **gsnap** automatically:  
-
-* If PE:  ```00_scripts/03_gsnap_PE.sh```  
- 
-* If SE:  ```00_scripts/03_gsnap_SE.sh```  
-
-
-## 4 - mapping quality assessment 
-
-for each RNAseq data we will compute the sequencing depth and MAPQ along the genome and this will be plotted automatically.
-This is implemented directly in the script ```03_gsnap_[P/S]E.sh```  
-
-Insert example plot here
-
-
-## 5 - TE discovery and masking
-
-
-## TO UPDATE
-
-This part will run the script ```launch_step05_to_08.sh```  
-
-It will perform the following :  
-
-   
-* step 05:  
-
-    * run **repeatmodeler**: denovo repeat identification from your genome   
-
-    * run **repeatmasker** : mask the genome using known TE Libraries 
-
-
-
-**data needed :** 
-
-    * your genome  
-
-    * NCBI database and species name on NCBI for TE 
-
-    *Ideally: a custom (home made) TE library 
- 
-* step 06: running braker
-
-* step 07: assessing quality 
-
-* step 08: filtering and rehaping the data
-
-
-
-## 6 - Runnning braker
-
-**data needed :**
- 
-* Your genome 
-
-* A busco lineage name 
-
-At least one of the three following data must be provided : 
-
-* 1 - RNAseq for the target species
-
-and/or:
-
-* 2 - An orthoDB species name to download external protein data
-
-and/or: 
-
-* 3 - A custom database of proteins from closely related species
-
-
-### WARNING /!\ 
-
-**all details should be provided in the config file** 
-
-make sure to have all the dependencies installed as indicated on [braker](https://github.com/Gaius-Augustus/BRAKER#installation)
-
-#### when all is ok:
-
-
-The master script will run automatically:
-
-```./00_scripts/06_braker.sh 2>&1 |tee braker.log``` 
-
-This will run Braker separately for RNAseq and the protein database.   
-
-I use 5 runs for the proteiinDB and choose the one with best Busco score  
- 
-
-## 7 - Evaluate quality  
-
-4 tools can be used for quality assesment :
-
-1 - Busco 
-
-2 - Braker report on the raw hintsfile
-
-3 - Blast against Uniprot (optional)
-
-4 - UniProt (optional - more time consuming)
-
-**1 - Busco**  
- 
-This will run the script 
-```
-00_scripts/07_busco_after_braker.sh
-```
-
-to assess the quality of each braker annotation.  
-
-
-Again you need to provide the busco species name in the config file   
-
-
-
-**2 - Braker Report :**  
-
-
-
-On all hintsfile this will generate very usefull report including:  
- 
-	* Number of  Gene (Total, Single-exons and Multi-exons genes) 
- 
-	* Number of introns per genes 
-
-	* support for the genes (count and %) 
- 
-	* complete genes (count and %)  
- 
-	* as well as various histograms usefull for error checking
-
-
-**3 - Blast against Uniprot :** 
-
-this will be performed automatically -  
-
-comment the line 295 of the script in ```00_scripts/08_braker_reshaping.sh``` if you don't want to  
-
-
-**4 - InterProsScan annotations :**  
-
-
-to obtain InterProScan annotation set ```interpro="YES"``` in the config/config file  
-
-
-This will run : 
-
-```
-interproscan.sh -i input.prot.fasta -goterms -cpu 16 2>&1 |tee interpro.log
-```
-
-
-
-Note that if you disabled blast against uniprot this will not be performed either 
-
-Interproscan and blast against uniprot will in reality be run at the very end of the renaming process when single transcript have been selected 
-
- 
-
-## 8 - reshape the data : combine run with TSEBRA - rename genes 
-
-
-Read TSEBRA manual before running the script. 
-
-set the parameter of tsebra according to the levels of stringeancy that you want .
- 
-we provide a config file in ```config/default.cfg``` 
-
-the levels of stringeancy have been reduced to keep genes of interest that can be highly degenerated
-
-
-then our pipeline will automatically run: 
-
-```sh
-./00_scripts/08_braker_reshaping.sh -s species_name -r YES/NO
-```
-
-internally the gene will be renamed to insert the scaffold name in it. 
-
-the longest transcript will further be kept as this is important for single copy orthologs identifications 
-  
-
-
-## 9 - Run GeneSpace - compute and plot Ds - plot ideogram - plot arrangement 
-
-
-* **input needed:**  gene annotation for haplo1/haplo2 + the ancestral genome 
-
-This will: 
-* 1 - Identify single copy orthologs (OrthoFinder run from GeneSpace)  
-
-* 2 - construct dotplot and riparian plot of whole genome (GeneSpace) 
-
-* 3 - perform a riparian plot focussed on the sex chromosome (GeneSpace) 
-
-
-* 4 - Align all CDS from the hap1 vs hap2 sex chromosomes (TranslatorX + muscle)
-
-* 5 - Compute Ds & Dn from PAML
-
-* 6 - Plot Ds values along the focal species (either ancestral genome or haplotype1) and gene rank order to display rearrangements 
-
-
-insert some geneSpace plot here 
-
-
-## 10 - Plot circos
-
-to do:
-
-* fix the code 
-
-* insert circos here 
-
-## 11 - perform changepoint analyses
-
-to do
-
-insert graph here and how to interpret  
-
-explain the output
-
- 
- 
-
-## 12 - minimap alignements and plots of target region
-
-
-This is the easiest step implemented in : 
-
-```
-00_scripts/11_run_geneSapce_paml_ideogram.sh
-```  
- 
-
-It will: 
-
-* run **minimap**  between the two haplotype 
-
-* run **minimap** between the two haplotype and ancestral genome if you have one  
-
-* run pafR to construct whole genome dotplot and synteny plot on the focal scaffold (X/Y etc).
-
-
-insert some graph here
-
-
-
 
 
