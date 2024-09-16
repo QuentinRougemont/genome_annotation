@@ -12,29 +12,25 @@
 
 # Purpose:
 ##  sets of scripts to : 
- 1 - perform de-novo TE detection, 
+I - Perform genome annotation using braker3
 
- 2 - genome annotation using braker2  
+II - Identify synteny blocks and rearragnements (GeneSpace and Minimap2)
 
- 3 - identify synteny blocks and rearragnements (GeneSpace and Minimap)  
+III - Plot Ds along the genome using ancestral genomes
 
- 4 - plot Ds along the genome using ancestral genomes  
-
- 5 - perform changepoint analyses
-
+IV - Perform changepoint analysis to obbjectively identify evolutionary strata
 
 <img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png" width = "490" heigth = "490">
 
 
-# Dependencies: 
+# Full automated installation 
 
-basic requirements: **git**, **gcc** , **R**, **make**, **cmake**, **wget** or **curl** , **java** 
 
-conda or **mamba** can be used to install several dependencies, especially without root access 
+### Mamba
 
-### First thing is to get mamba or conda. 
+If you want to avoid potential conflicting versions or do not have root access on your device, you can use **conda** or **mamba** to install dependencies.
 
-I recommand mamba for linux: 
+We recommend mamba for linux:
 
 ```
 curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge-pypy3-Linux-x86_64.sh
@@ -42,15 +38,71 @@ bash Miniforge-pypy3-Linux-x86_64.sh
 #note: see here for other verions of mamba: https://github.com/conda-forge/miniforge
 ```
 
-### minimal dependencies:  
+### Cloning the git
 
-see [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies or run directly : 
+To get the workflow on your device:
 
-```shell 
+```bash
 git clone https://github.com/QuentinRougemont/genome_annotation
-cd genome annotation
-./requirements.sh #will work with mamba. alternatively replace by conda (sed -i 's/mamba/conda/g' requirements.sh) 
-``` 
+```
+
+then run the following:
+```sh
+mamba env create annotation.yml  
+
+#for busco:
+mamba env create busco_env.yml
+
+#for repeatmodeller:
+mamba env repeatmodeler.yml
+
+#and for non-conda dependencies:
+bash ./dependencies.sh
+```
+
+### Manual installation of each software separately:
+
+if you prefer, you can install all dependencies one by one, this takes more time but may help solving bugs. See [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies.
+
+# Launching the whole workflow
+
+All options and input must be set in the config file: `config/config`
+
+## General parameters set in config
+
+Your **input data** may be
+
+\- one genome containing both sex/mating type chromosomes
+
+\- or two haplotypes containing each one of the sex/mating type chromosomes.
+
+\+ RNAseq data for each genome (optional) + a custom TE database (compulsory for annotation) 
+
+
+==Warning names XXX==
+we recommend to use short name for each of your genome assemblies name and avoid any special characters appart from underscore.
+
+**For instance:**
+
+species-1.fasta will not be valid in GeneSpace. => Use **Species1.fasta** instead.
+
+For the chromosome/contig/scaffold ids we recommand a standard naming including the Species name within it without any thing else than alhpanumeric character.
+
+
+
+| option in config | description |
+| --- | --- |
+| *genome1* | Full path to the assembly of the genome or haplotype you wish to analyse. |
+| *haplotype1* | Name of the genome1 |
+| \[*genome2*\] | Full path to the assembly of the second haplotype you with to analyse. Only for the case where you have two haplotypes, each containing one of the sex/mating type chromosomes. |
+| \[*haplotype2*\] | Compulsory if *genome2* is given. Name of the second haplotype. |
+
+You can launch the whole workflow by typing:
+
+`bash master.sh -o 1`
+
+This will perform steps I to IV as follows:
+
 
 # HOW TO USE:
 
@@ -59,31 +111,6 @@ After cloning the pipeline, please, work from within it to preserve the architec
 We recommend that you clone the pipeline ***for each of your new project*** and work within it.   
 
 Keep all project separated otherwise it will be difficult to recover your results.   
-
- 
-# Input data: 
-
-
-* minimal input:
-	* 2 genomes assemblies (**fasta files**) 
-
-	* additional settings (RNAseq data, etc) can be declared in the **config file** 
-
-more details on the config file are [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/input_data_info.md) 
-
-### note on input naming: 
-
-we recommend to use short name for each haplotype and avoid any special characters appart from underscore. 
-
-For instance:  
-
-species-1.fasta **will not be valid in GeneSpace**. Use Species1.fasta instead.  
-
-For the chromosome we recommand a standard naming including the Species name within it like so:
-
-**Species1_chr1** or **Species1_contig1** 
-
-kepp things as simple as possible 
 
 
 # Example input data:  
