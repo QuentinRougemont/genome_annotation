@@ -1,50 +1,6 @@
-
-
 #list all requirements for installation - attempts to download and install missing deps
 #very minimal requirement than will not be installed here:
-#wget
-#curl
-#git 
-#make 
-#cmake
-#make 
-#mamba 
 #java (OpenJDK)
-
-command='wget'
-if ! command -v $command &> /dev/null
-then
-    echo "ERROR: $command could not be found"
-    echo "please install it before doing anything else"
-    exit 1
-fi
-
-command='curl'
-if ! command -v $command &> /dev/null
-then
-    echo "ERROR: $command could not be found"
-    echo "please install it before doing anything else"
-    exit 1
-fi
-
-command='make'
-if ! command -v $command &> /dev/null
-then
-    echo "ERROR: $command could not be found"
-    echo "please install it before doing anything else"
-    exit 1
-fi
-
-command='cmake'
-if ! command -v $command &> /dev/null
-then
-    echo "ERROR: $command could not be found"
-    echo "please install it before doing anything else"
-    echo "this can be done with mamba - see below"
-    echo "once mamba is installed use: mamba install -c conda-forge cmake" 
-    exit 1
-fi
-
 
 #install mamba for linux if not already installed!
 command='mamba'
@@ -55,52 +11,6 @@ then
     exit 1
 fi
 
-#run mamba yml files here!
-
-#mamba create -n braker_env  -c anaconda perl biopython
-#eval "$(conda shell.bash hook)"
-#conda activate braker_env
-#mamba install -c bioconda perl-app-cpanminus perl-hash-merge perl-parallel-forkmanager \
-#    perl-scalar-util-numeric perl-yaml perl-class-data-inheritable \
-#    perl-exception-class perl-test-pod perl-file-which  perl-mce \
-#    perl-threaded perl-list-util perl-math-utils cdbtools \
-#    perl-list-moreutils
-#mamba install -c bioconda perl-file-homedir perl-devel-size #perl-uri perl-lwp-protocol-https
-#mamba install -c conda-forge json5 matplotlib
-#stuff for R:
-#mamba install conda-forge jags r-rjags r-rsvg r-igraph r-devtools r-biostrings r-ragg r-curl
-
-
-#----------- a few tools to install directly with mamba :---------------------- 
-#**samtools**
-#direct install: 
-command='samtools'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mamba install -c bioconda samtools samtools=1.18
-fi 
-
-#**R** with several packages 
-command='R'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mamba install -c conda-forge r-base
-fi 
-
-#**transeq**  from EMBOSS to convert fasta into protein [click_here](https://www.bioinformatics.nl/cgi-bin/emboss/help/transeq) 
-#direct install: 
-command='transeq'
-if ! command -v $command &> /dev/null
-then
-   #direct install: 
-   mambe create -p braker_env emboss=6.6.0
-fi
- 
-conda deactivate
-
-#---------------------- OTHER TOOLS ---------------------------------------#
 # test each command one by one and install them if necessary:
 mkdir softs
 cd softs 
@@ -137,7 +47,6 @@ then
     cd ../../
 fi
 
-
 #**Diamond**
 #direct install: 
 command='diamond'
@@ -154,7 +63,6 @@ then
     cd ../ 
 
 fi
-
 
 #**cdbfasta**:
 command='cdbfasta'
@@ -177,7 +85,6 @@ then
 	exit 1
     fi
 fi
-
 
 #**bamtools**
 command='bamtools'
@@ -237,7 +144,6 @@ else
     htcmd=$(command -v "$command")
     htpath=$(echo $htcmd |sed 's/bin\/htsfile/include\/htslib/')
 fi
-
 
 #in case this did not work test this: 
 #download the latest htslib to recover the path for Augustus::
@@ -306,15 +212,7 @@ then
     fi
 fi
 
-
 #**genemark** 
-#OLD WAY - DEPRECATED:
-#wget http://topaz.gatech.edu/GeneMark/tmp/GMtool_pxuuc/gmes_linux_64.tar.gz
-#echo "to get genemark to work you must register online at http://exon.gatech.edu/GeneMark/license_download.cgi"
-#echo "the gm_key is necessary" 
-#echo "please download the the GeneMark-ES/ET/EP under the appropriate linux kernel"
-#echo "it must be copied to your home"
-#echo -e "do the following:\ngunzip gm_key_64.gz\mv gm_key_64 ~/.gm_key "
 command="gms2hints.pl" 
 if ! command -v $command &> /dev/null
     then
@@ -329,7 +227,6 @@ if ! command -v $command &> /dev/null
     source ~/.bashrc  
     cd ../../../ 
 fi
-
 
 #**TSEBRA** available [here](https://github.com/Gaius-Augustus/TSEBRA)
 #direct install: 
@@ -399,7 +296,6 @@ if ! command -v $command &> /dev/null
     fi
 fi
 
-
 ## test if orthoFinder is installed
 command='orthofinder'
 if ! command -v $command &> /dev/null
@@ -422,7 +318,6 @@ then
     cd ../../
     #exit 1
 fi
-
 
 
 #**MCScanX** : 
@@ -508,35 +403,12 @@ then
    cd ../
 fi
 
-##**BUSCO** for quality assesment (https://busco.ezlab.org/)
-#command='busco'
-#if ! command -v $command &> /dev/null
-#then
-#   #direct install - a new env must be created: 
-#   mamba create -n busco_env -c bioconda busco=5.7.1
-#fi 
-#
-#cd ../
-#
 ##RepeatModeler and RepeatMasker through conda (easiest way)
 ##mamba create -n repeatmodeler_env  -c bioconda repeatmasker=4.1.5 repeatmodeler=2.0.5
 ##mamba activate repeatmodeler_env
 #
 #
-##now edit the braker launcher since the export from .bashrc does not always seems to work:
-##sed -i "11i \n" 00_scripts/06_braker.sh
-##sed -i "11i export CDBTOOLS_PATH=$cdbpath" 00_scripts/06_braker.sh
-##sed -i "11i export TSEBRA_PATH=$tsebrapath" 00_scripts/06_braker.sh
-##sed -i "11i export PROTHINT_PATH=$protpath" 00_scripts/06_braker.sh
-##sed -i "11i export AUGUSTUS_CONFIG_PATH=$augustuspath/config " 00_scripts/06_braker.sh
-##sed -i "11i export AUGUSTUS_BIN_PATH=$augustuspath/bin " 00_scripts/06_braker.sh
-##sed -i "11i export AUGUSTUS_SCRIPTS_PATH=$augustuspath/scripts " 00_scripts/06_braker.sh
-##sed -i "11i export GENEMARK_PATH=$gmarkpath " 00_scripts/06_braker.sh
-##sed -i "11i \n" 00_scripts/06_braker.sh
-##
 ##sed "s#mcpath#$MCScanpath#" 00_scripts/Rscripts/01.run_geneSpace.R
-#
-#exit
 #
 ##DEPRECARTED PART BELOW :
 #----------- A full installation of repeatmodeller and repeatmasker ------------------#

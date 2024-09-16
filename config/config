@@ -3,17 +3,12 @@
 genome1=""     #full path to current genome1 assembly (haplotype1 - compressed or not)
 genome2=""     #full path to current genome2 assembly (haplotype2)
 
-rename_scaffold="" #Y=Yes, N =No 
-#if renam_scaffold=Y then provide the current and new name here:
-current_name1=" "   #current basename of scaffold in the genome (ignore if name are already like "chr1, chr2, etc")
 haplotype1=""  #name1 [name of haplotype1 - will be used to rename the genome and the contigs inside the genome]
-current_name2=" "   #current basename of scaffold in the genome2 (ignore if name are already like "chr1, chr2, etc")
 haplotype2=""  #name2 [name of haplotype2 - will be used to rename the genome and the contigs inside the genome]
 
 #----- optional --------
 ancestral_genome="" #full path to the ancestral genome to be used whenever possible
 ancestral_gff=" "   #full path to the associated gff to be used whehever possible
-
 
 #--- annotate or not #
 annotate=""  #a string (YES/NO)? if annotation = YES then annotation of the genomes will be performed

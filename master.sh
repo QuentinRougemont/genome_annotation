@@ -176,28 +176,13 @@ if file --mime-type "$genome1" | grep -q gzip$; then
    gunzip "$genome1"
    genome1=${genome1%.gz}
    cd haplo1/03_genome || exit 1 
-   #if  [[ $rename_scaffold = N ]]; then
-   #    echo "no haplotype name  provided - skip renaming scaffold ids"
        cp "$genome1" "$haplotype1".fa
-   #else
-   #    echo "renaming scaffold ids "
-   #    #../../00_scripts/00_rename_fasta.py "$genome1" $current_name1 $haplotype1
-   #fi
-
    cd ../../
 else
    echo "$genome1 is not gzipped"
    genome1=$genome1
    cd haplo1/03_genome || exit 1 
-   #if  [[ $rename_scaffold = N ]]; then
-   #    echo "no haplotype name  provided - skip renaming scaffold ids"
        cp "$genome1" "$haplotype1".fa
-   #else
-   #    echo "renaming scaffold ids "
-   #    ../../00_scripts/00_rename_fasta.py "$genome1" $current_name1 $haplotype1
-   #fi
-
-
    cd ../../
 fi
 
@@ -220,25 +205,12 @@ if [[ -n "$genome2" ]] ; then
     gunzip "$genome2"
     genome2="${genome2%.gz}"
     cd haplo2/03_genome  || exit 1
-    #if  [[ $rename_scaffold = N ]]; then
-    #    echo "no haplotype name  provided - skip renaming scaffold ids"
         cp "$genome2" "$haplotype2".fa
-    #else
-    #    echo "renaming scaffold ids "
-    #    ../../00_scripts/00_rename_fasta.py"$genome2"$current_name2 $haplotype2
-    #fi
-    
     cd ../../
     else
     echo "$genome2 is not gzipped"
     cd haplo2/03_genome || exit 1 
-    #if  [[ $rename_scaffold = N ]]; then
-    #    echo "no haplotype name  provided - skip renaming scaffold ids"
         cp "$genome2" "$haplotype2".fa
-    #else
-    #    echo "renaming scaffold ids "
-    #    ../../00_scripts/00_rename_fasta.py"$genome2"$current_name2 $haplotype2
-    #fi
     
     genome2=$genome2
     cd ../../
@@ -1245,34 +1217,63 @@ if [ "$option" == 3 ] || [ "$option" == 4 ] || [ "$option" == 5 ]; then
     elif [ -n "${gtf1}" ] && [ -n "${gtf2}" ] && [ -n "${genome1}" ] && [ -n "${genome2}" ] ; then
         
         #else we expect them to be provided in the config file 
-            echo "gtf and genomes file were provided" 
-            echo "we will run geneSpace, compute Ds and other kind of analyses"
-            echo -e "\----------------------------------------\n"
-            mkdir -p haplo1/08_best_run haplo1/03_genome 
-            mkdir -p haplo2/08_best_run haplo2/03_genome
-            cp "$gtf1" haplo1/08_best_run/"${haplotype1}".final.gtf
-            cp "$gtf2" haplo2/08_best_run/"${haplotype2}".final.gtf
-            cp "$genome1" haplo1/03_genome/
-            cp "$genome2" haplo2/03_genome/
+        echo "gtf and genomes file were provided" 
+        echo "we will run geneSpace, compute Ds and other kind of analyses"
+        echo -e "\----------------------------------------\n"
+        mkdir -p haplo1/08_best_run haplo1/03_genome 
+        mkdir -p haplo2/08_best_run haplo2/03_genome
+
+        
+        #check compression
+        if file --mime-type "$gtf1" | grep -q gzip$; then
+           echo "$gtf1 is gzipped"
+           gunzip "$gtf1"
+           gtf1=${gtf1%.gz}
+        else
+           echo "$gtf1 is not gzipped"
+        fi
+        
+        if file --mime-type "$gtf2" | grep -q gzip$; then
+           echo "$gtf2 is gzipped"
+           gunzip "$gtf2"
+           gtf2=${gtf1%.gz}
+        else
+           echo "$gtf2 is not gzipped"
+        fi
+
+        cp "$gtf1" haplo1/08_best_run/"${haplotype1}".final.gtf
+        cp "$gtf2" haplo2/08_best_run/"${haplotype2}".final.gtf
+        cp "$genome1" haplo1/03_genome/
+        cp "$genome2" haplo2/03_genome/
 
 
-            gffread -g "$genome1" \
-                -w haplo1/08_best_run/"$haplotype1".spliced_cds.fa  "$gtf1" 
-            gffread -g "$genome2" \
-                -w haplo2/08_best_run/"$haplotype2".spliced_cds.fa  "$gtf2" 
-            
+        if ! gffread -g "$genome1" -w haplo1/08_best_run/"$haplotype1".spliced_cds.fa "$gtf1" 
+        then 
+            echo "error failed to extract cds from genome $genome1 and gtf $gtf1"
+            echo "please check input file synchronisation"
+            exit
+        else
             transeq -sequence haplo1/08_best_run/"$haplotype1".spliced_cds.fa \
-                -outseq haplo1/08_best_run/"$haplotype1"_prot.final.clean.fa
+                    -outseq haplo1/08_best_run/"$haplotype1"_prot.final.clean.fa
+
+        fi     
+        if ! gffread -g "$genome2" -w haplo2/08_best_run/"$haplotype2".spliced_cds.fa  "$gtf2"
+        then
+            echo "error failed to extract cds from genome $genome2 and gtf $gtf2"
+            echo "please check input file synchronisation"
+            exit
+        else
             transeq -sequence haplo2/08_best_run/"$haplotype2".spliced_cds.fa \
-                -outseq haplo2/08_best_run/"$haplotype2"_prot.final.clean.fa
-    
-            #if [ -z "$ancestral_genome" ] ; then
-            #    echo "no ancestral species"
-            #    #leave the variable empty
-            #    #do nothing 
-            #else [ -n "$ancestral_genome" ] ; then
-            #    echo "ancestral species existant"
-            #fi
+                    -outseq haplo2/08_best_run/"$haplotype2"_prot.final.clean.fa
+        fi 
+        
+        #if [ -z "$ancestral_genome" ] ; then
+        #    echo "no ancestral species"
+        #    #leave the variable empty
+        #    #do nothing 
+        #else [ -n "$ancestral_genome" ] ; then
+        #    echo "ancestral species existant"
+        #fi
     fi
 fi
 

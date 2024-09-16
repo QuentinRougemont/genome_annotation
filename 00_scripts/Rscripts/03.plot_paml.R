@@ -126,7 +126,7 @@ df <- all %>% filter(Ds < 0.3) %>% select(order, Ds)
 
 #export the df for model comparison on the cluster:
 write.table(df, "dS.values.forchanepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
-
+print("dSvaluesforchangepoint analyses have been exported")
 ## ------------------ GGPLOT  CUSTOMISATION ------------------------------------------------##
 th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
   axis.text.x=element_text(size=14,family="Helvetica",face="bold", angle=90, hjust=0, vjust=0.5),
@@ -140,6 +140,8 @@ th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face=
 
 mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
 
+print("making plot along the genome")
+print('--------------------------------')
 
 Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1.01) %>%
@@ -168,6 +170,8 @@ Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
 
 #to do: add a trim Y-axis to display high Ds genes
 
+print('making plot along the gene order')
+print('--------------------------------')
 Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1) %>%
   ggplot(., aes(x = order, y = Ds, colour = scaff)) +
@@ -187,8 +191,8 @@ plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
 
-print("-------------------------------------------------------")
-print("------- constructing graph with gene order-------------")
+print("------------------------------------------------------------")
+print("- constructing graph with gene order and ancestral species -")
 
 #only if we have an ancestral reference, otherwise it is a bit meaningless
 
@@ -240,4 +244,5 @@ if(length(argv)==4){
 	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
 	dev.off()
 }
+print("---------------computations done------------------------")
 

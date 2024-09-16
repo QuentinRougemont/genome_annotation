@@ -243,8 +243,8 @@ while IFS=$'\t' read -r -a line
 do
     mkdir sequence_files/tmp."${line[0]}".vs."${line[1]}"
     
-    grep -A1 "${line[0]}"  "$newf1" > sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta
-    grep -A1 "${line[1]}"  "$newf2" >> sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta
+    grep -w -A1 "${line[0]}"  "$newf1" > sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta
+    grep -w -A1 "${line[1]}"  "$newf2" >> sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta
     
     #run muscle from within translatorX, so we also have gblocks output and the html files:
     translatorx_vLocal.pl -i sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta \

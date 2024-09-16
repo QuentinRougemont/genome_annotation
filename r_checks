@@ -1,0 +1,49 @@
+
+if("BiocManager" %in% rownames(installed.packages()) == FALSE)            
+{install.packages("BiocManager", repos="https://cloud.r-project.org") }   
+
+BiocManager::install("Biostrings")
+
+if("devtools" %in% rownames(installed.packages()) == FALSE)
+{install.packages("devtools", repos="https://cloud.r-project.org") }
+
+
+if("dplyr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("dplyr", repos="https://cloud.r-project.org") }
+if("ggplot2" %in% rownames(installed.packages()) == FALSE)
+{install.packages("ggplot2", repos="https://cloud.r-project.org") }
+if("magrittr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("magrittr", repos="https://cloud.r-project.org") }
+if("cowplot" %in% rownames(installed.packages()) == FALSE)
+{install.packages("cowplot", repos="https://cloud.r-project.org") }
+if("wesanderson" %in% rownames(installed.packages()) == FALSE)
+{install.packages("wesanderson", repos="https://cloud.r-project.org") }
+if("viridis" %in% rownames(installed.packages()) == FALSE)
+{install.packages("viridis", repos="https://cloud.r-project.org") }
+if("ggrepel" %in% rownames(installed.packages()) == FALSE)
+{install.packages("ggrepel", repos="https://cloud.r-project.org") }
+{install.packages("dplyr", repos="https://cloud.r-project.org") }
+if("RIdeogram" %in% rownames(installed.packages()) == FALSE)
+{install.packages("RIdeogram", repos="https://cloud.r-project.org") }
+if("data.table" %in% rownames(installed.packages()) == FALSE)
+{install.packages("data.table", repos="https://cloud.r-project.org") }
+
+packages <- c('circlize','dplyr','tidyr','wesanderson')
+#install.packages(setdiff(packages, rownames(installed.packages())))
+install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
+invisible(lapply(packages, library, character.only = TRUE))
+
+# perform the usual verifications :
+if("mcp" %in% rownames(installed.packages()) == FALSE)
+{install.packages("mcp", repos="https://cloud.r-project.org") }
+
+
+if("pafr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("pafr", repos="https://cloud.r-project.org") }
+if("ggpubr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("ggpubr", repos="https://cloud.r-project.org") }
+if("knitr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("knitr", repos="https://cloud.r-project.org") }
+if('ggforce' %in% rownames(installed.packages()) == FALSE)
+{install.packages('ggforce', repos='https://cloud.r-project.org') }
+
