@@ -48,13 +48,17 @@ git clone https://github.com/QuentinRougemont/genome_annotation
 
 then run the following:
 ```sh
-mamba env create annotation.yml  
+cd genome_annotation 
+mamba env create -f annotation_env.yml   
+
+#to install to a specific directory:
+#use mamba env create -p your_path/ -f annotation_env.yml 
 
 #for busco:
-mamba env create busco_env.yml
+mamba env create -f busco_env.yml
 
 #for repeatmodeller:
-mamba env repeatmodeler.yml
+mamba env create -f repeatmodeler.yml
 
 #and for non-conda dependencies:
 bash ./dependencies.sh
