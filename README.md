@@ -81,7 +81,13 @@ all PATH to the new softwares should be in your .bashrc
 
 below are attempts to install braker and a number of compulsory dependencies in a more or less automated fashion:
 
-## BRAKER 
+first activate the braker_environnment above to get basic dependencies 
+
+```
+conda activate superannot
+```
+
+### BRAKER 
 
 ```
 command='braker.pl'
@@ -98,7 +104,7 @@ then
 fi
 ```
 
-## Protint 
+### ProtHint 
 
 ```
 command='prothint.py'
@@ -117,7 +123,7 @@ then
 fi
 ```
 
-## Diamond
+###  Diamond
 
 ```
 command='diamond'
@@ -136,7 +142,7 @@ then
 fi
 ```
 
-## cdbfasta
+###  Cdbfasta
 
 ```
 command='cdbfasta'
@@ -153,15 +159,12 @@ then
         echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$cdbpath" >> ~/.bashrc 
         echo -e "\nexport PATH=\$PATH:$cdbpath" >> ~/.bashrc
         source ~/.bashrc  
-	cd ../
-    else
-        echo -e "\n#ERROR : Installation failed please check everything"  
-	exit 1
+	    cd ../
     fi
 fi
 ```
 
-##  bamtools
+###  bamtools
 
 ```
 command='bamtools'
@@ -183,7 +186,7 @@ then
 	cd $(find . -name "include" )
 	bt_inc=$(pwd)
 	cd ../../
-	cd $(find . -name "lib*" |head -n 1 )
+	cd $(find . -name "lib*" |head -n 1 ) #can be lib/lib64
 	bt_lib=$(pwd)
 
 	cd ../src
@@ -197,9 +200,19 @@ then
        exit 1
     fi
 fi
+
 ```
 
-## htslib 
+note1: bamtools path need to be stored and declared in the common.mk file for augustus.  
+
+This is what I attempt to do in the above two variable **$bt_inc** and **$bc_lib**   
+
+Depending on your cluster this may fail...  
+
+note2: many other dependencies may be required for you to have bamtools to run properly.  
+in case of bug see details [here](https://github.com/pezmaster31/bamtools/wiki) 
+
+### htslib 
 
 ```
 command='htsfile'
@@ -219,13 +232,12 @@ then
 
     cd ../
 else
-    #note: should be installed from braker_env (through minimap2)
     htcmd=$(command -v "$command")
     htpath=$(echo $htcmd |sed 's/bin\/htsfile/include\/htslib/')
 fi
 ```
 
-## Augustus
+### Augustus
 
 ```
 command='augustus'
@@ -277,12 +289,11 @@ then
     else
 	    echo "installation of augustus failed, look at the logs ! "
 	    echo "see details here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md"
-	    exit 1
     fi
 fi
 ```
 
-## genemark 
+### genemark 
 
 ```
 command="gms2hints.pl" 
@@ -302,7 +313,7 @@ fi
 ```
 
 
-## TSEBRA available [here](https://github.com/Gaius-Augustus/TSEBRA)
+### TSEBRA available [here](https://github.com/Gaius-Augustus/TSEBRA)
 
 ```
 ## direct install: 
@@ -322,7 +333,7 @@ if ! command -v $command &> /dev/null
 fi 
 ```
 
-## GSNAP for read mappig available [here](http://research-pub.gene.com/gmap/)
+### GSNAP for read mappig available [here](http://research-pub.gene.com/gmap/)
 
 ```
 #direct install :
@@ -345,10 +356,6 @@ if ! command -v $command &> /dev/null
         echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
         source ~/.bashrc  
         cd ../../
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
 fi
 ```
 
@@ -370,11 +377,6 @@ if ! command -v $command &> /dev/null
         echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
         source ~/.bashrc  
         cd ../
-
-    else
-       echo installation failed\nmake sur to have git, make and gclib
-       exit 1
-    fi
 fi
 ```
 
@@ -400,7 +402,6 @@ then
     echo -e "\n#Path to diamond\n export PATH=\$PATH:$path" >> ~/.bashrc 
     source ~/.bashrc  
     cd ../../
-    #exit 1
 fi
 ```
 
@@ -423,7 +424,6 @@ then
 
     else
        echo installation failed\nmake sur to have make and git
-       exit 1
     fi
 fi
 ```
