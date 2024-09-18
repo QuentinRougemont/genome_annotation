@@ -59,7 +59,7 @@ fi
 if file --mime-type "$TEdatabase" | grep -q gzip$; then
    echo "$TEdatabase is gzipped"
    gunzip "$TEdatabase"
-   database=${database%.gz}
+   TEdatabase=${TEdatabase%.gz}
 else
    echo "$TEdatabase is not gzipped"
    TEdatabase=$TEdatabase

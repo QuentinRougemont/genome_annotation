@@ -123,7 +123,7 @@ fi
 
 # -- htslib --
 #it is already install through mamba
-ommand='htsfile'
+command='htsfile'
 if ! command -v $command &> /dev/null
 then
     echo "$command could not be found"

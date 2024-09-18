@@ -74,7 +74,7 @@ mkdir 08_best_run/02_haplo_prot 2>/dev/null
 echo -e  "\n-----------------------------------------------------------------"
 echo -e "\nfinding best run \n" 
 echo -e  "-----------------------------------------------------------------\n"
-
+source ../config/config
 cd 06_braker
 
 #there is a bit of variance between braker run train on a protein database,
@@ -90,6 +90,8 @@ best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.sp
 #LC_ALL=C sort  -k11 -k3 -n -k5 -k7 -k9  |tail -n 1 |cut -d "/" -f 1 ) 
 
 echo -e "best_round is $best_round\n------------------------------------------"
+
+
 
 cd ../
 
@@ -225,9 +227,24 @@ awk '$0~/^>/{if(NR>1){
     print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' \
         "$haplo".prot > "$haplo".prot.lin.fasta
 
-grep -A1 -Ff longest.transcript.tmp "$haplo".prot.lin.fasta > \
+
+#create a list of wanted busco:
+echo busco_lineage are $busco_lineage # from config file
+
+table=../../"$best_round"/busco_augustus/run_"$busco_lineage"/full_table.tsv
+#recover some busco gene that are lost based on gene length:
+awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table" \
+    | grep -Ff longest.transcript.tmp - \
+    | grep -vf - <(awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table") \
+    | grep "Complete" \
+    | awk '{print $3}' \
+    | cat longest.transcript.tmp > all.transcripts
+
+grep -A1 -Ff all.transcripts "$haplo".prot.lin.fasta > \
     "$haplo".longest_transcript.fa
+
 rm longest.transcript.tmp
+
 cd ../../
 
 #~~~~~~~~~ step 6 : cleaning the GTF based on non-overlapping transcript ~~~~~~~"
