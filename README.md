@@ -161,7 +161,7 @@ then
 fi
 ```
 
-## bamtools
+##  bamtools
 
 ```
 command='bamtools'
@@ -199,7 +199,7 @@ then
 fi
 ```
 
-# -- htslib --
+## htslib 
 
 ```
 command='htsfile'
