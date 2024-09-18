@@ -46,7 +46,7 @@ To get the workflow on your device:
 git clone https://github.com/QuentinRougemont/genome_annotation
 ```
 
-then run the following:
+then create the following environnement:
 ```sh
 cd genome_annotation 
 mamba env create -f annotation_env.yml   
@@ -60,13 +60,431 @@ mamba env create -f busco_env.yml
 #for repeatmodeller:
 mamba env create -f repeatmodeler.yml
 
-#and for non-conda dependencies:
-bash ./dependencies.sh
+#Note: I often observed bugs when installing all the software above in a single environnement
+
+```
+if you prefer, you can install all dependencies one by one, this takes more time but may help solving bugs. See [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies.
+
+
+### Non-conda dependencies
+
+a number of software are not on conda (or not up-to-date) and need to be installed manually
+
+here is an exemple procedure : 
+
+```bash
+#create a software folder to store all new softs:
+mkdir ~/softs ; cd ~/softs #create softs in your home or somewhere that won't be moved
 ```
 
-### Manual installation of each software separately:
+all PATH to the new softwares should be in your .bashrc
 
-if you prefer, you can install all dependencies one by one, this takes more time but may help solving bugs. See [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies.
+below are attempts to install braker and a number of compulsory dependencies in a more or less automated fashion:
+
+## BRAKER 
+
+```
+command='braker.pl'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    git clone https://github.com/Gaius-Augustus/BRAKER
+    cd BRAKER/scripts 
+    chmod a+x *.pl *.py
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    cd ../../
+fi
+```
+
+## Protint 
+
+```
+command='prothint.py'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    wget https://github.com/gatech-genemark/ProtHint/releases/download/v2.6.0/ProtHint-2.6.0.tar.gz 
+    tar zxvf ProtHint-2.6.0.tar.gz
+    cd ProtHint-2.6.0/bin 
+    #then add to ~/.bashrc
+    protpath=$(pwd)
+    echo -e "\n#Path to $command\nexport PROTHINT_PATH=:$protpath" >> ~/.bashrc 
+    echo -e "\nexport PATH=\$PATH:$protpath" >> ~/.bashrc
+    source ~/.bashrc  
+    cd ../../
+fi
+```
+
+## Diamond
+
+```
+command='diamond'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    mkdir diamond ; cd diamond
+    wget https://github.com/bbuchfink/diamond/releases/download/v2.1.1/diamond-linux64.tar.gz
+    tar zxvf diamond-linux64.tar.gz
+    #then add to ~/.bashrc
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    cd ../ 
+
+fi
+```
+
+## cdbfasta
+
+```
+command='cdbfasta'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    #direct install: 
+    git clone https://github.com/gpertea/cdbfasta.git
+    cd cdbfasta
+    make all 
+    if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+        cdbpath=$(pwd)
+        echo -e "\n#Path to $command\nexport CDBTOOLS_PATH=$cdbpath" >> ~/.bashrc 
+        echo -e "\nexport PATH=\$PATH:$cdbpath" >> ~/.bashrc
+        source ~/.bashrc  
+	cd ../
+    else
+        echo -e "\n#ERROR : Installation failed please check everything"  
+	exit 1
+    fi
+fi
+```
+
+## bamtools
+
+```
+command='bamtools'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    #direct install: 
+    #bamtools : https://github.com/pezmaster31/bamtools
+    git clone https://github.com/pezmaster31/bamtools
+    cd bamtools
+    mkdir build
+    cd build
+    path=$(pwd)
+    cmake -DCMAKE_INSTALL_PREFIX=$(pwd) ..
+    make -j8 
+    make install
+    if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+	cd $(find . -name "include" )
+	bt_inc=$(pwd)
+	cd ../../
+	cd $(find . -name "lib*" |head -n 1 )
+	bt_lib=$(pwd)
+
+	cd ../src
+	#$(find . -name "bamtools" )
+        path=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../../../
+    else
+       echo installation failed\nmake sur to have git, make and cmake
+       exit 1
+    fi
+fi
+```
+
+# -- htslib --
+
+```
+command='htsfile'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    #download the latest htslib to recover the path for Augustus::
+    wget https://github.com/samtools/htslib/releases/download/1.18/htslib-1.18.tar.bz2
+    bzip2 -d htslib-1.18.tar.bz2
+    tar xf htslib-1.18.tar
+    cd htslib-1.18/
+
+    ./configure --prefix=$(pwd)
+    make
+    make install
+    htpath=$(pwd)
+
+    cd ../
+else
+    #note: should be installed from braker_env (through minimap2)
+    htcmd=$(command -v "$command")
+    htpath=$(echo $htcmd |sed 's/bin\/htsfile/include\/htslib/')
+fi
+```
+
+## Augustus
+
+```
+command='augustus'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will attempt a manual install" 
+    echo "you may encounter several error and have to comment/uncomment or change path in "common.mk" especially without root privilege"
+    git clone https://github.com/Gaius-Augustus/Augustus.git
+    cd Augustus
+    sed -i.bkp 's/COMPGENEPRED = true/COMPGENEPRED = false/g' common.mk
+    sed -i 's/ZIPINPUT = true/ZIPINPUT = false\nBOOST = false/g' common.mk
+    #bt=$(command -v bamtools)
+    sed -i 's/#INCLUDE_PATH_BAMTOOLS/INCLUDE_PATH_BAMTOOLS/g' common.mk
+    sed -i 's/#LIBRARY_PATH_BAMTOOLS/LIBRARY_PATH_BAMTOOLS/g' common.mk
+    sed -i 's/#INCLUDE_PATH_HTSLIB/INCLUDE_PATH_HTSLIB/g' common.mk
+    sed -i 's/#LIBRARY_PATH_HTSLIB/LIBRARY_PATH_HTSLIB/g' common.mk
+    sed -i 's|usr/include/bamtools|baminclude|g' common.mk
+    sed -i "s#baminclude#$bt_inc/bamtools#" common.mk
+    sed -i "33s#usr/lib/x86_64-linux-gnu#$bt_lib#g" common.mk
+
+    #same with HTSLIB:
+    #sed -i "s#usr/include/htslib#$htpath/include/htslib#g" common.mk
+    sed -i "s#usr/include/htslib#$htpath#g" common.mk
+
+    n=$(grep -n "LIBRARY_PATH_HTSLIB" common.mk |awk -F":" '{print $1}' )
+    sed -i  "${n}s#usr/lib/x86_64-linux-gnu#$htpath/lib#g" common.mk
+    #attempt to make augustus:
+    make augustus
+    #if all was succesffull: ""
+    if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+        augustuspath=$(pwd)
+	echo -e "#path to AUGUSTUS:" >> ~/.bashrc 
+        echo -e "export AUGUSTUS_CONFIG_PATH=$augustuspath/config " >> ~/.bashrc
+        echo -e "export AUGUSTUS_BIN_PATH=$augustuspath/bin/ " >> ~/.bashrc
+	echo -e "export PATH=\$PATH:$augustuspath/bin" >> ~/.bashrc
+        echo -e "export AUGUSTUS_SCRIPTS_PATH=/$augustuspath/augustus_scripts " >> ~/.bashrc
+	source ~/.bashrc
+	cd ./auxprogs/joingenes
+	make -j8
+        cd ../bam2hints
+	make
+	cd ../bam2wig
+	make
+	cd ../filterBam
+	make
+	cd ../../../
+    else
+	    echo "installation of augustus failed, look at the logs ! "
+	    echo "see details here: https://github.com/Gaius-Augustus/Augustus/blob/master/docs/INSTALL.md"
+	    exit 1
+    fi
+fi
+```
+
+## genemark 
+
+```
+command="gms2hints.pl" 
+if ! command -v $command &> /dev/null
+    then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    git clone https://github.com/gatech-genemark/GeneMark-ETP/
+    cd GeneMark-ETP/
+    cd bin/gmes
+    gmarkpath=$(pwd)
+    echo -e "export GENEMARK_PATH=$gmarkpath/ " >> ~/.bashrc
+    echo -e "\nexport PATH=\$PATH:$gmarkpath" >> ~/.bashrc
+    source ~/.bashrc  
+    cd ../../../ 
+fi
+```
+
+
+## TSEBRA available [here](https://github.com/Gaius-Augustus/TSEBRA)
+
+```
+## direct install: 
+command='tsebra.py'
+if ! command -v $command &> /dev/null
+    then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    git clone https://github.com/Gaius-Augustus/TSEBRA 
+    cd TSEBRA/bin
+    tsebrapath=$(pwd)
+    echo -e "\n#Path to $command\nexport TSEBRA_PATH=$tsebrapath" >> ~/.bashrc 
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$tsebrapath" >> ~/.bashrc 
+
+    source ~/.bashrc  
+    cd ../../
+fi 
+```
+
+## GSNAP for read mappig available [here](http://research-pub.gene.com/gmap/)
+
+```
+#direct install :
+command='gsnap'
+if ! command -v $command &> /dev/null
+    then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    wget http://research-pub.gene.com/gmap/src/gmap-gsnap-2023-10-10.v2.tar.gz
+    tar zxf gmap-gsnap-2023-10-10.v2.tar.gz
+    cd gmap-2023-10-10/
+    path=$(pwd)
+    ./configure --prefix=$path  
+    make -j8
+    make install
+    if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+	cd bin/
+        path=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../../
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
+fi
+```
+
+## gffread  to extract CDS from fasta [see](http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread)
+
+```
+command='gffread'
+if ! command -v $command &> /dev/null
+    then
+    echo "$command could not be found"
+    echo "will try a manual installation through git"
+    git clone https://github.com/gpertea/gffread
+    cd gffread
+    make release
+    #if command was successfull then add to path:
+    if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+        path=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../
+
+    else
+       echo installation failed\nmake sur to have git, make and gclib
+       exit 1
+    fi
+fi
+```
+
+## OrthoFinder
+
+```
+command='orthofinder'
+if ! command -v $command &> /dev/null
+then
+    echo "$command could not be found"
+    echo "will try a manual installation through wget"
+    wget https://github.com/davidemms/OrthoFinder/releases/download/2.5.5/OrthoFinder.tar.gz
+    tar zxf OrthoFinder.tar.gz
+    cd OrthoFinder
+    #if command was successfull then add to path:
+    path=$(pwd)
+    echo -e "\n#Path to $command\nexport PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    
+    #also add diamond, fastme and mcl which are present within orthofinder:
+    cd bin/
+    path=$(pwd)
+    echo -e "\n#Path to diamond\n export PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    cd ../../
+    #exit 1
+fi
+```
+
+## MCScanX : 
+
+```
+command='MCScanX'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   git clone https://github.com/wyp1125/MCScanX
+   cd MCScanX ; make -j 8
+   #if command was successfull then add to path:
+   if [ $? -eq 0 ]; then
+        echo $command installation worked successfully
+	MCScanpath=$(pwd)
+        echo -e "\n#Path to $command\nexport PATH=\$PATH:$MCScanpath" >> ~/.bashrc 
+        source ~/.bashrc  
+        cd ../
+
+    else
+       echo installation failed\nmake sur to have make and git
+       exit 1
+    fi
+fi
+```
+
+## muscle
+ 
+```
+command='muscle'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   mkdir muscle ; cd muscle
+   #wget https://github.com/rcedgar/muscle/releases/download/5.1.0/muscle5.1.linux_intel64
+   #ln -s muscle5.1.linux_intel64 muscle
+   #if using muscle5 then modify the -in option into -align in the perl code of translocator
+   wget https://drive5.com/muscle/downloads3.8.31/muscle3.8.31_i86linux64.tar.gz
+   tar zxf muscle3.8.31_i86linux64.tar.gz
+   ln -s muscle3.8.31_i86linux64 muscle
+   chmod +x muscle
+   path=$(pwd)
+   echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
+   source ~/.bashrc  
+   cd ../
+fi
+```
+
+##  yn00/paml 
+
+```
+command='yn00'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+   wget https://github.com/abacus-gene/paml/releases/download/4.10.7/paml-4.10.7-linux-X86_64.tgz
+   tar zxvf paml-4.10.7-linux-X86_64.tgz
+   cd paml-4.10.7/bin
+   path=$(pwd)
+   echo -e "\n#Path to $command\n export PATH=\$PATH:$path" >> ~/.bashrc 
+   source ~/.bashrc  
+   cd ../../
+fi
+```
+
+
+## translatorx_vLocal.pl 
+
+```
+command='translatorx_vLocal.pl'
+if ! command -v $command &> /dev/null
+then
+   #direct install: 
+    mkdir translatorx ; cd translatorx
+    wget http://161.111.160.230/cgi-bin/translatorx_vLocal.pl
+    chmod +x translatorx_vLocal.pl
+    path=$(pwd)
+    echo -e "\n#Path to translatorx\n export PATH=\$PATH:$path" >> ~/.bashrc 
+    source ~/.bashrc  
+    cd ../
+fi
+```
+
 
 # Launching the whole workflow
 
