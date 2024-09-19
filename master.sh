@@ -1378,12 +1378,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1405,12 +1405,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1433,12 +1433,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1460,12 +1460,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1498,12 +1498,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1529,12 +1529,12 @@ if [ "$option" = 6 ]; then
                 -f YES \
                 -b "$bamlist1" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1568,12 +1568,12 @@ if [ "$option" = 6 ]; then
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1598,12 +1598,12 @@ if [ "$option" = 6 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
             then
                 echo "error some steps have failed for haplo1" 
                 echo "please check the logs" 
                 exit 1
             fi
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    

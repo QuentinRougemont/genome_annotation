@@ -157,7 +157,7 @@ else
     file=08_best_run/$haplo.tmp.gtf
     
     nb_genes=$(awk '$3=="gene" ' "$file" |wc -l)
-        echo -e "\nthere is $nb_genes gene in the best protein run\n"
+        echo -e "\nthere is $nb_genes genes in the best protein run\n"
 fi
 
 #--------------------------- step 3 ----------------------------------------#
@@ -220,7 +220,7 @@ awk '/^>/ {if (seqlen){print seqlen};
     { seqlen += length($0)}END{print seqlen}' "${haplo}".prot |\
     awk -F ".t[0-9]_1 " '{print $1"\t"$0}'  |\
     awk '$4>max[$1]{max[$1]=$4; row[$1]=$2} END{for (i in row) print row[i]}' \
-        > longest.transcript
+        > longest.transcript.tmp
 
 #linearize file so that the next command will work:
 awk '$0~/^>/{if(NR>1){
@@ -233,15 +233,36 @@ echo busco_lineage are $busco_lineage # from config file
 
 table=../../06_braker/"$best_round"/busco_augustus/run_"$busco_lineage"/full_table.tsv
 #recover some busco gene that are lost based on gene length:
+
 awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table" \
-    | grep -Ff longest.transcript.tmp - \
+	| grep -Ff <(cut -d "_" -f3 longest.transcript.tmp) - \
     | grep -vf - <(awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table") \
     | grep "Complete" \
     | awk '{print $3}' \
-    | cat longest.transcript - > all.transcripts
+    | cat longest.transcript.tmp - > all.transcripts
 
 grep -A1 -Ff all.transcripts "$haplo".prot.lin.fasta > \
     "$haplo".longest_transcript.fa
+
+source ../../../config/config
+
+eval "$(conda shell.bash hook)"
+conda activate busco571
+busco -c8 -o busco_check -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  
+
+#now we add the dup:
+
+grep -Ff busco_check/run_"$busco_lineage"/missing_busco_list.tsv "$table" \
+	|grep -v "Missing\|#" \
+	|cut -f3 \
+	|grep -Ff - "$haplo".prot.lin.fasta \
+	|awk '{gsub(/^>/,""); print $1}' \
+	| cat - all.transcripts > all.transcripts2
+
+grep -A1 -Ff all.transcripts2 "$haplo".prot.lin.fasta > \
+    "$haplo".longest_transcript.fa
+
+busco -c8 -o busco_check2 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  
 
 cd ../../
 
