@@ -229,8 +229,6 @@ if [[ -n "${ancestral_genome}" ]] ; then
 
 fi
 
-#download uniprot for later checks
-#./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
 
 if [[ $interpro = "YES" ]]
 then
@@ -262,14 +260,15 @@ if [ "$option" == 1 ]; then
 
     opt="synteny_and_Ds"
 
+    #download uniprot for later checks
+    ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
+
     #if both species are provided without RNAseq:
     if [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -z "$ancestral_genome" ]  ; then
         echo "we will perform TE detection - genome annotation - Ds computation and plots"
         echo "genome are $genome1 and $genome2 "
         opt="synteny_and_Ds"
        
-        #download uniprot for later checks
-        ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
     
         cd haplo1 || exit 1
         #partie en erreur à débuguer:
@@ -1361,6 +1360,8 @@ if [ "$option" = 6 ]; then
     echo "              checking config files settings                    "
     echo "----------------------------------------------------------------"
 
+    #download uniprot for later checks
+    ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
 
     # option = 6 - only genome 1 - No RNAseq : 
     if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -z "$ancestral_genome" ] ; then
