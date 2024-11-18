@@ -104,29 +104,49 @@ Ds_table <- merge(dat, single_cp, by.x = "geneX", by.y = "geneX")
 
 #merge with the coordinate of the reference sequence (either Sp1 or ancestral species):
 if (length(argv)==3) {
-	Ds_table <- merge(Ds_table, bedSp1,    by.x = "geneX", by.y = "gene") 
+    Ds_table <- merge(Ds_table, bedSp1,    by.x = "geneX", by.y = "gene") 
 } else {
-	Ds_table <- merge(Ds_table, bedAnc,    by.x = "gene", by.y = "gene") 
+    Ds_table <- merge(Ds_table, bedAnc,    by.x = "gene", by.y = "gene") 
 
 }
 
 #now we must: 
-	#1 - reorder according to the scaffold orientation
-	#2 - create an incremenantial gene order accordingly:
-all <- merge(Ds_table, scaf, by.x = "scaff", by.y = "chr") %>%
-	group_by(scaff) %>%
-	mutate(St = ifelse(order == "N", start, rev(start) )) %>% 
-	arrange(St, .by_group = TRUE) %>%
-	ungroup() %>%
-	mutate(order = seq(1:nrow(.)))
-
+    #1 - reorder according to the scaffold orientation
+    #2 - create an incremenantial gene order accordingly:
+if (exists(sp3) {
+    #assuming ancestral species was provided
+    all <- merge(bedAnc, scaf, by.x = "scaff", by.y = "chr") %>%
+        left_join(., Ds_table, by=join_by(gene == gene) ) %>%
+        arrange(scaff, start) %>%
+        group_by(scaff) %>%
+        mutate(St = ifelse(order == "N", start, rev(start) )) %>% 
+        arrange(St, .by_group = TRUE) %>%
+        ungroup() %>%
+        mutate(orderchp = seq(1:nrow(.)))
+}
+else {
+    #assuming non ancestral species 
+    #plotting along the X:
+    all <- merge(bedSp1, scaf, by.x = "scaff", by.y = "chr") %>%
+        left_join(., Ds_table, by=join_by(gene == gene) ) %>%
+        arrange(scaff, start) %>%
+        group_by(scaff) %>%
+        mutate(St = ifelse(order == "N", start, rev(start) )) %>% 
+        arrange(St, .by_group = TRUE) %>%
+        ungroup() %>%
+        mutate(orderchp = seq(1:nrow(.)))
+}
 
 #Ds values above 0.3 will be considered as pseudo-genes for the changepoint analyses. 
-df <- all %>% filter(Ds < 0.3) %>% select(order, Ds)
+#df <- all %>% filter(Ds < 0.3) %>% select(order, Ds)
+df <- all %>% 
+    filter(Ds < 0.3) %>% 
+    select(scaff, start, order, orderchp, St, Ds) %>%
+    na.omit()
 
 #export the df for model comparison on the cluster:
 write.table(df, "dS.values.forchanepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
-print("dSvaluesforchangepoint analyses have been exported")
+
 ## ------------------ GGPLOT  CUSTOMISATION ------------------------------------------------##
 th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
   axis.text.x=element_text(size=14,family="Helvetica",face="bold", angle=90, hjust=0, vjust=0.5),
@@ -140,8 +160,6 @@ th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face=
 
 mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
 
-print("making plot along the genome")
-print('--------------------------------')
 
 Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1.01) %>%
@@ -170,8 +188,6 @@ Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
 
 #to do: add a trim Y-axis to display high Ds genes
 
-print('making plot along the gene order')
-print('--------------------------------')
 Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1) %>%
   ggplot(., aes(x = order, y = Ds, colour = scaff)) +
@@ -191,8 +207,8 @@ plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
 
-print("------------------------------------------------------------")
-print("- constructing graph with gene order and ancestral species -")
+print("-------------------------------------------------------")
+print("------- constructing graph with gene order-------------")
 
 #only if we have an ancestral reference, otherwise it is a bit meaningless
 
@@ -244,5 +260,4 @@ if(length(argv)==4){
 	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
 	dev.off()
 }
-print("---------------computations done------------------------")
 

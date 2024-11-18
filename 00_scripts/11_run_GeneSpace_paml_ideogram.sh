@@ -226,7 +226,8 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
         > aln."$haplo1"_"$haplo2".paf || \
         { echo -e "${RED} ERROR! minimap2 faield - check your data\n${NC} " ; exit 1 ; }
 
-
+    
+    #/!\ to do: replace by the simple NO.file!
     if [ -n "${ancestral_genome}" ]; then
         #ancestral genome exist
         ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
@@ -450,34 +451,91 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         is_anc='FALSE'
     fi
     
-    path_orthofinder='genespace/orthofinder/Results_*/'
-    path_bed='genespace/bed/'
+    #path_orthofinder='genespace/orthofinder/Results_*/'
+    #path_bed='genespace/bed/'
+    #python3 00_scripts/utility_scripts/02.Make_synteny_table.py "${haplo1}" "${haplo2}" \
+    #    "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
     
-    #to do: fixed the below script
-    python3 00_scripts/utility_scripts/02.Make_synteny_table.py "${haplo1}" "${haplo2}" \
-        "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
+   
+    pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
+    
+    #to be defined as a parameter /!\
+    ancestral="Mlag129A1"     
+    #to be defined as a parameter /!\
+
+    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' "$pathN0" \
+        | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
+    
+    sed -i -e "s/\r//g" orthologues
     
     
+    join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
+                    <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
+        | sed 's/ /\t/g' \
+        | join -1 5 -2 4 <(sort -k5,5 -) \
+                       <(sort -k4,4 genespace/bed/"$haplo1".bed )  \
+        |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+        > synteny_ancestral_sp_"$haplo1".txt
+    
+    
+    join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
+            <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
+            | sed 's/ /\t/g' \
+            |join -1 6 -2 4 <(sort -k6,6 -) \
+                            <(sort -k4,4 genespace/bed/"$haplo2".bed ) \
+            |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+            >  synteny_ancestral_sp_"$haplo2".txt
+    
+    
+    join  -1 4 -2 4 <(sort -k4,4 orthologues)  \
+                    <(sort -k4,4 genespace/bed/"$haplo1".bed ) \
+        | sed 's/ /\t/g' \
+        | join -1 5 -2 4 <(sort -k5,5 -) \
+                       <(sort -k4,4 genespace/bed/"$haplo2".bed )  \
+        |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+        > synteny_"$haplo1"_"$haplo2".txt
+
     # ---------------------------------- step6 -- create circos plot --------------------------------
     #to do: entierely rewrite the Rscripts below 
     #circos plot here:
-    #if [ ! -z "${ancestral_genome}" ] ; then
-    #    echo "ancestral genome was provided" 
-    #    Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$ancestrap_sp" "$scaffolds" "$genes_plot"
-    #    Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo2" "$ancestrap_sp" "$scaffolds" "$genes_plot"
-    #else
-    #    echo "no ancestral genome" 
-    #    Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1"  "$scaffolds" "$genes_plot"
-    #    Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo2"  "$scaffolds" "$genes_plot"
-    #fi
+    if [ ! -z "${ancestral_genome}" ] ; then
+        echo "ancestral genome was provided" 
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral_sp" "$haplo1" \
+            chromosomes.txt \
+            synteny_ancestral_sp_"$haplo1".txt \
+            "${ancestral_genome}".fai  \
+            haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
+
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral_sp" "$haplo2" \
+            chromosomes.txt \
+            synteny_ancestral_sp_"$haplo2".txt \
+            "${ancestral_genome}".fai  \
+            haplo2/03_genome/"$haplo2".fa.fai #"$genes_plot"
+
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
+            chromosomes.txt synteny_"$haplo1"_"$haplo2".txt  \
+            haplo1/"$haplo1".fa.fai \
+            haplo2/"$haplo2".fa.fai \
+            haplo2 #"$genes_plot"
+    else
+        echo "no ancestral genome" 
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
+            chromosomes.txt synteny_"$haplo1"_"$haplo2".txt  \
+            haplo1/"$haplo1".fa.fai \
+            haplo2/"$haplo2".fa.fai \
+            haplo2 #"$genes_plot"
+    fi
     #
-    #if [ $? -eq 0 ]; then
-    #    echo -e  "\n${BLU}------------------\ncircos plot worked successfully------------------${NC}\n"
-    #else
-    #    echo -e "\n${RED}-------------------\nERROR: circos plots failed /!\ \n
-    #    PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
-    #    exit 1
-    #fi
+    if [ $? -eq 0 ]; then
+        echo -e  "\n${BLU}------------------\ncircos plot worked successfully------------------${NC}\n"
+    else
+        echo -e "\n${RED}-------------------\nERROR: circos plots failed /!\ \n
+        PLEASE CHECK PACKAGES AND INTPUT DATA------------------${NC}\n"
+        exit 1
+    fi
     #
     ##---------------------------------- step7 -- run minimap between the genomes -----------------------------#
     #run minimap on the genome 

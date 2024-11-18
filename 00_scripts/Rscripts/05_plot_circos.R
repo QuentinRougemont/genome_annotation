@@ -2,7 +2,8 @@
 
 #Purpose:  Script to plot circos graphs representing synteny between a focus haplotype and its inferred reference state
 #Author: LB
-#Date: 28-11-23
+#Modified: QR
+#Date: 28-11-23 - 12-11-24
 
 #INPUT: 
 # 1 - Table of scaffolds of interest (i.e. scaffolds belonging to sex chromosomes) for the haplotype and the reference.
@@ -17,45 +18,62 @@
 ####-------------------------- INITIALISATION ------------------------------####
 
 #------------- check that libraries are installed and load them ---------------#
-packages <- c('circlize','dplyr','tidyr','wesanderson')
+packages <- c('circlize','dplyr','tidyr','wesanderson','magrittr')
 #install.packages(setdiff(packages, rownames(installed.packages())))
 install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 invisible(lapply(packages, library, character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
-args <- commandArgs(T)
-
-# test if there are at least 3 arguments: if not, return an error
-if (length(args) < 3) {
-  stop("At least the name of 2 species and a list of focus scaffolds must be supplied", call.=FALSE)
-} else if (length(args)==3) {
-  print("assuming no particular gene to be highlighted")
-} else {
-  print("Genes of interest will be displayed in colors")
-  data_genes=read.table(args[4], as.is=T, sep='\t')
-  # test that bed file has 4 columns
-  if (ncol(data_genes)<4) {
-    stop("Missing one or more columns in BED files. Expected: chr, start, end, state", call.=FALSE)
-  }
-}
-
-# enter variables
+#args <- commandArgs(T)
+#
+## test if there are at least 3 arguments: if not, return an error
+#if (length(args) < 3) {
+#  stop("At least the name of 2 species and a list of focus scaffolds must be supplied", call.=FALSE)
+#} else if (length(args)==3) {
+#  print("assuming no particular gene to be highlighted")
+#} else {
+#  print("Genes of interest will be displayed in colors")
+#  data_genes=read.table(args[4], as.is=T, sep='\t')
+#  # test that bed file has 4 columns
+#  if (ncol(data_genes)<4) {
+#    stop("Missing one or more columns in BED files. Expected: chr, start, end, state", call.=FALSE)
+#  }
+#}
+## enter variables
 haplo <- args[1]
 reference <- args[2]
 chromosomes <- read.table(args[3])
+synt <- args[4] 
+fai1 <- arg[5]
+fai2 <- arg[6]
+
+
+####  examples #######
+#haplo <- "Mlyc1064a1" #args[1]
+#haplo <- "Mlyc1064a2"
+#reference <- "ancestral_sp" #args[2]
+#reference <- "Mlag129A1" 
+#reference <- "Mlyc1064a1"
+chromosomes <- read.table("chromosomes.txt")    #args[3]
+#synt <- "synteny_ancestral_sp_Mlyc1064a1.txt"  #args[4]
+#synt <- "synteny_ancestral_sp_Mlyc1064a2.txt"
+#synt <- "synteny_Mlyc1064a1_Mlyc1064a2.txt"
+#fai1 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"  #args[5]
+fai1 <- "ancestral_sp/ancestral_sp.fa.fai"     
+#fai2 <- "haplo2/03_genome/Mlyc1064a2.fa.fai"
+fai2 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"   #args[6]
 
 #------------- Import other files ---------------------------------------------#
 # import synteny data
-syn <- read.table(paste0('synteny_',reference,'_',haplo,'.txt'), header=T, as.is=T, sep='\t')
+syn <- read.table(synt, header=T, as.is=T, sep='\t')
 
 # import contig informations from .fai index
-index_ref <- read.table(paste0(reference "/03_genome/", reference,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
-colnames(index_ref) <- c("chr","end")
+index_ref <- read.table(fai1, as.is = T, sep = '\t')[,c(1,2)] %>% 
+    set_colnames(., c("chr","end"))
 
 #to fix:
-<- index_hap=read.table(paste0(haplo,'.fa.fai'), as.is=T, sep='\t')[,c(1,2)]
-
-colnames(index_hap) <- c("chr","end")
+index_hap <- read.table(fai2, as.is = T, sep = '\t')[,c(1,2)] %>% 
+    set_colnames(., c("chr","end"))
 
 ####------------------------ PREPARE CIRCOS DATA ---------------------------####
 #------------- Prepare data sets ----------------------------------------------#
@@ -102,7 +120,8 @@ m <- matrix(c(rep(0, nb_contig), c(contigs$end)), ncol=2)
 
 #---------- Optional: Prepare table of genes to highlight ---------------------#
 #Import the gene positions
-if(length(args) == 4) {
+#if(length(args) == 4) {
+data_genes <- read.table("links.txt", as.is=T, sep='\t') #TMP modif
   colnames(data_genes)=c("chr","start","end","category")
   #Invert contig orientation if needed
   for (contig in to_inv)
@@ -111,8 +130,9 @@ if(length(args) == 4) {
     data_genes[which(data_genes$chr==contig),]$start=end-data_genes[which(data_genes$chr==contig),]$start
     data_genes[which(data_genes$chr==contig),]$end=end-data_genes[which(data_genes$chr==contig),]$end
   }
-}
 print(data_genes)
+
+#}
 ####------------------------ LAUNCH CIRCOS ---------------------------------####
 #------------- Define plotting parameters -------------------------------------#
 # Contig colors
@@ -126,7 +146,12 @@ pdf(file = paste0('circos_',haplo,'_on_',reference,'.pdf'))
 
 # Initialization
 circos.clear()
-circos.par("track.height"=0.8, "canvas.xlim"=c(-1.1,1.1),"canvas.ylim"=c(-1.1,1.1),gap.degree=5, cell.padding=c(0, 0, 0, 0))
+circos.par("track.height" = 0.8, 
+           "canvas.xlim" = c(-1.1,1.1),
+           "canvas.ylim" = c(-1.1,1.1),
+           gap.degree = 5, 
+           cell.padding = c(0, 0, 0, 0))
+
 circos.initialize(factors=contigs$chr,xlim=m)
 
 # Make contig track
@@ -163,7 +188,7 @@ for(i in 1:length(index_ref)) {
 circos.genomicLink(nuc1, nuc2, col=rcols, border=NA)
 
 #---------- Optional: highlight genes -----------------------------------------#
-if(length(args) == 4) {
+#if(length(args) == 4) { #TMP
   # Make a new track
   circos.track(ylim=c(0, 1), panel.fun=function(x, y) {
     chr=CELL_META$sector.index
@@ -181,7 +206,7 @@ if(length(args) == 4) {
       circos.genomicRect(d_cat[which(d_cat$chr==i),], sector.index=i,
 		track.index=2, ytop = 1, ybottom = 0,col=col,border=col)}
     }
-}
+#} #TMP
 
 #----------- Write pdf file ---------------------------------------------------#
 dev.off()

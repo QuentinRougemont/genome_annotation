@@ -82,10 +82,10 @@ do
         samtools depth "$base".sorted.bam |gzip > "$base".dp.gz  
         
         #plot depth along the genome:
-        Rscript ../00_scripts/Rscripts/plot_dp.R "$base".dp.gz
+        Rscript ../../00_scripts/Rscripts/plot_dp.R "$base".dp.gz
         
         #plot mapq along the genome: 
-        Rscript  ../00_scripts/Rscripts/plot_mapq.R mapq."$base".txt.gz
+        Rscript  ../../00_scripts/Rscripts/plot_mapq.R mapq."$base".txt.gz
     else
         echo "$file already ok"
     fi

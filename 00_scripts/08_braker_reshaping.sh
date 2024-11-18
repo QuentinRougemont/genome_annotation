@@ -244,6 +244,7 @@ awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table" \
 grep -A1 -Ff all.transcripts "$haplo".prot.lin.fasta > \
     "$haplo".longest_transcript.fa
 
+
 source ../../../config/config
 
 eval "$(conda shell.bash hook)"
@@ -259,10 +260,23 @@ grep -Ff busco_check/run_"$busco_lineage"/missing_busco_list.tsv "$table" \
 	|awk '{gsub(/^>/,""); print $1}' \
 	| cat - all.transcripts > all.transcripts2
 
+#"
 grep -A1 -Ff all.transcripts2 "$haplo".prot.lin.fasta > \
     "$haplo".longest_transcript.fa
 
 busco -c8 -o busco_check2 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  
+
+if [[ $RNAseq = "YES" ]]
+then
+    buscorna=../../06_braker/rnaseq/busco_augustus/run_"$busco_lineage"/full_table.tsv
+    awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}'  "$buscorna" > busco.rna
+    grep -Ff longest.transcript.tmp busco.rna > busco.longest.transcript
+    grep -vf busco.longest.transcript buso.rna |grep "Complete" |awk '{print $3}' > list.of.missing_busco
+    cat longest.transcript.tmp list.of.missing_busco > all.ids
+    grep -A1 -Ff all.ids "$haplo".prot.lin.fasta |sed '/--/d' > "$haplo".longest_transcript.fa
+    busco -c8 -o busco_check3 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f
+fi 
+
 
 cd ../../
 
@@ -292,18 +306,22 @@ prot="$protpath"/"$haplo".longest_transcript.fa
 echo -e "there is $(wc -l "$gtf" |awk '{print $1}') lines in ""$gtf"" " 
 
 # subset our gtf to keep only the cds in the cds files!
-#grep ">" $prot |sed 's/>//g' |sed 's/_1$//g'  > wanted.cds.tmp 
-grep ">" "$prot" |sed 's/>//g' |sed 's/_1 CDS=.*//g'  > wanted.cds.tmp 
-sed 's/.t[0-9]$//g' wanted.cds.tmp > wanted.gene.tmp
-
 #we keep the cds:
-grep -Ff wanted.cds.tmp "$gtf" > p1 
 #now the genes:
-grep -f wanted.gene.tmp  <(awk '$3=="gene" ' "$gtf" )  > p3
-
+#grep -f wanted.gene.tmp  <(awk '$3=="gene" ' "$gtf" )  > p3
 #ideally I want to sort on the gene, then transcript, then CDS, then exon as well
 #concatenate gene and cds/etc:
-cat p1 p3 |LC_ALL=C sort -k1,1 -k4,4n -k5,5n > "$haplo".longest_transcript.gtf
+#cat p1 p3 |LC_ALL=C sort -k1,1 -k4,4n -k5,5n > "$haplo".longest_transcript.gtf
+
+
+cat <( grep -Ff <(grep ">" "$prot" \
+    |sed 's/>//g' \
+    |sed 's/_1 CDS=.*//g'  ) "$gtf" ;
+ grep -f <(grep ">" "$prot" \
+    |sed 's/>//g' \
+    |sed 's/_1 CDS=.*//g' \
+    |sed 's/.t[0-9]$//g' ) <(awk '$3=="gene" ' "$gtf" )) \
+    |sort -k1,1 -k4,4n -k5,5n > "$haplo".longest_transcript.gtf
 
 echo -e "there is $(wc -l "$haplo".longest_transcript.gtf |\
     awk '{print $1}' ) lines in ""$haplo"".longest_transcript.gtf" 
@@ -311,9 +329,9 @@ echo -e "there is $(wc -l "$haplo".longest_transcript.gtf |\
 #declare new gtf for new work:
 gtf="$haplo".longest_transcript.gtf
 gtf2="gtf.tmp"                                      
-gtf3="$haplo".final.gtf
-
-# now removing fully overlapping CDS
+gtf3="$haplo".no_overlap.gtf
+gtf4="$haplo".final.gtf
+# now removing fully overlapping CDS with different IDs (<<1% of the data)
 # rule  adopted here: 
 # we removed any CDS with identidical CDS chr-start or identical CDS chr-end
 # identical CHR-START:
@@ -329,6 +347,9 @@ awk 'NR == FNR {count[$3]++; next} count[$3]>0 {print $3"\t"$7"\t"$8"\t"$13"\t"$
 
 grep -Ff longest.to.keep.tmp2 "$gtf2"  > "$gtf3"
 
+grep -Ff <( awk '$3=="transcript" {print $10} ' "$gtf3" |sed 's/.t[1-9]//') <(awk '$3=="gene" ' "gtf" ) \
+    |cat - "$gtf3" |LC_ALL=C sort -k1,1 -k4,4n -k5,5n  > "$gtf4"
+
 echo -e "there is $(wc -l "$gtf3"|awk '{print $1}' ) lines in ""$gtf3"" (final gtf)"
 
 #~~~~~~~~~~~~~~~~~~~~~~ step 7 : re-extracting the proteins ~~~~~~~~~~~~~~~~~~~#
@@ -336,7 +357,7 @@ echo -e "\n-----------------------------------------------------------------"
 echo "re-extracting protein and CDS from the final non-redundan gtf" 
 echo -e "-----------------------------------------------------------------\n"
 
-gffread -w "$haplo".spliced_cds.fa -g ../"${genome}" "$gtf3" 
+gffread -w "$haplo".spliced_cds.fa -g ../"${genome}" "$gtf4" 
 echo "translate CDS into amino acid "
 transeq -sequence "$haplo".spliced_cds.fa \
     -outseq "$haplo"_prot.final.fa
@@ -346,7 +367,7 @@ transeq -clean -sequence "$haplo".spliced_cds.fa \
 echo -e "there is $( grep -c ">" "$haplo"_prot.final.fa |\
     awk '{print $1}' ) total protein corresponding to a single longest transcript in the final files"
 
-rm p1 p3
+#rm p1 p3
 rm ./*tmp*
 rm ./*renamed.*gtf
 rm ./*IDchecked.gtf
