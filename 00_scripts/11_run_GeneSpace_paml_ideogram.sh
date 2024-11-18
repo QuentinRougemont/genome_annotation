@@ -503,27 +503,28 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #circos plot here:
     if [ ! -z "${ancestral_genome}" ] ; then
         echo "ancestral genome was provided" 
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral_sp" "$haplo1" \
-            chromosomes.txt \
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
+            "$chromosomes" \
             synteny_ancestral_sp_"$haplo1".txt \
             "${ancestral_genome}".fai  \
             haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
 
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral_sp" "$haplo2" \
-            chromosomes.txt \
+        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
+            "$chromosomes" \
             synteny_ancestral_sp_"$haplo2".txt \
             "${ancestral_genome}".fai  \
             haplo2/03_genome/"$haplo2".fa.fai #"$genes_plot"
 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-            chromosomes.txt synteny_"$haplo1"_"$haplo2".txt  \
+            "$chromosomes" \
+            synteny_"$haplo1"_"$haplo2".txt  \
             haplo1/"$haplo1".fa.fai \
             haplo2/"$haplo2".fa.fai \
             haplo2 #"$genes_plot"
     else
         echo "no ancestral genome" 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-            chromosomes.txt synteny_"$haplo1"_"$haplo2".txt  \
+            $chromosomes synteny_"$haplo1"_"$haplo2".txt  \
             haplo1/"$haplo1".fa.fai \
             haplo2/"$haplo2".fa.fai \
             haplo2 #"$genes_plot"

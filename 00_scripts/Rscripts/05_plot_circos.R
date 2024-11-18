@@ -24,7 +24,7 @@ install.packages(setdiff(packages, rownames(installed.packages())), repos="https
 invisible(lapply(packages, library, character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
-#args <- commandArgs(T)
+args <- commandArgs(T)
 #
 ## test if there are at least 3 arguments: if not, return an error
 #if (length(args) < 3) {
@@ -54,14 +54,14 @@ fai2 <- arg[6]
 #reference <- "ancestral_sp" #args[2]
 #reference <- "Mlag129A1" 
 #reference <- "Mlyc1064a1"
-chromosomes <- read.table("chromosomes.txt")    #args[3]
+#chromosomes <- read.table("chromosomes.txt")    #args[3]
 #synt <- "synteny_ancestral_sp_Mlyc1064a1.txt"  #args[4]
 #synt <- "synteny_ancestral_sp_Mlyc1064a2.txt"
 #synt <- "synteny_Mlyc1064a1_Mlyc1064a2.txt"
 #fai1 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"  #args[5]
-fai1 <- "ancestral_sp/ancestral_sp.fa.fai"     
+#fai1 <- "ancestral_sp/ancestral_sp.fa.fai"     
 #fai2 <- "haplo2/03_genome/Mlyc1064a2.fa.fai"
-fai2 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"   #args[6]
+#fai2 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"   #args[6]
 
 #------------- Import other files ---------------------------------------------#
 # import synteny data
