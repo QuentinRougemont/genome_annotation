@@ -103,17 +103,17 @@ bedSp2 <- read.table(paste0("genespace/bed/",sp2, ".bed", sep = "" )) %>%
 Ds_table <- merge(dat, single_cp, by.x = "geneX", by.y = "geneX")
 
 #merge with the coordinate of the reference sequence (either Sp1 or ancestral species):
-if (length(argv)==3) {
-    Ds_table <- merge(Ds_table, bedSp1,    by.x = "geneX", by.y = "gene") 
-} else {
-    Ds_table <- merge(Ds_table, bedAnc,    by.x = "gene", by.y = "gene") 
-
-}
+#if (length(argv)==3) {
+#    Ds_table <- merge(Ds_table, bedSp1,    by.x = "geneX", by.y = "gene") 
+#} else {
+#    Ds_table <- merge(Ds_table, bedAnc,    by.x = "gene", by.y = "gene") 
+#
+#}
 
 #now we must: 
     #1 - reorder according to the scaffold orientation
     #2 - create an incremenantial gene order accordingly:
-if (exists(sp3) {
+if (exists(sp3)) {
     #assuming ancestral species was provided
     all <- merge(bedAnc, scaf, by.x = "scaff", by.y = "chr") %>%
         left_join(., Ds_table, by=join_by(gene == gene) ) %>%
@@ -123,8 +123,7 @@ if (exists(sp3) {
         arrange(St, .by_group = TRUE) %>%
         ungroup() %>%
         mutate(orderchp = seq(1:nrow(.)))
-}
-else {
+} else {
     #assuming non ancestral species 
     #plotting along the X:
     all <- merge(bedSp1, scaf, by.x = "scaff", by.y = "chr") %>%

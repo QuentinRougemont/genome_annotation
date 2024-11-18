@@ -463,7 +463,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     ancestral="Mlag129A1"     
     #to be defined as a parameter /!\
 
-    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' "$pathN0" \
+    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
         | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
     
     sed -i -e "s/\r//g" orthologues
