@@ -280,7 +280,7 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
         Rscript 00_scripts/Rscripts/dotplot_paf.R  aln.ancestral_sp_"$haplo2".paf 
     
         Rscript 00_scripts/Rscripts/synteny_plot.R aln.ancestral_sp_"$haplo1".paf \
-        scaff.anc.haplo1.txt 
+             scaff.anc.haplo1.txt 
         Rscript 00_scripts/Rscripts/synteny_plot.R aln.ancestral_sp_"$haplo2".paf \
             scaff.anc.haplo2.txt 
         Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf \
@@ -410,32 +410,68 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs_cleaned > sco
         if [  -n "${links}" ] ; then    
         #links were provided and will be colored
-            Rscript ./00_scripts/Rscripts/04.ideogram.R sco genespace/bed/"$haplo1".bed \
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco genespace/bed/"$haplo1".bed \
                 genespace/bed/"$haplo2".bed  \
                 haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai "$links"
-            Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed \
+            then
+                  echo -e "\nERROR: ideograms failed /!\ \n
+                  please check logs and input data\n" 
+                  exit 1
+             fi
+
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed \
                 genespace/bed/"$haplo1".bed  \
                 "${ancestral_genome}".fai haplo1/03_genome/"$haplo1".fa.fai "$links" 
+            then
+                  echo -e "\nERROR: ideograms failed /!\ \n
+                  please check logs and input data\n" 
+                  exit 1
+             fi
+
         else
         #no links were provided
-        Rscript ./00_scripts/Rscripts/04.ideogram.R sco  genespace/bed/"$haplo1".bed  \
+        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco  genespace/bed/"$haplo1".bed  \
             genespace/bed/"$haplo2".bed  haplo1/03_genome/"$haplo1".fa.fai \
             haplo2/03_genome/"$haplo2".fa.fai 
-        Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  \
+        then
+              echo -e "\nERROR: ideograms failed /!\ \n
+              please check logs and input data\n" 
+              exit 1
+        fi
+
+        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  \
             genespace/bed/"$haplo1".bed "${ancestral_genome}".fai \
             haplo1/03_genome/"$haplo1".fa.fai 
-    
+        then
+              echo -e "\nERROR: ideograms failed /!\ \n
+              please check logs and input data\n" 
+              exit 1
+        fi
+   
+
         fi
     else
         echo -e "no ancestral genome assumed"
         if [ -n "${links}" ] ; then    
-            Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
                 genespace/bed/"$haplo1".bed genespace/bed/"$haplo2".bed \
                 haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai "$links" 
+            then
+                  echo -e "\nERROR: ideograms failed /!\ \n
+                  please check logs and input data\n" 
+                  exit 1
+             fi
+
         else
-            Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
                 genespace/bed/"$haplo1".bed genespace/bed/"$haplo2".bed \
                 haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai 
+            then
+                  echo -e "\nERROR: ideograms failed /!\ \n
+                  please check logs and input data\n" 
+                  exit 1
+             fi
+
         fi
     
     fi
@@ -455,20 +491,17 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #path_bed='genespace/bed/'
     #python3 00_scripts/utility_scripts/02.Make_synteny_table.py "${haplo1}" "${haplo2}" \
     #    "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
-    
    
-    pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
-    
-    #to be defined as a parameter /!\
-    ancestral="Mlag129A1"     
-    #to be defined as a parameter /!\
+    #this part has been done elsewhere and should be removed:
+    #pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
+    #awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
+    #    | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
+    #sed -i -e "s/\r//g" orthologues
+   
+    #creating different synteny table 
+    #note: we already have that with the joint bed from the ideogram 
+    #this is redundant 
 
-    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
-        | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
-    
-    sed -i -e "s/\r//g" orthologues
-    
-    
     join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
                     <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
         | sed 's/ /\t/g' \
@@ -501,32 +534,50 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     # ---------------------------------- step6 -- create circos plot --------------------------------
     #to do: entierely rewrite the Rscripts below 
     #circos plot here:
-    source config/config #to get the chromosomes 
+    #source config/config #to get the chromosomes 
     #/!\ chromosomes should be reconstructed on the fly from the N0.tsv file
     echo -e "\n~~~~~~~~~~~~~~~contstructing circos plots ~~~~~~~~~~~~~~~~~~~"
     if [ ! -z "${ancestral_genome}" ] ; then
 
         echo "ancestral genome was provided" 
+        ancestral=$(head -n1 "$ancestral_genome"/"$ancestral_genome".fa.fai \
+            |cut -f1 \
+            |awk '{gsub("_","\t",$0) ; print $1}')
 
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
             "$chromosomes" \
             synteny_ancestral_sp_"$haplo1".txt \
             ancestral_sp/ancestral_sp.fa.fai \
             haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
-
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
+        then
+            echo -e "\nERROR: circos plots failed /!\ \n
+            please check logs and input data\n" 
+            exit 1
+        fi
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
             "$chromosomes" \
             synteny_ancestral_sp_"$haplo2".txt \
             ancestral_sp/ancestral_sp.fa.fai \
             haplo2/03_genome/"$haplo2".fa.fai 
                     #"$genes_plot"
+        then
+            echo -e "\nERROR: circos plots failed /!\ \n
+            please check logs and input data\n" 
+            exit 1
+        fi
 
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
             "$chromosomes" \
             synteny_"$haplo1"_"$haplo2".txt  \
             haplo1/03_genome/"$haplo1".fa.fai \
             haplo2/03_genome/"$haplo2".fa.fai \
             #"$genes_plot"
+        then
+            echo -e "\nERROR: circos plots failed /!\ \n
+            please check logs and input data\n" 
+            exit 1
+        fi
+
     else
         echo "no ancestral genome" 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \

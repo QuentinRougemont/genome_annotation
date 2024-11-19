@@ -21,7 +21,7 @@ if("data.table" %in% rownames(installed.packages()) == FALSE)
 
 #---------------- load libraries ---------------------------------------------#
 libs <- c('dplyr','RIdeogram','magrittr','data.table')
-invisible(lapply(libs, suppressMessages(library), character.only = TRUE))
+invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.only = TRUE))
 
 #read species name from the 
 argv <- commandArgs(T)
@@ -33,15 +33,15 @@ sco <- read.table(single_copy_ortho, sep = "\t") %>% select(-V1)
 if (length(argv)<=4) {
 	  stop("At least the bed and index names of 2 species to compare must be supplied.n", call.=FALSE)
 } else if (length(argv)==5) {
-	print("assuming no particular link to be highlighted")
+	writeLines("assuming no particular link to be highlighted\n")
 	bedA <- argv[2]   #full path to bed file for sp1
 	bedB <- argv[3]   #full path to bed file for sp2
 	indexA <- argv[4] #full path to index file for sp1
 	indexB <- argv[5] #full path to index file for sp2
 
 } else {
-	print("links provided in the links file will be displayed in colors")
-	print("link file must contain name of gene for species1, name of ortholog for species2 and a status that will be used for coloring the gene")
+	writeLines("links provided in the links file will be displayed in colors\n")
+	writeLines("link file must contain name of gene for species1, name of ortholog for species2 and a status that will be used for coloring the gene\n")
 	#to do: add option to provide a coordinate file with status instead of gene file 
 
 	bedA <- argv[2]   #full path to bed file for sp1
@@ -49,7 +49,7 @@ if (length(argv)<=4) {
 	indexA <- argv[4] #full path to index file for sp1
 	indexB <- argv[5] #full path to index file for sp2
 
-       	link <- argv[6] 
+    link <- argv[6] 
 	links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
 	#we will create a vector of color according to the number of status
 }
@@ -78,6 +78,7 @@ n1 <- nrow(bed1)
 n2 <- nrow(bed2)
 print(paste0("there is ", n1, " single copy gene in bed1"))
 print(paste0("there is ", n2, " single copy gene in bed2"))
+print()
 
 #to do: add a check and exit with error if n1 != n2 
 
@@ -116,7 +117,7 @@ all <- cbind(bed1, bed2) %>% group_by(contig1) %>%
 
 #export the joint bed:
 write.table(all, paste0("joint_", sp1, "_" , sp2, ".bed" ) , sep="\t", row.names =F, col.names=T, quote = F)
-
+writeLines("joint bed file succesffuly exported\n")
 #here it would be important to check that the order of the genes in one or the two species is identical
 #to the order of the genes in the sco! 
 
@@ -160,19 +161,16 @@ small  <- data.frame(Chr = "none",
                      size = 12, 
                      color = 25252525) 
 #small
-print("index1 is :")
-index1 
-
-print("-----------------")
-print("index2 is: ")
-index2
-
-print("-----------------")
-print("karyo : ")
-karyo 
-
-print("-----small is: ")
-small
+#print("index1 is :")
+#index1 
+#print("-----------------")
+#print("index2 is: ")
+#index2
+#print("-----------------")
+#print("karyo : ")
+#karyo 
+#print("-----small is: ")
+#small
 
 if(small$species==index1$species[1]) {
 karyo <- rbind(index1, small, index2)

@@ -22,7 +22,7 @@ packages <- c('circlize','dplyr','tidyr','wesanderson','magrittr')
 #install.packages(setdiff(packages, rownames(installed.packages())))
 install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 #invisible(lapply(packages, library, character.only = TRUE))
-invisible(lapply(packages, suppressPackageStartupMessages(library), character.only = TRUE))
+invisible(lapply(packages, suppressWarnings(suppressPackageStartupMessages(library)), character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
 args <- commandArgs(T)
@@ -41,19 +41,19 @@ args <- commandArgs(T)
 #  }
 #}
 ## enter variables
-haplo <- args[1]
-reference <- args[2]
+reference <- args[1]
+haplo <- args[2]
 chromosomes <- read.table(args[3])
 synt <- args[4] 
 fai1 <- args[5]
 fai2 <- args[6]
 
 print(paste0("reference is ", reference))
-print(paste0("haplo is", haplo))
+print(paste0("haplo is ", haplo))
 print(paste0("chromosome are ", args[3]))
-print(paste0("synt are", synt))
-print(paste0("fai1 is", fai1))
-print(paste0("fai2 is", fai2))
+print(paste0("synt are ",synt))
+print(paste0("fai1 is ", fai1))
+print(paste0("fai2 is ", fai2))
 
 ####  examples #######
 #haplo <- "Mlyc1064a1" #args[1]
@@ -72,6 +72,7 @@ print(paste0("fai2 is", fai2))
 
 #------------- Import other files ---------------------------------------------#
 # import synteny data
+writeLines("\n~~~~~~ loading data ~~~~~~~\n")
 syn <- read.table(synt, header=T, as.is=T, sep='\t')
 
 # import contig informations from .fai index
@@ -81,6 +82,7 @@ index_ref <- read.table(fai1, as.is = T, sep = '\t')[,c(1,2)] %>%
 #to fix:
 index_hap <- read.table(fai2, as.is = T, sep = '\t')[,c(1,2)] %>% 
     set_colnames(., c("chr","end"))
+writeLines("\n~~~~~~ data loaded ~~~~~~~\n")
 
 ####------------------------ PREPARE CIRCOS DATA ---------------------------####
 #------------- Prepare data sets ----------------------------------------------#
@@ -142,6 +144,8 @@ print(data_genes)
 }
 ####------------------------ LAUNCH CIRCOS ---------------------------------####
 #------------- Define plotting parameters -------------------------------------#
+
+writeLines("~~~~~~ preparing colors ~~~~~~~\n")
 # Contig colors
 col_ref <- "grey"
 col_hap <- "grey95"

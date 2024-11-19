@@ -39,7 +39,7 @@ if("ggrepel" %in% rownames(installed.packages()) == FALSE)
 
 #---------------- load libraries ---------------------------------------------#
 libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel')
-invisible(lapply(libs, suppressMessages(library), character.only = TRUE))
+invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.only = TRUE))
 
 ## --------------------- generic function ------------------------------------------------- ##
 
@@ -57,7 +57,7 @@ dat <- read.table("paml/results_YN.txt") %>%
 if (length(argv)<3) {
 	  stop("At least the name of 2 species to compare and a txt file containing the name and order of scaffold must be supplied.n", call.=FALSE)
 } else if (length(argv)==3) {
-	print("assuming no ancestral species was used")
+	writeLines("assuming no ancestral species was used\n")
 	sp1 <- argv[1]     # only the basename is needed !
 	sp2 <- argv[2]     # only the basename is needed !
 	chr <- argv[3]     # table with chr\tstatus [Reversed or Not]
@@ -69,18 +69,18 @@ if (length(argv)<3) {
 		     set_colnames(., c("ortho","geneX","geneY" ))
 
 } else {
-	print("assuming an ancestral species exist")
+	writeLines("assuming an ancestral species exist\n")
 	sp1 <- argv[1]     #only the basename is needed !
 	sp2 <- argv[2]     #only the basename is needed !
 	chr <- argv[3]     # table with chr\tstatus [Reversed or Not]
 	#optional 
 	sp3 <- argv[4]     #the basename of the ancestral species !
 	
-	print("load scaffold info")
+	writeLines("load scaffold info\n")
 	scaf <- read.table(chr, sep ="\t") %>% set_colnames(., c("haplo","chr","order"))
 
 	#orthofinder single copy orthologs:
-	print("load single copy info")
+	writeLines("load single copy info\n")
 	single_cp <- read.table("paml/single.copy.orthologs", sep = "\t") %>% 
 		     set_colnames(., c("ortho","gene","geneX","geneY" ))
 
@@ -90,7 +90,7 @@ if (length(argv)<3) {
 	#we will create a vector of color according to the number of status
 	
 	## read Ancestral species :
-	print("load ancestral species info")
+	writeLines("load ancestral species info\n")
 	bedAnc <- read.table(paste0("genespace/bed/",sp3, ".bed", sep = "" )) %>% 
 		set_colnames(., c("scaff","start","end","gene"))
 
@@ -116,8 +116,9 @@ Ds_table <- merge(dat, single_cp, by.x = "geneX", by.y = "geneX")
 #now we must: 
     #1 - reorder according to the scaffold orientation
     #2 - create an incremenantial gene order accordingly:
-if (exists(sp3)) {
+if (exists("sp3")) {
     #assuming ancestral species was provided
+    writeLines("merging all data\n\n")
     all <- merge(bedAnc, scaf, by.x = "scaff", by.y = "chr") %>%
         left_join(., Ds_table, by=join_by(gene == gene) ) %>%
         arrange(scaff, start) %>%
@@ -129,6 +130,7 @@ if (exists(sp3)) {
 } else {
     #assuming non ancestral species 
     #plotting along the X:
+    writeLines("merging all data\n\n")
     all <- merge(bedSp1, scaf, by.x = "scaff", by.y = "chr") %>%
         left_join(., Ds_table, by=join_by(gene == gene) ) %>%
         arrange(scaff, start) %>%
@@ -162,7 +164,7 @@ th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face=
 
 mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
 
-
+writeLines("making some plots.....\n")
 Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1.01) %>%
   ggplot(., aes(x = start, y = Ds )) +
@@ -209,8 +211,9 @@ plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
 
-print("-------------------------------------------------------")
-print("------- constructing graph with gene order-------------")
+writeLines("-------------------------------------------------------")
+writeLines("------- constructing graph with gene order-------------\n")
+writeLines("-------------------------------------------------------")
 
 #only if we have an ancestral reference, otherwise it is a bit meaningless
 
@@ -262,4 +265,3 @@ if(length(argv)==4){
 	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
 	dev.off()
 }
-
