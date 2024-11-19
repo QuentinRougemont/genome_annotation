@@ -52,8 +52,8 @@ print(paste0("reference is ", reference))
 print(paste0("haplo is", haplo))
 print(paste0("chromosome are ", args[3]))
 print(paste0("synt are", synt))
-print(paste0("fai1 is," fai1))
-print(paste0("fai2 is," fai2))
+print(paste0("fai1 is", fai1))
+print(paste0("fai2 is", fai2))
 
 ####  examples #######
 #haplo <- "Mlyc1064a1" #args[1]
