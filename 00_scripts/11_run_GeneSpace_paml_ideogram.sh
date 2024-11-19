@@ -524,16 +524,16 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
             "$chromosomes" \
             synteny_"$haplo1"_"$haplo2".txt  \
-            haplo1/"$haplo1".fa.fai \
-            haplo2/"$haplo2".fa.fai \
+            haplo1/03_genome/"$haplo1".fa.fai \
+            haplo2/03_genome/"$haplo2".fa.fai \
             #"$genes_plot"
     else
         echo "no ancestral genome" 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
             $chromosomes \
             synteny_"$haplo1"_"$haplo2".txt  \
-            haplo1/"$haplo1".fa.fai \
-            haplo2/"$haplo2".fa.fai 
+            haplo1/03_genome/"$haplo1".fa.fai \
+            haplo2/03_genome/"$haplo2".fa.fai 
             #"$genes_plot"
     fi
     #
