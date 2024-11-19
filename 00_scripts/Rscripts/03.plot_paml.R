@@ -7,7 +7,9 @@
 #INPUTs -- 3 arguments needed:  
 # 1 - bed files for the species1
 # 2 - bed files for the species2
-# 3 - a string: "N" or "R" for "Normal" or Reversed (R): in the case were the focal region is spread on two scaffold, this string should state wether the second scaffold should be reversed or not. 
+# 3 - a string: "N" or "R" for "Normal" or Reversed (R): 
+#    in the case were the focal region is spread on two scaffold, 
+#    this string should state wether the second scaffold should be reversed or not. 
 #this will not work for more than two scaffold
 
 # optional:
@@ -37,7 +39,7 @@ if("ggrepel" %in% rownames(installed.packages()) == FALSE)
 
 #---------------- load libraries ---------------------------------------------#
 libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel')
-invisible(lapply(libs, library, character.only = TRUE))
+invisible(lapply(libs, suppressMessages(library), character.only = TRUE))
 
 ## --------------------- generic function ------------------------------------------------- ##
 
@@ -83,7 +85,8 @@ if (length(argv)<3) {
 		     set_colnames(., c("ortho","gene","geneX","geneY" ))
 
 	#link <- argv[6] 
-	#links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
+	#links <- read.table(link, stringsAsFactors = T) 
+    #     %>% set_colnames(.,c("gene1", "gene2","status"))	
 	#we will create a vector of color according to the number of status
 	
 	## read Ancestral species :
@@ -189,7 +192,7 @@ Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
 
 Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1) %>%
-  ggplot(., aes(x = order, y = Ds, colour = scaff)) +
+  ggplot(., aes(x = orderchp, y = Ds, colour = scaff)) +
   geom_errorbar(aes(ymin = Ds-SEDs, ymax = Ds + SEDs), width = .1) +
   geom_point( size = 1) + 
   theme_classic() +
@@ -227,7 +230,7 @@ if(length(argv)==4){
 	  mutate(rankA1 = dense_rank(startSp2))
 	
 	
-	pordSp1 <- ggplot(ordSp1, aes(x = order, y = rankA1, colour = scaffSp1 )) +
+	pordSp1 <- ggplot(ordSp1, aes(x = orderchp, y = rankA1, colour = scaffSp1 )) +
 	  geom_point( size = 2) + 
 	  #geom_text(hjust = 0, vjust = 0, size = 5, color="black") +
 	  theme_classic() +
@@ -241,7 +244,7 @@ if(length(argv)==4){
 	  scale_color_viridis(discrete=TRUE) 
 	  #scale_color_manual(values=wes_palette(n=4, name="GrandBudapest1"))   
 	
-	pordSp2 <- ggplot(ordSp2, aes(x = order, y = rankA1, colour = scaffSp2 )) +
+	pordSp2 <- ggplot(ordSp2, aes(x = orderchp, y = rankA1, colour = scaffSp2 )) +
 	  geom_point( size = 2) + 
 	  #geom_text(hjust = 0, vjust = 0, size = 5, color="black") +
 	  theme_classic() +

@@ -21,7 +21,8 @@
 packages <- c('circlize','dplyr','tidyr','wesanderson','magrittr')
 #install.packages(setdiff(packages, rownames(installed.packages())))
 install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
-invisible(lapply(packages, library, character.only = TRUE))
+#invisible(lapply(packages, library, character.only = TRUE))
+invisible(lapply(packages, suppressPackageStartupMessages(library), character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
 args <- commandArgs(T)
@@ -44,9 +45,15 @@ haplo <- args[1]
 reference <- args[2]
 chromosomes <- read.table(args[3])
 synt <- args[4] 
-fai1 <- arg[5]
-fai2 <- arg[6]
+fai1 <- args[5]
+fai2 <- args[6]
 
+print(paste0("reference is ", reference))
+print(paste0("haplo is", haplo))
+print(paste0("chromosome are ", args[3]))
+print(paste0("synt are", synt))
+print(paste0("fai1 is," fai1))
+print(paste0("fai2 is," fai2))
 
 ####  examples #######
 #haplo <- "Mlyc1064a1" #args[1]
@@ -120,7 +127,7 @@ m <- matrix(c(rep(0, nb_contig), c(contigs$end)), ncol=2)
 
 #---------- Optional: Prepare table of genes to highlight ---------------------#
 #Import the gene positions
-#if(length(args) == 4) {
+if(length(args) == 7) {
 data_genes <- read.table("links.txt", as.is=T, sep='\t') #TMP modif
   colnames(data_genes)=c("chr","start","end","category")
   #Invert contig orientation if needed
@@ -132,13 +139,21 @@ data_genes <- read.table("links.txt", as.is=T, sep='\t') #TMP modif
   }
 print(data_genes)
 
-#}
+}
 ####------------------------ LAUNCH CIRCOS ---------------------------------####
 #------------- Define plotting parameters -------------------------------------#
 # Contig colors
 col_ref <- "grey"
 col_hap <- "grey95"
 contig_color <- c(rep(col_ref,nrow(chr_ref)),rep(col_hap,nrow(chr_hap)))
+
+list_cont=chr_ref$chr
+rcols=vector(length=nrow(syn))
+for(i in 1:nrow(index_ref)) {
+  c=list_cont[i]
+#  rcols[which(syn$chrom1==c)]=terrain.colors(length(list_cont))[i]
+  rcols[which(syn$chrom1==c)]=wes_palette("Zissou1", length(list_cont), type = c("continuous"))[i]
+}
 
 #------------- Initialize circos ----------------------------------------------#
 # Output in pdf
@@ -177,18 +192,11 @@ circos.track(track.index = get.current.track.index(), panel.fun=function(x, y) {
 #------------- Plot links -----------------------------------------------------#
 #rcols=scales::alpha(ifelse(d$chrom_lag=='MC03',"blue","purple"),alpha=1)
 # Color the links according to reference haplotype contigs
-list_cont=chr_ref$chr
-rcols=vector(length=nrow(syn))
-for(i in 1:length(index_ref)) {
-  c=list_cont[i]
-#  rcols[which(syn$chrom1==c)]=terrain.colors(length(list_cont))[i]
-  rcols[which(syn$chrom1==c)]=wes_palette("Zissou1", length(list_cont), type = c("continuous"))[i]
-}
 # plot links
 circos.genomicLink(nuc1, nuc2, col=rcols, border=NA)
 
 #---------- Optional: highlight genes -----------------------------------------#
-#if(length(args) == 4) { #TMP
+if(length(args) == 7) { #TMP
   # Make a new track
   circos.track(ylim=c(0, 1), panel.fun=function(x, y) {
     chr=CELL_META$sector.index
@@ -206,7 +214,7 @@ circos.genomicLink(nuc1, nuc2, col=rcols, border=NA)
       circos.genomicRect(d_cat[which(d_cat$chr==i),], sector.index=i,
 		track.index=2, ytop = 1, ybottom = 0,col=col,border=col)}
     }
-#} #TMP
+} #TMP
 
 #----------- Write pdf file ---------------------------------------------------#
 dev.off()

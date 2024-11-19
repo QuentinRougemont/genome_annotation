@@ -501,33 +501,40 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     # ---------------------------------- step6 -- create circos plot --------------------------------
     #to do: entierely rewrite the Rscripts below 
     #circos plot here:
+    source config/config #to get the chromosomes 
+    #/!\ chromosomes should be reconstructed on the fly from the N0.tsv file
+    echo -e "\n~~~~~~~~~~~~~~~contstructing circos plots ~~~~~~~~~~~~~~~~~~~"
     if [ ! -z "${ancestral_genome}" ] ; then
+
         echo "ancestral genome was provided" 
+
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
             "$chromosomes" \
             synteny_ancestral_sp_"$haplo1".txt \
-            "${ancestral_genome}".fai  \
+            ancestral_sp/ancestral_sp.fa.fai \
             haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
             "$chromosomes" \
             synteny_ancestral_sp_"$haplo2".txt \
-            "${ancestral_genome}".fai  \
-            haplo2/03_genome/"$haplo2".fa.fai #"$genes_plot"
+            ancestral_sp/ancestral_sp.fa.fai \
+            haplo2/03_genome/"$haplo2".fa.fai 
+                    #"$genes_plot"
 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
             "$chromosomes" \
             synteny_"$haplo1"_"$haplo2".txt  \
             haplo1/"$haplo1".fa.fai \
             haplo2/"$haplo2".fa.fai \
-            haplo2 #"$genes_plot"
+            #"$genes_plot"
     else
         echo "no ancestral genome" 
         Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-            $chromosomes synteny_"$haplo1"_"$haplo2".txt  \
+            $chromosomes \
+            synteny_"$haplo1"_"$haplo2".txt  \
             haplo1/"$haplo1".fa.fai \
-            haplo2/"$haplo2".fa.fai \
-            haplo2 #"$genes_plot"
+            haplo2/"$haplo2".fa.fai 
+            #"$genes_plot"
     fi
     #
     if [ $? -eq 0 ]; then

@@ -21,7 +21,7 @@ if("data.table" %in% rownames(installed.packages()) == FALSE)
 
 #---------------- load libraries ---------------------------------------------#
 libs <- c('dplyr','RIdeogram','magrittr','data.table')
-invisible(lapply(libs, library, character.only = TRUE))
+invisible(lapply(libs, suppressMessages(library), character.only = TRUE))
 
 #read species name from the 
 argv <- commandArgs(T)
