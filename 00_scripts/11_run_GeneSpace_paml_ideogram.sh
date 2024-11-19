@@ -536,6 +536,14 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #circos plot here:
     #source config/config #to get the chromosomes 
     #/!\ chromosomes should be reconstructed on the fly from the N0.tsv file
+
+     awk '{gsub("_","\t",$0) ; print $2"\t"$2"_"$3"_"$4"\t"$6"\t"$6"_"$7"\t"$9"\t"$9"_"$10}' paml/single.copy.orthologs\
+            |sort \
+            |uniq -c\
+            |awk '$1>10 {print $2"\t"$3"\n"$4"\t"$5"\n"$6"\t"$7} ' |sort|uniq > chromosomes.txt
+    chromosomes="chromosomes.txt"
+
+
     echo -e "\n~~~~~~~~~~~~~~~contstructing circos plots ~~~~~~~~~~~~~~~~~~~"
     if [ ! -z "${ancestral_genome}" ] ; then
 
