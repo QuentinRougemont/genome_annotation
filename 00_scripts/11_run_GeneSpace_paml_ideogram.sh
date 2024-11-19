@@ -133,9 +133,9 @@ fi
 
 # create bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo1/08_best_run/"$haplo1".final.gtf |\
-    sed 's/"//g' > genespace/bed/"$haplo1".bed
+    sed 's/"//g' |sed 's/;//g' > genespace/bed/"$haplo1".bed
 awk '$3=="transcript" {print $1"\t"$4"\t"$5"\t"$10}' haplo2/08_best_run/"$haplo2".final.gtf |\
-    sed 's/"//g' > genespace/bed/"$haplo2".bed
+    sed 's/"//g' |sed 's/;//g'  > genespace/bed/"$haplo2".bed
 
 # simplify the protein file to match the bed (i.e. remove the _1 inserted by transeq and the CDS length info):
 sed 's/_1 CDS=.*$//g' haplo1/08_best_run/"$haplo1"_prot.final.clean.fa \
