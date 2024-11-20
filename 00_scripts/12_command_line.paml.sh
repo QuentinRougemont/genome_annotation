@@ -274,4 +274,5 @@ do
 done < wanted_sequence 2>&1 |tee log.paml 
 
 #we concatenate everyone to work with them in the next scripts:
+rm results_YN.txt 2>/dev/null   
 cat sequence_files/tmp.*/resultat_Yang_Nielsen_2000_method.orthogp.txt >> results_YN.txt

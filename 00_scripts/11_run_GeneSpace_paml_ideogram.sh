@@ -389,9 +389,19 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     
     if [ -n "${ancestral_genome}" ]; then
         echo "using ancestral genome"
-        Rscript ./00_scripts/Rscripts/03.plot_paml.R "$haplo1" "$haplo2" "$scaffold" ancestral_sp 
+        if ! Rscript ./00_scripts/Rscripts/03.plot_paml.R "$haplo1" "$haplo2" "$scaffold" ancestral_sp 
+        then
+            echo -e "\nERROR plotting paml results failed\n"
+            echo -e "\nplease check input files and logs!!\n\n"
+            exit 1
+        fi
     else
-        Rscript ./00_scripts/Rscripts/03.plot_paml.R "$haplo1" "$haplo2" "$scaffold"
+        if ! Rscript ./00_scripts/Rscripts/03.plot_paml.R "$haplo1" "$haplo2" "$scaffold"
+        then
+            echo -e "\nERROR plotting paml results failed\n"
+            echo -e "\nplease check input files and logs!!\n\n"
+            exit 1
+        fi
     fi
        
     # ---------------------------------- step5 -- plot ideogram -----------------------------------------------#
@@ -493,44 +503,104 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #    "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
    
     #this part has been done elsewhere and should be removed:
-    #pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
-    #awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
-    #    | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
-    #sed -i -e "s/\r//g" orthologues
+    pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
+    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
+        | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
+    sed -i -e "s/\r//g" orthologues
    
     #creating different synteny table 
     #note: we already have that with the joint bed from the ideogram 
     #this is redundant 
 
-    join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
-                    <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
-        | sed 's/ /\t/g' \
-        | join -1 5 -2 4 <(sort -k5,5 -) \
-                       <(sort -k4,4 genespace/bed/"$haplo1".bed )  \
-        |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
-                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-        > synteny_ancestral_sp_"$haplo1".txt
-    
-    
-    join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
-            <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
+    if [ -n "${ancestral_genome}" ]
+    then
+        echo "inferring synteny with ancestral species: "
+        join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
+                        <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
             | sed 's/ /\t/g' \
-            |join -1 6 -2 4 <(sort -k6,6 -) \
-                            <(sort -k4,4 genespace/bed/"$haplo2".bed ) \
+            | join -1 5 -2 4 <(sort -k5,5 -) \
+                           <(sort -k4,4 genespace/bed/"$haplo1".bed )  \
             |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
-                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-            >  synteny_ancestral_sp_"$haplo2".txt
+                    {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+            > synteny_ancestral_sp_"$haplo1".txt
+       
+        if [ -s synteny_ancestral_sp_"$haplo1".txt ]
+        then
+            size1=(wc -l   synteny_ancestral_sp_"$haplo1".txt)
+        else
+            echo "synteny file between ancestral species and $haplo1 is empty"
+            echo "please check your data"
+            exit 1
+        fi
     
+        join  -1 6 -2 4 <(sort -k6,6 orthologues)  \
+                <(sort -k4,4 genespace/bed/ancestral_sp.bed ) \
+                | sed 's/ /\t/g' \
+                |join -1 6 -2 4 <(sort -k6,6 -) \
+                                <(sort -k4,4 genespace/bed/"$haplo2".bed ) \
+                |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+                    {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+                >  synteny_ancestral_sp_"$haplo2".txt
     
-    join  -1 4 -2 4 <(sort -k4,4 orthologues)  \
-                    <(sort -k4,4 genespace/bed/"$haplo1".bed ) \
-        | sed 's/ /\t/g' \
-        | join -1 5 -2 4 <(sort -k5,5 -) \
-                       <(sort -k4,4 genespace/bed/"$haplo2".bed )  \
-        |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
-                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-        > synteny_"$haplo1"_"$haplo2".txt
+         if [ -s synteny_ancestral_sp_"$haplo2".txt ]
+         then
+             size2=(wc -l   synteny_ancestral_sp_"$haplo2".txt)
+         else
+             echo "synteny file between ancestral species and $haplo2 is empty"
+             echo "please check your data"
+             exit 1
+         fi
+       
+           echo -e "number of lines in synteny file ancestral_sp vs $haplo1 is $size1"
+           echo -e "number of lines in synteny file ancestral_sp vs $haplo2 is $size2"
+     
+        join  -1 4 -2 4 <(sort -k4,4 orthologues)  \
+                        <(sort -k4,4 genespace/bed/"$haplo1".bed ) \
+            | sed 's/ /\t/g' \
+            | join -1 5 -2 4 <(sort -k5,5 -) \
+                           <(sort -k4,4 genespace/bed/"$haplo2".bed )  \
+            |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+                    {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+            > synteny_"$haplo1"_"$haplo2".txt
+    
+         if [ -s synteny_"$haplo1"_"$haplo2".txt ] ;
+         then
+             size3=(wc -l   synteny_"$haplo1"_"$haplo2".txt)
+         else
+             echo "synteny file between $haplo1 and $haplo2 is empty"
+             echo "please check your data"
+             exit 1
+         fi
+                   
+         echo -e "number of lines in synteny file $haplo1 vs $haplo2 is $size3"
 
+     else
+        echo "no ancestral species assumed "
+        echo "inferring synteny between $haplo1 and $haplo2"
+
+    #   join  -1 4 -2 4 <(sort -k4,4 orthologues)  \
+    #                    <(sort -k4,4 genespace/bed/"$haplo1".bed ) \
+    #        | sed 's/ /\t/g' \
+    #        | join -1 5 -2 4 <(sort -k5,5 -) \
+    #                       <(sort -k4,4 genespace/bed/"$haplo2".bed )  \
+    #        |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
+    #                {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
+    #        > synteny_"$haplo1"_"$haplo2".txt
+    #
+    #     if [ -s synteny_"$haplo1"_"$haplo2".txt ] ;
+    #     then
+    #         size3=(wc -l   synteny_"$haplo1"_"$haplo2".txt)
+    #     else
+    #         echo "synteny file between $haplo1 and $haplo2 is empty"
+    #         echo "please check your data"
+    #         exit 1
+    #     fi
+                   
+         echo -e "number of lines in synteny file $haplo1 vs $haplo2 is $size3"
+
+    fi
+
+    
     # ---------------------------------- step6 -- create circos plot --------------------------------
     #to do: entierely rewrite the Rscripts below 
     #circos plot here:
@@ -548,9 +618,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     if [ ! -z "${ancestral_genome}" ] ; then
 
         echo "ancestral genome was provided" 
-        ancestral=$(head -n1 "$ancestral_genome"/"$ancestral_genome".fa.fai \
+        ancestral=$(head -n1 ancestral_sp/ancestral_sp.fa.fai \
             |cut -f1 \
             |awk '{gsub("_","\t",$0) ; print $1}')
+        
+        echo "ancestral genome ID is $ancestral " 
 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
             "$chromosomes" \
@@ -575,11 +647,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         fi
 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-            "$chromosomes" \
-            synteny_"$haplo1"_"$haplo2".txt  \
-            haplo1/03_genome/"$haplo1".fa.fai \
-            haplo2/03_genome/"$haplo2".fa.fai \
-            #"$genes_plot"
+                "$chromosomes" \
+                synteny_"$haplo1"_"$haplo2".txt  \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai \
+                #"$genes_plot"
         then
             echo -e "\nERROR: circos plots failed /!\ \n
             please check logs and input data\n" 
@@ -588,12 +660,18 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
     else
         echo "no ancestral genome" 
-        Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-            $chromosomes \
-            synteny_"$haplo1"_"$haplo2".txt  \
-            haplo1/03_genome/"$haplo1".fa.fai \
-            haplo2/03_genome/"$haplo2".fa.fai 
-            #"$genes_plot"
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
+                $chromosomes \
+                synteny_"$haplo1"_"$haplo2".txt  \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai 
+                #"$genes_plot"
+        then
+            echo -e "\nERROR: circos plots failed /!\ \n
+            please check logs and input data\n" 
+            exit 1
+        fi
+
     fi
     #
     if [ $? -eq 0 ]; then
@@ -637,3 +715,8 @@ elif [[ $options = "changepoint" ]]  ; then
     fi
 
 fi 
+
+
+#to do here: 
+#run ideogram with strata colors a posteriori 
+

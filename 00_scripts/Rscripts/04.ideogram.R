@@ -78,7 +78,7 @@ n1 <- nrow(bed1)
 n2 <- nrow(bed2)
 print(paste0("there is ", n1, " single copy gene in bed1"))
 print(paste0("there is ", n2, " single copy gene in bed2"))
-print()
+print("\n\n")
 
 #to do: add a check and exit with error if n1 != n2 
 
