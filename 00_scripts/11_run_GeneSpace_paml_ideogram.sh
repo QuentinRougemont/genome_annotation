@@ -275,8 +275,8 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
             |sed -e 's/^    //g' -e 's/ /\t/g' > 02_results/scaff.haplo1.haplo2.txt 
         
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
+        grep -Ff <(cut -f 2 02_results/scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 02_results/scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
 
 
         Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln."$haplo1"_"$haplo2".paf 
@@ -284,11 +284,11 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
         Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln.ancestral_sp_"$haplo2".paf 
     
         Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln.ancestral_sp_"$haplo1".paf \
-             scaff.anc.haplo1.txt 
+             02_results/scaff.anc.haplo1.txt 
         Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln.ancestral_sp_"$haplo2".paf \
-            scaff.anc.haplo2.txt 
+            02_results/scaff.anc.haplo2.txt 
         Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln."$haplo1"_"$haplo2".paf \
-            scaff.haplo1.haplo2.txt 
+            02_results/scaff.haplo1.haplo2.txt 
     
     else 
         awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' 02_results/paml/single.copy.orthologs|\
@@ -298,8 +298,8 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
            |sed -e 's/^    //g' -e 's/ /\t/g'  > 02_results/scaff.haplo1.haplo2.txt
         
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
+        grep -Ff <(cut -f 2 02_results/scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 02_results/scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
 
         #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
         Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln."$haplo1"_"$haplo2".paf 
@@ -336,7 +336,7 @@ if [[ $options = "Ds_only" ]] ; then
 
     else
         #ancestral genome not provided  
-        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$02_results/scaffold"
+        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold"
         awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
@@ -344,8 +344,8 @@ if [[ $options = "Ds_only" ]] ; then
            |sed -e 's/^    //g' -e 's/ /\t/g'  > 02_results/scaff.haplo1.haplo2.txt
 
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned
+        grep -Ff <(cut -f 2 02_results/scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 02_results/scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned
 
     fi
 fi
@@ -379,8 +379,8 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     fi
     
     
-    pamlsize=$(wc -l paml/results_YN.txt |awk '{print $1}' ) 
-    scpo=$(wc -l paml/single.copy.orthologs_cleaned |awk '{print $1}' )
+    pamlsize=$(wc -l 02_results/paml/results_YN.txt |awk '{print $1}' ) 
+    scpo=$(wc -l 02_results/paml/single.copy.orthologs_cleaned |awk '{print $1}' )
     
     echo -e "there is $pamlsize results for PAML \n"
     echo -e "there is $scpo single copy orthologs \n" 

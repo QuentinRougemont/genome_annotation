@@ -350,3 +350,46 @@ write.table(h3st4, "02_results/modelcomp/hypothesis3strata.4.txt", quote= F)
 save.image( file = "02_results/modelcomp/changepoint_analysis.RData")
 #save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "02_results/modelcomp/changepoint_analysis.RData")
 
+
+th_plot2 <-  theme(axis.title.x=element_text(size=8, family="Helvetica",face="bold"),
+    axis.text.x=element_text(size=8,family="Helvetica",face="bold", angle=90, hjust=0, vjust=0.5),
+    axis.title.y=element_text(size=8, family="Helvetica",face="bold",angle=90, hjust=0.5, vjust=0.5),
+    axis.text.y=element_text(size=8,family="Helvetica",face="bold"),
+    strip.text.x = element_text(size=7),panel.grid.major = element_blank())
+
+dplot <- function(df_of_ds, nstrata, columnstrata) {
+    columnstrata=sym(columnstrata)
+    ggplot(df_of_ds, aes(x = start, y = Ds, colour = !!columnstrata)) + 
+    geom_point( size = 1) + 
+    facet_wrap(~scaff, scale="free_x") +
+    theme_classic() +
+    ylim(c(0,0.5)) +
+    xlab("position along chr (bp)") +
+    ylab( expression(italic("dS"))) +
+    th_plot2 + 
+    theme(legend.position = "none") + 
+    #scale_colour_manual(values=mycolor[1:4])  
+    scale_colour_manual(values=mycolor[1:nstrata])  
+
+}
+
+ds3 <- dplot(df, nstrata=3, "three_strata")
+ds4 <- dplot(df, nstrata=4, "four_strata")
+ds5 <- dplot(df, nstrata=5, "five_strata")
+ds6 <- dplot(df, nstrata=6, "six_strata")
+ds7 <- dplot(df, nstrata=7, "set_strata")
+ds8 <- dplot(df, nstrata=8, "huit_strata")
+
+
+pdf(file="plot_all_ds.pdf",8,12)
+plot_grid(ds3, ds4, ds5, ds6, ds7, ds8, 
+          labels = c("A - three changepoint",
+                     "B - four changepoint" ,
+                     "C - five changepoint" ,
+                     "D - six changepoint"  ,
+                     "E - seven changepoint" ,
+                     "F - eigth changepoint") , 
+         label_size = 7,
+         hjust = -0.5, vjust = -0.5,
+         ncol = 1)
+dev.off()
