@@ -49,7 +49,7 @@ invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.on
 
 #- common results
 # yn00 results:
-dat <- read.table("paml/results_YN.txt") %>% 
+dat <- read.table("02_results/paml/results_YN.txt") %>% 
 	set_colnames(., c("Ds","SEDs","Dn","SEDn", "geneX", "geneY"))
 
 
@@ -65,7 +65,7 @@ if (length(argv)<3) {
 	scaf <- read.table(chr, sep="\t") %>% set_colnames(., c("haplo","chr","order"))
 
 	#orthofinder single copy orthologs:
-	single_cp <- read.table("paml/single.copy.orthologs", sep = "\t") %>% 
+	single_cp <- read.table("02_results/paml/single.copy.orthologs", sep = "\t") %>% 
 		     set_colnames(., c("ortho","geneX","geneY" ))
 
 } else {
@@ -81,7 +81,7 @@ if (length(argv)<3) {
 
 	#orthofinder single copy orthologs:
 	writeLines("load single copy info\n")
-	single_cp <- read.table("paml/single.copy.orthologs", sep = "\t") %>% 
+	single_cp <- read.table("02_results/paml/single.copy.orthologs", sep = "\t") %>% 
 		     set_colnames(., c("ortho","gene","geneX","geneY" ))
 
 	#link <- argv[6] 
@@ -149,7 +149,7 @@ df <- all %>%
     na.omit()
 
 #export the df for model comparison on the cluster:
-write.table(df, "dS.values.forchanepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+write.table(df, "02_results/dS.values.forchanepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
 
 ## ------------------ GGPLOT  CUSTOMISATION ------------------------------------------------##
 th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
@@ -206,7 +206,7 @@ Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   
 #Fig1B
 
-pdf(file = "plots/Ds.pdf",14,8)
+pdf(file = "02_results/plots/Ds.pdf",14,8)
 plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
@@ -261,7 +261,7 @@ if(length(argv)==4){
 	  scale_color_viridis(discrete=TRUE) 
 	  #scale_color_manual(values=wes_palette(n=4, name="GrandBudapest1"))   
 	
-	pdf(file = "plots/Ds_and_arrangements.pdf",18,20)
+	pdf(file = "02_results/plots/Ds_and_arrangements.pdf",18,20)
 	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
 	dev.off()
 }

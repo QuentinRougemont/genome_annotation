@@ -185,5 +185,11 @@ karyo <- rbind(index1, small, index2)
 
 all %<>% select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) 
 
+#create dir if not present:
+if (!dir.exists("02_results/ideogram")){
+  dir.create("02_results/ideogram")
+}
+
+
 ideogram(karyotype = karyo, synteny = all, output=paste0('plots/', sp1,sp2,'.svg'))
-convertSVG(paste0('plots/', sp1,sp2,'.svg', sep=''), file = paste0('plots/', sp1,sp2,'.pdf'), device = "pdf")
+convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0('plots/', sp1,sp2,'.pdf'), device = "pdf")

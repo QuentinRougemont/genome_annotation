@@ -57,3 +57,4 @@ for(i in 1:n_pages(p)){
   ggsave(plot = p_save, width = 16, height =16, filename = paste0('mapq/',input2, '_', i, '.pdf'))
 }
 
+#to do: copy mapq in general results folder

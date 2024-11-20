@@ -103,10 +103,11 @@ conda activate superannot
 python3 ../00_scripts/utility_scripts/generateReport.py \
     06_braker/"$best_round"/braker.gtf \
     06_braker/"$best_round"/hintsfile.gff  \
-    08_best_run/report_"$best_round".pdf
-
+    08_best_run/report_"$haplo"_"$best_round".pdf
 
 conda deactivate
+cp  08_best_run/report_"$haplo"_"$best_round".pdf ../02_results/
+
 #------------------------------ step 2 finding runs ---------------------------#
 
 if [[ $RNAseq = "YES" ]]
@@ -120,9 +121,11 @@ then
     python3 ../00_scripts/utility_scripts/generateReport.py \
         06_braker/rnaseq/braker.gtf \
         06_braker/rnaseq/hintsfile.gff  \
-        08_best_run/report_rnaseq.pdf
+        08_best_run/report_"$haplo"_rnaseq.pdf
     
     conda deactivate
+
+cp  08_best_run/report_"$haplo"_rnaseq.pdf ../02_results
 
     echo -e "\nrunning tsebra\n" 
     
@@ -350,7 +353,7 @@ grep -Ff longest.to.keep.tmp2 "$gtf2"  > "$gtf3"
 grep -Ff <( awk '$3=="transcript" {print $10} ' "$gtf3" |sed 's/.t[1-9]//') <(awk '$3=="gene" ' "gtf" ) \
     |cat - "$gtf3" |LC_ALL=C sort -k1,1 -k4,4n -k5,5n  > "$gtf4"
 
-echo -e "there is $(wc -l "$gtf3"|awk '{print $1}' ) lines in ""$gtf3"" (final gtf)"
+echo -e "there is $(wc -l "$gtf4"|awk '{print $1}' ) lines in ""$gtf4"" (final gtf)"
 
 #~~~~~~~~~~~~~~~~~~~~~~ step 7 : re-extracting the proteins ~~~~~~~~~~~~~~~~~~~#
 echo -e "\n-----------------------------------------------------------------"
@@ -386,3 +389,10 @@ chmod +x ../../00_scripts/quality.check.sh
 #note: maybe this could be an option
 echo -e "running quality checks now "
 ../../00_scripts/quality.check.sh -s "$haplo"
+
+# copy things : 
+cp "$gtf4" ../../02_results
+cp "$haplo"_prot.final.clean.fa ../../02_results
+cp "$haplo".spliced_cds.fa ../../02_results
+#to do: copy other stuff to 02_results general folder (quality, busco summary, etc)
+

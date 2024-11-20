@@ -159,10 +159,16 @@ for(i in 1:nrow(index_ref)) {
   rcols[which(syn$chrom1==c)]=wes_palette("Zissou1", length(list_cont), type = c("continuous"))[i]
 }
 
-#------------- Initialize circos ----------------------------------------------#
-# Output in pdf
-pdf(file = paste0('circos_',haplo,'_on_',reference,'.pdf'))
+#create dir if not present:
+if (!dir.exists("02_results/circos")){
+  dir.create("02_results/circos")
+}
 
+
+# Output in pdf
+pdf(file = paste0('02_results/circos/circos_',haplo,'_on_',reference,'.pdf'))
+
+#------------- Initialize circos ----------------------------------------------#
 # Initialization
 circos.clear()
 circos.par("track.height" = 0.8, 

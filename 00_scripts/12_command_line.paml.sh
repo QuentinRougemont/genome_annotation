@@ -115,12 +115,12 @@ cdsfile2=haplo2/08_best_run/$haplo2.spliced_cds.fa
 #fi
 
 ##---  linearise the cds file ---#
-awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "${cdsfile2}"  > paml/"$haplo2".linearised.cds
-awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "${cdsfile1}"  > paml/"$haplo1".linearised.cds
+awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "${cdsfile2}"  > 02_results/paml/"$haplo2".linearised.cds
+awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "${cdsfile1}"  > 02_results/paml/"$haplo1".linearised.cds
 
 
 ##---- recover the wanted sequences in the CDS file #
-cd paml || exit 1
+cd 02_results/paml || exit 1
 
 #all is run from paml folder now
 

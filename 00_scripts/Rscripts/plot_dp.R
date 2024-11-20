@@ -59,3 +59,4 @@ for(i in 1:n_pages(p)){
   ggsave(plot = p_save, width = 16, height =16, filename = paste0('Depth/',input2, '_', i, '.pdf'))
 }
 
+#to do: copy Depth in general results folder

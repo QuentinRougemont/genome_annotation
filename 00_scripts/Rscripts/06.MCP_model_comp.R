@@ -23,7 +23,7 @@ library(cowplot)
 library(dplyr)
 
 #---- load data ---- # 
-df <- read.table("dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and order 
+df <- read.table("02_results/dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and order 
 df <- filter(df, Ds < 0.3) 
 #this input is normally produced from the script (03.plot_paml.R)
 
@@ -91,14 +91,14 @@ FigMCP8Strata  <- plot(fit_8st, q_fit = TRUE) + ggplot2::ggtitle("Posterior fit 
   xlab(xl) + ylab(expression(italic(d[s])))
 
 #plot them all
-pdf(file = "modelcomp/Strata_comp_XX.pdf", 12,18)
+pdf(file = "02_results/modelcomp/Strata_comp_XX.pdf", 12,18)
 plot_grid(FigMCP2Strata, FigMCP3Strata, FigMCP4Strata, 
           FigMCP5Strata, FigMCP6Strata, 
           FigMCP7Strata, FigMCP8Strata,
           labels = "AUTO", ncol = 1)
 dev.off()
 
-pdf(file = "modelcomp/Strata_comp_short.pdf", 12,18)
+pdf(file = "02_results/modelcomp/Strata_comp_short.pdf", 12,18)
 plot_grid(
           FigMCP5Strata, FigMCP6Strata, 
           FigMCP7Strata, FigMCP8Strata,
@@ -204,7 +204,7 @@ df$huit_strata <- ifelse(df$orderchp < cp1m8, "strata1",
                     ifelse(df$orderchp > cp5m8 & df$orderchp < cp6m8, "strata6",
                            "strata7" )))))))
 
-write.table(df,"modelcomp/df.txt",quote=F,row.names=F,col.names=T,sep="\t")
+write.table(df,"02_results/modelcomp/df.txt",quote=F,row.names=F,col.names=T,sep="\t")
 
 mycolor <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00", "red", "black","yellow")
 
@@ -270,7 +270,7 @@ plot8cp <- ggplot(df, aes(x = huit_strata, y = Ds, fill = huit_strata)) +
     scale_fill_manual(values=mycolor[1:8])  + theme(legend.position="none")
 
 #plot them all
-pdf(file = "modelcomp/Strata_comp4.pdf", 12,18)
+pdf(file = "02_results/modelcomp/Strata_comp4.pdf", 12,18)
 plot_grid(plot2cp, plot3cp, plot4cp, plot5cp , plot6cp , 
           plot7cp, plot8cp, labels = "AUTO", ncol = 1)
 dev.off()
@@ -300,7 +300,7 @@ loo_list = list(fit_1st$loo, fit_2st$loo, fit_3st$loo,
 
 weights <- loo::loo_model_weights(loo_list, method="pseudobma")
 
-write.table(weights,"modelcomp/model_weights",quote=F, col.names=("weights"))
+write.table(weights,"02_results/modelcomp/model_weights",quote=F, col.names=("weights"))
 
 
 # ----- some hypothesis testing regarding differences among intervals -------- #
@@ -327,26 +327,26 @@ h3st4 <-hypothesis(fit_3st, c("int_1 < int_2", "int_2 > int_3" ))
 
 #----------------save the data -------------------------------------------------#
 #summaries:
-write.table(m1, "modelcomp/summary1strata.txt", quote = F)
-write.table(m2, "modelcomp/summary2strata.txt", quote = F)
-write.table(m3, "modelcomp/summary3strata.txt", quote = F)
-write.table(m4, "modelcomp/summary4strata.txt", quote = F)
-write.table(m5, "modelcomp/summary5strata.txt", quote = F)
-write.table(m6, "modelcomp/summary6strata.txt", quote = F)
-write.table(m7, "modelcomp/summary7strata.txt", quote = F)
-write.table(m8, "modelcomp/summary8strata.txt", quote = F)
+write.table(m1, "02_results/modelcomp/summary1strata.txt", quote = F)
+write.table(m2, "02_results/modelcomp/summary2strata.txt", quote = F)
+write.table(m3, "02_results/modelcomp/summary3strata.txt", quote = F)
+write.table(m4, "02_results/modelcomp/summary4strata.txt", quote = F)
+write.table(m5, "02_results/modelcomp/summary5strata.txt", quote = F)
+write.table(m6, "02_results/modelcomp/summary6strata.txt", quote = F)
+write.table(m7, "02_results/modelcomp/summary7strata.txt", quote = F)
+write.table(m8, "02_results/modelcomp/summary8strata.txt", quote = F)
 
 #model choice attempt: 
-write.table(m.choice ,"modelcomp/model.choice.txt", quote = F)
+write.table(m.choice ,"02_results/modelcomp/model.choice.txt", quote = F)
 
 #hypothesis testing attempt: 
-write.table(h2st,"modelcomp/hypothesis2strata", quote= F)
-write.table(h2st,"modelcomp/hypothesis2strata.rev.txt", quote= F)
-write.table(h3st1,"modelcomp/hypothesis3strata.1.txt", quote= F)
-write.table(h3st2,"modelcomp/hypothesis3strata.2.txt", quote= F)
-write.table(h3st3,"modelcomp/hypothesis3strata.3.txt", quote= F)
-write.table(h3st4,"modelcomp/hypothesis3strata.4.txt", quote= F)
+write.table(h2st,  "02_results/modelcomp/hypothesis2strata", quote= F)
+write.table(h2st,  "02_results/modelcomp/hypothesis2strata.rev.txt", quote= F)
+write.table(h3st1, "02_results/modelcomp/hypothesis3strata.1.txt", quote= F)
+write.table(h3st2, "02_results/modelcomp/hypothesis3strata.2.txt", quote= F)
+write.table(h3st3, "02_results/modelcomp/hypothesis3strata.3.txt", quote= F)
+write.table(h3st4, "02_results/modelcomp/hypothesis3strata.4.txt", quote= F)
 
-save.image( file = "modelcomp/changepoint_analysis.RData")
-#save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "modelcomp/changepoint_analysis.RData")
+save.image( file = "02_results/modelcomp/changepoint_analysis.RData")
+#save(fit_1st, fit_2st,fit_3st, fit_4st, fit_5st, file = "02_results/modelcomp/changepoint_analysis.RData")
 

@@ -79,7 +79,7 @@ if [ -n "$ancestral_genome" ] ; then
     #paste <(grep -Ff "$(echo ""$scopy"" )" "$(echo ""$ancestral_vs_hap1"" )" )  <(grep -Ff "$(echo ""$scopy"" )" "$(echo ""$ancestral_vs_hap2"" )" )  |\
     paste <(grep -Ff $scopy $ancestral_vs_hap1 )  <(grep -Ff $scopy $ancestral_vs_hap2 )  |\
 	    grep -Ff <(awk '{print $2}' "$scaffold") - |\
-        awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > paml/single.copy.orthologs 
+        awk '{ if ($1 == $4) { print $1"\t"$2"\t"$3"\t"$6; } else { print $0"\tdifference exitst -- error"; } }' > 02_results/paml/single.copy.orthologs 
         
 
 #        cut  -f3 paml/single.copy.orthologs > paml/sco."$haplo1".txt
@@ -91,12 +91,12 @@ else
     #hap1_vs_hap2=$(echo "genespace/orthofinder/Results_*/Orthologues/Orthologues_""$haplo1""/""$haplo1""__v__""$haplo2"".tsv ")
     hap1_vs_hap2="genespace/orthofinder/Results_*/Orthologues/Orthologues_""$haplo1""/""$haplo1""__v__""$haplo2"".tsv"
 
-    sed -i -e "s/\r//g"  paml/single.copy.orthologs
+    sed -i -e "s/\r//g"  02_results/paml/single.copy.orthologs
 
     #paste <(grep -Ff "$(echo $scopy )" "$(echo $hap1_vs_hap2)" ) |\
     paste <(grep -Ff $scopy $hap1_vs_hap2 ) |\
 
-        grep -f <(cut -f 2 "$scaffold" ) - > paml/single.copy.orthologs
+        grep -f <(cut -f 2 "$scaffold" ) - > 02_results/paml/single.copy.orthologs
 
 #        cut  -f2 paml/single.copy.orthologs > paml/sco."$haplo1".txt
 #        cut  -f3 paml/single.copy.orthologs > paml/sco."$haplo2".txt

@@ -62,6 +62,7 @@ fi
 
 
 scaffold=$chromosome
+mkdir 02_results 2>/dev/null #ignore if already existent
 
 #make ancestral species optional
 if [ -n "${ancestral_genome}" ] ; then
@@ -114,17 +115,18 @@ fi
 #test options :
 if [[ $options = "Ds_only" ]] ;  
 then
-    mkdir paml plots
+    mkdir -p 02_results/paml 02_results/plots
 elif [[ $options = "synteny_and_Ds" ]] ; 
 then
-    rm -rf genespace peptide paml plots  #2>/dev/null
+    rm -rf genespace peptide 02_results/paml 02_results/plots  #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
-    mkdir paml plots 
+    mkdir -p  02_results/paml 02_results/plots 
 elif [[ $options = "synteny_only" ]] ; 
 then
-    rm -rf genespace peptide paml plots #2>/dev/null
+    rm -rf genespace/bed genespace/peptide 02_results/paml 02_results/plots #2>/dev/null
     mkdir -p genespace/bed genespace/peptide 
-    mkdir plots 
+    mkdir 02_results/plots 
+    mkdir 02_results/paml
 elif [[ $options == "changepoint" ]] ;
 then
         echo "only changepoint will be performed"
@@ -217,13 +219,15 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
     
     cd ../
 
+    cp genespace/*pdf 02_results/
+
     echo -e "\n--------------------\n \tperform whole genome synteny \n------------------------\n" 
     echo -e "\n-------------------- running minimap  ------------------------\n\n" 
     
     minimap2 -cx asm5 \
         haplo1/03_genome/"$haplo1".fa \
         haplo2/03_genome/"$haplo2".fa \
-        > aln."$haplo1"_"$haplo2".paf || \
+        > 02_results/aln."$haplo1"_"$haplo2".paf || \
         { echo -e "${RED} ERROR! minimap2 faield - check your data\n${NC} " ; exit 1 ; }
 
     
@@ -242,65 +246,65 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
         echo -e "running minimap for genome broad synteny plots  -------\n" 
     
         minimap2 -cx asm5 \
-        ancestral_sp/ancestral_sp.fa \
-        haplo2/03_genome/"$haplo2".fa \
-        > aln.ancestral_sp_"$haplo2".paf || \
+            ancestral_sp/ancestral_sp.fa \
+            haplo2/03_genome/"$haplo2".fa \
+            > 02_results/aln.ancestral_sp_"$haplo2".paf || \
         { echo -e "${RED} ERROR! minimap2 faield - check your data\n${NC} " ; exit 1 ; }
  
         minimap2 -cx asm5 \
-        ancestral_sp/ancestral_sp.fa \
-        haplo1/03_genome/"$haplo1".fa \
-        > aln.ancestral_sp_"$haplo1".paf  || \
+            ancestral_sp/ancestral_sp.fa \
+            haplo1/03_genome/"$haplo1".fa \
+            > 02_results/aln.ancestral_sp_"$haplo1".paf  || \
         { echo -e "${RED} ERROR! minimap2 faield - check your data\n${NC} " ; exit 1 ; }
 
     
     
         #preparing scaffold to highlight in dotplot:
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|\
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
-            awk '$1>10 '  > scaff.anc.haplo1.txt
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|\
+            awk '$1>10 '  > 02_results/scaff.anc.haplo1.txt
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c\
-            |awk '$1>10 ' > scaff.anc.haplo2.txt
-        awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|\
+            |awk '$1>10 ' > 02_results/scaff.anc.haplo2.txt
+        awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
             awk '$1>10 ' \
-            |sed -e 's/^    //g' -e 's/ /\t/g' > scaff.haplo1.haplo2.txt 
+            |sed -e 's/^    //g' -e 's/ /\t/g' > 02_results/scaff.haplo1.haplo2.txt 
         
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > paml/single.copy.orthologs_cleaned 
+        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
 
 
-        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln.ancestral_sp_"$haplo1".paf 
-        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln.ancestral_sp_"$haplo2".paf 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln."$haplo1"_"$haplo2".paf 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln.ancestral_sp_"$haplo1".paf 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln.ancestral_sp_"$haplo2".paf 
     
-        Rscript 00_scripts/Rscripts/synteny_plot.R aln.ancestral_sp_"$haplo1".paf \
+        Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln.ancestral_sp_"$haplo1".paf \
              scaff.anc.haplo1.txt 
-        Rscript 00_scripts/Rscripts/synteny_plot.R aln.ancestral_sp_"$haplo2".paf \
+        Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln.ancestral_sp_"$haplo2".paf \
             scaff.anc.haplo2.txt 
-        Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf \
+        Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln."$haplo1"_"$haplo2".paf \
             scaff.haplo1.haplo2.txt 
     
     else 
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|\
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
             awk '$1>10 ' \
-           |sed -e 's/^    //g' -e 's/ /\t/g'  > scaff.haplo1.haplo2.txt
+           |sed -e 's/^    //g' -e 's/ /\t/g'  > 02_results/scaff.haplo1.haplo2.txt
         
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > paml/single.copy.orthologs_cleaned 
+        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned 
 
         #then run pafr to generate a whole genome dotplot and eventually dotplot for some target scaffold:
-        Rscript 00_scripts/Rscripts/dotplot_paf.R  aln."$haplo1"_"$haplo2".paf 
-        Rscript 00_scripts/Rscripts/synteny_plot.R aln."$haplo1"_"$haplo2".paf \
-            scaff.haplo1.haplo2.txt 
+        Rscript 00_scripts/Rscripts/dotplot_paf.R  02_results/aln."$haplo1"_"$haplo2".paf 
+        Rscript 00_scripts/Rscripts/synteny_plot.R 02_results/aln."$haplo1"_"$haplo2".paf \
+            02_results/scaff.haplo1.haplo2.txt 
     fi
 fi
 
@@ -312,43 +316,43 @@ if [[ $options = "Ds_only" ]] ; then
         #ancestral genome exist
         ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold" -a ancestral_sp
         #preparing scaffold to highlight in dotplot:
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' paml/single.copy.orthologs|\
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
-            awk '$1>10 '  > scaff.anc.haplo1.txt
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' paml/single.copy.orthologs|\
+            awk '$1>10 '  > 02_results/scaff.anc.haplo1.txt
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c\
-            |awk '$1>10 ' > scaff.anc.haplo2.txt
-        awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' paml/single.copy.orthologs|\
+            |awk '$1>10 ' > 02_results/scaff.anc.haplo2.txt
+        awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
             awk '$1>10 ' \
-            |sed -e 's/^    //g' -e 's/ /\t/g' > scaff.haplo1.haplo2.txt
+            |sed -e 's/^    //g' -e 's/ /\t/g' > 02_results/scaff.haplo1.haplo2.txt
 
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > paml/single.copy.orthologs_cleaned
+        grep -Ff <(cut -f 2 02_results/scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 02_results/scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned
 
     else
         #ancestral genome not provided  
-        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$scaffold"
-        awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' paml/single.copy.orthologs|\
+        ./00_scripts/extract_singlecopy.sh -h1 "$haplo1" -h2 "$haplo2" -s "$02_results/scaffold"
+        awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
             awk '$1>10 ' \
-           |sed -e 's/^    //g' -e 's/ /\t/g'  > scaff.haplo1.haplo2.txt
+           |sed -e 's/^    //g' -e 's/ /\t/g'  > 02_results/scaff.haplo1.haplo2.txt
 
         #do a clean-up in case there is false positive single copy orthologs:  
-        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) paml/single.copy.orthologs \
-            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > paml/single.copy.orthologs_cleaned
+        grep -Ff <(cut -f 2 scaff.haplo1.haplo2.txt ) 02_results/paml/single.copy.orthologs \
+            |grep -Ff <(cut -f3 scaff.haplo1.haplo2.txt ) - > 02_results/paml/single.copy.orthologs_cleaned
 
     fi
 fi
 
 
-cut  -f3 paml/single.copy.orthologs_cleaned > paml/sco."$haplo1".txt
-cut  -f4 paml/single.copy.orthologs_cleaned > paml/sco."$haplo2".txt
+cut  -f3 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo1".txt
+cut  -f4 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo2".txt
 
 
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
@@ -385,7 +389,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #sed -i 's/  */\t/g' paml/single.copy.orthologs
     
     #----------------------------------- step4 -- plot paml results  -----------------------------------------#
-    mkdir plots/ 2>/dev/null
+    mkdir  02_results/plots/ 2>/dev/null
     
     if [ -n "${ancestral_genome}" ]; then
         echo "using ancestral genome"
@@ -416,22 +420,26 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     if [  -n "${ancestral_genome}" ] ; then
         echo -e "ancestral genome was provided for inference" 
         #we will make an ideogram with it 
-        awk '{print $1"\t"$2"\t"$3}' paml/single.copy.orthologs_cleaned > sco_anc	
-        awk '{print $1"\t"$3"\t"$4}' paml/single.copy.orthologs_cleaned > sco
+        awk '{print $1"\t"$2"\t"$3}' 02_results/paml/single.copy.orthologs_cleaned > 02_results/sco_anc	
+        awk '{print $1"\t"$3"\t"$4}' 02_results/paml/single.copy.orthologs_cleaned > 02_results/sco
         if [  -n "${links}" ] ; then    
         #links were provided and will be colored
-            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco genespace/bed/"$haplo1".bed \
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R 02_results/sco \
+                genespace/bed/"$haplo1".bed \
                 genespace/bed/"$haplo2".bed  \
-                haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai "$links"
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai "$links"
             then
                   echo -e "\nERROR: ideograms failed /!\ \n
                   please check logs and input data\n" 
                   exit 1
              fi
 
-            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed \
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R 02_results/sco_anc \
+                genespace/bed/ancestral_sp.bed \
                 genespace/bed/"$haplo1".bed  \
-                "${ancestral_genome}".fai haplo1/03_genome/"$haplo1".fa.fai "$links" 
+                "${ancestral_genome}".fai \
+                haplo1/03_genome/"$haplo1".fa.fai "$links" 
             then
                   echo -e "\nERROR: ideograms failed /!\ \n
                   please check logs and input data\n" 
@@ -440,8 +448,10 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
         else
         #no links were provided
-        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco  genespace/bed/"$haplo1".bed  \
-            genespace/bed/"$haplo2".bed  haplo1/03_genome/"$haplo1".fa.fai \
+        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R 02_results/sco  \
+            genespace/bed/"$haplo1".bed  \
+            genespace/bed/"$haplo2".bed  \
+            haplo1/03_genome/"$haplo1".fa.fai \
             haplo2/03_genome/"$haplo2".fa.fai 
         then
               echo -e "\nERROR: ideograms failed /!\ \n
@@ -449,8 +459,10 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
               exit 1
         fi
 
-        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R sco_anc genespace/bed/ancestral_sp.bed  \
-            genespace/bed/"$haplo1".bed "${ancestral_genome}".fai \
+        if ! Rscript ./00_scripts/Rscripts/04.ideogram.R 02_results/sco_anc \
+            genespace/bed/ancestral_sp.bed  \
+            genespace/bed/"$haplo1".bed \
+            "${ancestral_genome}".fai \
             haplo1/03_genome/"$haplo1".fa.fai 
         then
               echo -e "\nERROR: ideograms failed /!\ \n
@@ -463,9 +475,12 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     else
         echo -e "no ancestral genome assumed"
         if [ -n "${links}" ] ; then    
-            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
-                genespace/bed/"$haplo1".bed genespace/bed/"$haplo2".bed \
-                haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai "$links" 
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                02_results/paml/single.copy.orthologs_cleaned \
+                genespace/bed/"$haplo1".bed \
+                genespace/bed/"$haplo2".bed \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai "$links" 
             then
                   echo -e "\nERROR: ideograms failed /!\ \n
                   please check logs and input data\n" 
@@ -473,9 +488,12 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
              fi
 
         else
-            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R paml/single.copy.orthologs_cleaned \
-                genespace/bed/"$haplo1".bed genespace/bed/"$haplo2".bed \
-                haplo1/03_genome/"$haplo1".fa.fai haplo2/03_genome/"$haplo2".fa.fai 
+            if ! Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                02_results/paml/single.copy.orthologs_cleaned \
+                genespace/bed/"$haplo1".bed \
+                genespace/bed/"$haplo2".bed \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai 
             then
                   echo -e "\nERROR: ideograms failed /!\ \n
                   please check logs and input data\n" 
@@ -522,11 +540,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
                            <(sort -k4,4 genespace/bed/"$haplo1".bed )  \
             |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
                     {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-            > synteny_ancestral_sp_"$haplo1".txt
+            > 02_results/synteny_ancestral_sp_"$haplo1".txt
        
-        if [ -s synteny_ancestral_sp_"$haplo1".txt ]
+        if [ -s 02_results/synteny_ancestral_sp_"$haplo1".txt ]
         then
-            size1=(wc -l   synteny_ancestral_sp_"$haplo1".txt)
+            size1=(wc -l   02_results/synteny_ancestral_sp_"$haplo1".txt)
         else
             echo "synteny file between ancestral species and $haplo1 is empty"
             echo "please check your data"
@@ -540,11 +558,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
                                 <(sort -k4,4 genespace/bed/"$haplo2".bed ) \
                 |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
                     {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-                >  synteny_ancestral_sp_"$haplo2".txt
+                >  02_results/synteny_ancestral_sp_"$haplo2".txt
     
-         if [ -s synteny_ancestral_sp_"$haplo2".txt ]
+         if [ -s 02_results/synteny_ancestral_sp_"$haplo2".txt ]
          then
-             size2=(wc -l   synteny_ancestral_sp_"$haplo2".txt)
+             size2=(wc -l   02_results/synteny_ancestral_sp_"$haplo2".txt)
          else
              echo "synteny file between ancestral species and $haplo2 is empty"
              echo "please check your data"
@@ -561,11 +579,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
                            <(sort -k4,4 genespace/bed/"$haplo2".bed )  \
             |awk 'NR==1 {print "HOG\tOG\tN0\tchrom1\tGene1\tstart1\tend1\tchrom2\tGene2\tstart2\tend2"}
                     {print $3"\t"$4"\t"$5"\t"$7"\t"$2"\t"$8"\t"$9"\t"$10"\t"$1"\t"$11"\t"$12}' \
-            > synteny_"$haplo1"_"$haplo2".txt
+            > 02_results/synteny_"$haplo1"_"$haplo2".txt
     
-         if [ -s synteny_"$haplo1"_"$haplo2".txt ] ;
+         if [ -s 02_results/synteny_"$haplo1"_"$haplo2".txt ] ;
          then
-             size3=(wc -l   synteny_"$haplo1"_"$haplo2".txt)
+             size3=(wc -l   02_results/synteny_"$haplo1"_"$haplo2".txt)
          else
              echo "synteny file between $haplo1 and $haplo2 is empty"
              echo "please check your data"
@@ -607,11 +625,11 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #source config/config #to get the chromosomes 
     #/!\ chromosomes should be reconstructed on the fly from the N0.tsv file
 
-     awk '{gsub("_","\t",$0) ; print $2"\t"$2"_"$3"_"$4"\t"$6"\t"$6"_"$7"\t"$9"\t"$9"_"$10}' paml/single.copy.orthologs\
+     awk '{gsub("_","\t",$0) ; print $2"\t"$2"_"$3"_"$4"\t"$6"\t"$6"_"$7"\t"$9"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs\
             |sort \
             |uniq -c\
-            |awk '$1>10 {print $2"\t"$3"\n"$4"\t"$5"\n"$6"\t"$7} ' |sort|uniq > chromosomes.txt
-    chromosomes="chromosomes.txt"
+            |awk '$1>10 {print $2"\t"$3"\n"$4"\t"$5"\n"$6"\t"$7} ' |sort|uniq > 02_results/chromosomes.txt
+    chromosomes="02_results/chromosomes.txt"
 
 
     echo -e "\n~~~~~~~~~~~~~~~contstructing circos plots ~~~~~~~~~~~~~~~~~~~"
@@ -626,7 +644,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
             "$chromosomes" \
-            synteny_ancestral_sp_"$haplo1".txt \
+            02_results/synteny_ancestral_sp_"$haplo1".txt \
             ancestral_sp/ancestral_sp.fa.fai \
             haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
         then
@@ -636,7 +654,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         fi
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
             "$chromosomes" \
-            synteny_ancestral_sp_"$haplo2".txt \
+            02_results/synteny_ancestral_sp_"$haplo2".txt \
             ancestral_sp/ancestral_sp.fa.fai \
             haplo2/03_genome/"$haplo2".fa.fai 
                     #"$genes_plot"
@@ -648,7 +666,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
                 "$chromosomes" \
-                synteny_"$haplo1"_"$haplo2".txt  \
+                02_results/synteny_"$haplo1"_"$haplo2".txt  \
                 haplo1/03_genome/"$haplo1".fa.fai \
                 haplo2/03_genome/"$haplo2".fa.fai \
                 #"$genes_plot"
@@ -662,7 +680,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
         echo "no ancestral genome" 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
                 $chromosomes \
-                synteny_"$haplo1"_"$haplo2".txt  \
+                02_results/synteny_"$haplo1"_"$haplo2".txt  \
                 haplo1/03_genome/"$haplo1".fa.fai \
                 haplo2/03_genome/"$haplo2".fa.fai 
                 #"$genes_plot"
