@@ -706,7 +706,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     
     
     #------------------------ step 8 -- model comparison -------------------------------------------------#
-    mkdir modelcomp/
+    mkdir 02_results/modelcomp/
     Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
         { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; }
 
@@ -716,20 +716,23 @@ elif [[ $options = "changepoint" ]]  ; then
     conda activate superannot
 
     #eventually check its existence - ask user if he wants to remove it
-    mkdir modelcomp/ 2>/dev/null
-    if [[ -d modelcomp ]]
+    mkdir 02_results/modelcomp/ 2>/dev/null
+    if [[ -d 02_results/modelcomp ]]
     then
         echo -e "WARNING directory modelcomp already exists! check its content first
         Do you wish to remove it?\n
         the data will be lost\n"
         select yn in "Yes" "No"; do
-        case $yn in
-            Yes ) rm -rf; Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
-        { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; } ;
-            break;;
-            No ) exit;;
-        esac
-    done
+            case $yn in
+                Yes ) rm -rf; Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
+            { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; } ;
+                break;;
+                No ) exit;;
+            esac
+        done
+    else
+        Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
+           { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; }
     fi
 
 fi 
