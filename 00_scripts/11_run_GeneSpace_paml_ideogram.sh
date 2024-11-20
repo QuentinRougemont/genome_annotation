@@ -519,7 +519,12 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     #path_bed='genespace/bed/'
     #python3 00_scripts/utility_scripts/02.Make_synteny_table.py "${haplo1}" "${haplo2}" \
     #    "${path_orthofinder}" "${path_bed}" "${is_anc}" ancestral_sp
-   
+    ancestral=$(head -n1 ancestral_sp/ancestral_sp.fa.fai \
+            |cut -f1 \
+            |awk '{gsub("_","\t",$0) ; print $1}')
+        
+    echo "ancestral genome ID is $ancestral " 
+
     #this part has been done elsewhere and should be removed:
     pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
     awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
@@ -636,11 +641,6 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     if [ ! -z "${ancestral_genome}" ] ; then
 
         echo "ancestral genome was provided" 
-        ancestral=$(head -n1 ancestral_sp/ancestral_sp.fa.fai \
-            |cut -f1 \
-            |awk '{gsub("_","\t",$0) ; print $1}')
-        
-        echo "ancestral genome ID is $ancestral " 
 
         if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
             "$chromosomes" \

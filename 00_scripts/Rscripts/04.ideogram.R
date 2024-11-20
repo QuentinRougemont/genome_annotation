@@ -198,4 +198,4 @@ convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0
     #assumming links were provided
 ideogram(karyotype = karyo, synteny = all, output=paste0('02_results/ideogram/', sp1,sp2,'links.svg'))
 convertSVG(paste0('02_results/ideogram/', sp1,sp2,'links.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'links.pdf'), device = "pdf")
-
+}

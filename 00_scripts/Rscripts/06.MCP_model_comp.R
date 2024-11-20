@@ -90,6 +90,13 @@ FigMCP8Strata  <- plot(fit_8st, q_fit = TRUE) + ggplot2::ggtitle("Posterior fit 
   geom_point(color = "darkblue", size = 0.1) +
   xlab(xl) + ylab(expression(italic(d[s])))
 
+
+#create dir if not present:
+if (!dir.exists("02_results/modelcomp")){
+  dir.create("02_results/modelcomp")
+}
+
+
 #plot them all
 pdf(file = "02_results/modelcomp/Strata_comp_XX.pdf", 12,18)
 plot_grid(FigMCP2Strata, FigMCP3Strata, FigMCP4Strata, 
