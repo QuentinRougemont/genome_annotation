@@ -78,7 +78,7 @@ bed2 <- read.table(bedB) %>%
 n1 <- nrow(bed1)
 n2 <- nrow(bed2)
 writeLines(paste0("there is ", n1, " single copy gene in bed1\n"))
-wirteLines(paste0("there is ", n2, " single copy gene in bed2\n"))
+writeLines(paste0("there is ", n2, " single copy gene in bed2\n"))
 
 #to do: add a check and exit with error if n1 != n2 
 
