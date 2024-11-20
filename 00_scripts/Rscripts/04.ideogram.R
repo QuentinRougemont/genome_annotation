@@ -192,4 +192,4 @@ if (!dir.exists("02_results/ideogram")){
 
 
 ideogram(karyotype = karyo, synteny = all, output=paste0('plots/', sp1,sp2,'.svg'))
-convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0('plots/', sp1,sp2,'.pdf'), device = "pdf")
+convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'.pdf'), device = "pdf")

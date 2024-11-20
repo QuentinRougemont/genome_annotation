@@ -250,7 +250,7 @@ do
     translatorx_vLocal.pl -i sequence_files/tmp."${line[0]}".vs."${line[1]}"/sequence.fasta \
         -o sequence_files/tmp."${line[0]}".vs."${line[1]}"/results 2>&1 |tee log.translator
     
-    cp ../config/yn00_template.ctl sequence_files/tmp."${line[0]}".vs."${line[1]}"/
+    cp ../../config/yn00_template.ctl sequence_files/tmp."${line[0]}".vs."${line[1]}"/
     
     cd sequence_files/tmp."${line[0]}".vs."${line[1]}"/ || exit 1
     

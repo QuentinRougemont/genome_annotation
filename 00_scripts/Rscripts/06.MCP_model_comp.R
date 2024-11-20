@@ -23,7 +23,7 @@ library(cowplot)
 library(dplyr)
 
 #---- load data ---- # 
-df <- read.table("02_results/dS.values.forchanepoint.txt", h = T) #a table with two columns : Ds and order 
+df <- read.table("02_results/dS.values.forchangepoint.txt", h = T) #a table with two columns : Ds and order 
 df <- filter(df, Ds < 0.3) 
 #this input is normally produced from the script (03.plot_paml.R)
 
@@ -393,3 +393,37 @@ plot_grid(ds3, ds4, ds5, ds6, ds7, ds8,
          hjust = -0.5, vjust = -0.5,
          ncol = 1)
 dev.off()
+
+
+#finally: 
+s3.anc.h1 <- select(df, gene, geneX, three_strata)
+s4.anc.h1 <- select(df, gene, geneX, four_strata)
+s5.anc.h1 <- select(df, gene, geneX, five_strata)
+s6.anc.h1 <- select(df, gene, geneX, five_strata)
+s6.anc.h1 <- select(df, gene, geneX, six_strata)
+s7.anc.h1 <- select(df, gene, geneX, set_strata)
+s8.anc.h1 <- select(df, gene, geneX, huit_strata)
+
+s3.h1.h2 <- select(df, geneX, geneY.x, three_strata)
+s4.h1.h2 <- select(df, geneX, geneY.x, four_strata)
+s5.h1.h2 <- select(df, geneX, geneY.x, five_strata)
+s6.h1.h2 <- select(df, geneX, geneY.x, five_strata)
+s6.h1.h2 <- select(df, geneX, geneY.x, six_strata)
+s7.h1.h2 <- select(df, geneX, geneY.x, set_strata)
+s8.h1.h2 <- select(df, geneX, geneY.x, huit_strata)
+
+
+write.table(s3.anc.h1,"links.s3.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.anc.h1,"links.s4.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.anc.h1,"links.s5.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.anc.h1,"links.s6.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.anc.h1,"links.s7.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.anc.h1,"links.s8.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+
+write.table(s3.h1.h2,"links.s3.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.h1.h2,"links.s4.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.h1.h2,"links.s5.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.h1.h2,"links.s6.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.h1.h2,"links.s7.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.h1.h2,"links.s8.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+

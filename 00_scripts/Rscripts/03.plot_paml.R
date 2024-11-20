@@ -149,7 +149,9 @@ df <- all %>%
     na.omit()
 
 #export the df for model comparison on the cluster:
-write.table(df, "02_results/dS.values.forchanepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+#write.table(df, "02_results/dS.values.forchangepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+write.table(all, "02_results/dS.values.forchangepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+#write.table(all, "02_results/dS.values.metadata.txt", quote =F, row.names = F, col.names = T, sep = "\t")
 
 ## ------------------ GGPLOT  CUSTOMISATION ------------------------------------------------##
 th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
