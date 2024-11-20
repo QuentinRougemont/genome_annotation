@@ -738,10 +738,27 @@ fi
 #to do here: 
 #run ideogram with strata colors a posteriori 
 #### JUST A TEST
-Rscript ./00_scripts/Rscripts/04.ideogram.R \
-                02_results/paml/single.copy.orthologs_cleaned \
+for links in 02_results/modelcomp/classif.s*haplo1.haplo2 ; 
+do 
+     Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                02_results/sco \
                 genespace/bed/"$haplo1".bed \
                 genespace/bed/"$haplo2".bed \
                 haplo1/03_genome/"$haplo1".fa.fai \
                 haplo2/03_genome/"$haplo2".fa.fai 
-                02_results/modelcomp.s6.h1.h2 
+                "$links" 
+done
+
+for links in 02_results/modelcomp/classif.s*ancestral.haplo1 ; 
+do 
+     Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                02_results/sco_anc \
+                genespace/bed/ancestral_sp.bed \
+                genespace/bed/"$haplo1".bed  \
+                "${ancestral_genome}".fai \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                "$links" 
+done
+
+
+#

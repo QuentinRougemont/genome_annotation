@@ -50,6 +50,7 @@ if (length(argv)<=4) {
 	indexB <- argv[5] #full path to index file for sp2
 
     link <- argv[6] 
+    baselink <-basename(link)
 	links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
 	#we will create a vector of color according to the number of status
 }
@@ -76,9 +77,8 @@ bed2 <- read.table(bedB) %>%
 
 n1 <- nrow(bed1)
 n2 <- nrow(bed2)
-print(paste0("there is ", n1, " single copy gene in bed1"))
-print(paste0("there is ", n2, " single copy gene in bed2"))
-print("\n\n")
+writeLines(paste0("there is ", n1, " single copy gene in bed1\n"))
+wirteLines(paste0("there is ", n2, " single copy gene in bed2\n"))
 
 #to do: add a check and exit with error if n1 != n2 
 
@@ -108,8 +108,8 @@ all <- cbind(bed1, bed2) %>% group_by(contig1) %>%
 
     #assuming we have a link file that is provided
     #some cols:
-    colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","d67236")
-    col_pal <- c("#2b8cbe","#de2d26", "#fc9272", "#fee0d2" , "#edf8b1" ,"#636363" )
+    colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","d67236", "#fee0d2" , "#edf8b1" ,"#636363" )
+    #col_pal <- c("#2b8cbe","#de2d26", "#fc9272", "#fee0d2" , "#edf8b1" ,"#636363" )
     links$fill <- rep(colS[1:length(levels(links$status))], c(data.frame(table(links$status))[,2]))
     #finally we use matching of gene to have it all together:
     all$fill[match(links$gene1,all$gene1)] <- links$fill
@@ -192,10 +192,17 @@ if (!dir.exists("02_results/ideogram")){
 
 
 if (length(argv)==5) {
-ideogram(karyotype = karyo, synteny = all, output=paste0('02_results/ideogram/', sp1,sp2,'.svg'))
-convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'.pdf'), device = "pdf")
+ideogram(karyotype = karyo, synteny = all, 
+         output=paste0('02_results/ideogram/', sp1,sp2,'.svg'))
+
+convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), 
+          file = paste0('02_results/ideogram/', sp1,sp2,'.pdf'), device = "pdf")
 } else {
     #assumming links were provided
-ideogram(karyotype = karyo, synteny = all, output=paste0('02_results/ideogram/', sp1,sp2,'links.svg'))
-convertSVG(paste0('02_results/ideogram/', sp1,sp2,'links.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'links.pdf'), device = "pdf")
+ideogram(karyotype = karyo, 
+         synteny = all, 
+         output=paste0('02_results/ideogram/', sp1,sp2,'_',baselink, '.svg'))
+
+convertSVG(paste0('02_results/ideogram/', sp1,sp2,'_',baselink, '.svg', sep=''), 
+           file = paste0('02_results/ideogram/', sp1,sp2,'_', baselink,'.pdf'), device = "pdf")
 }

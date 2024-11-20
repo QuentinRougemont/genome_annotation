@@ -395,12 +395,11 @@ plot_grid(ds3, ds4, ds5, ds6, ds7, ds8,
                      "C - five changepoint" ,
                      "D - six changepoint"  ,
                      "E - seven changepoint" ,
-                     "F - eigth changepoint") , 
+                     "F - eight changepoint") , 
          label_size = 7,
          hjust = -0.5, vjust = -0.5,
          ncol = 1)
 dev.off()
-
 
 #finally: 
 s3.anc.h1 <- select(df, gene, geneX, three_strata)
@@ -420,17 +419,17 @@ s7.h1.h2 <- select(df, geneX, geneY.x, set_strata)
 s8.h1.h2 <- select(df, geneX, geneY.x, huit_strata)
 
 
-write.table(s3.anc.h1,"02_results/modelcomp.s3.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s4.anc.h1,"02_results/modelcomp.s4.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s5.anc.h1,"02_results/modelcomp.s5.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s6.anc.h1,"02_results/modelcomp.s6.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s7.anc.h1,"02_results/modelcomp.s7.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s8.anc.h1,"02_results/modelcomp.s8.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s3.anc.h1,"02_results/modelcomp/classif.s3.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.anc.h1,"02_results/modelcomp/classif.s4.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.anc.h1,"02_results/modelcomp/classif.s5.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.anc.h1,"02_results/modelcomp/classif.s6.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.anc.h1,"02_results/modelcomp/classif.s7.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.anc.h1,"02_results/modelcomp/classif.s8.ancestral.haplo1",quote=F,row.names=F,col.names=F,sep="\t")
 
-write.table(s3.h1.h2,"02_results/modelcomp.s3.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s4.h1.h2,"02_results/modelcomp.s4.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s5.h1.h2,"02_results/modelcomp.s5.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s6.h1.h2,"02_results/modelcomp.s6.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s7.h1.h2,"02_results/modelcomp.s7.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s8.h1.h2,"02_results/modelcomp.s8.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s3.h1.h2,"02_results/modelcomp/classif.s3.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.h1.h2,"02_results/modelcomp/classif.s4.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.h1.h2,"02_results/modelcomp/classif.s5.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.h1.h2,"02_results/modelcomp/classif.s6.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.h1.h2,"02_results/modelcomp/classif.s7.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.h1.h2,"02_results/modelcomp/classif.s8.haplo1.h2",quote=F,row.names=F,col.names=F,sep="\t")
 
