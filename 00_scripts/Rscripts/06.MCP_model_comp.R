@@ -381,7 +381,7 @@ ds7 <- dplot(df, nstrata=7, "set_strata")
 ds8 <- dplot(df, nstrata=8, "huit_strata")
 
 
-pdf(file="plot_all_ds.pdf",8,12)
+pdf(file="02_results/modelcomp/plot_all_ds.pdf",8,12)
 plot_grid(ds3, ds4, ds5, ds6, ds7, ds8, 
           labels = c("A - three changepoint",
                      "B - four changepoint" ,
@@ -413,17 +413,17 @@ s7.h1.h2 <- select(df, geneX, geneY.x, set_strata)
 s8.h1.h2 <- select(df, geneX, geneY.x, huit_strata)
 
 
-write.table(s3.anc.h1,"links.s3.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s4.anc.h1,"links.s4.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s5.anc.h1,"links.s5.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s6.anc.h1,"links.s6.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s7.anc.h1,"links.s7.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s8.anc.h1,"links.s8.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s3.anc.h1,"02_results/modelcomp.s3.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.anc.h1,"02_results/modelcomp.s4.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.anc.h1,"02_results/modelcomp.s5.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.anc.h1,"02_results/modelcomp.s6.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.anc.h1,"02_results/modelcomp.s7.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.anc.h1,"02_results/modelcomp.s8.anc.h1",quote=F,row.names=F,col.names=F,sep="\t")
 
-write.table(s3.h1.h2,"links.s3.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s4.h1.h2,"links.s4.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s5.h1.h2,"links.s5.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s6.h1.h2,"links.s6.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s7.h1.h2,"links.s7.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
-write.table(s8.h1.h2,"links.s8.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s3.h1.h2,"02_results/modelcomp.s3.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s4.h1.h2,"02_results/modelcomp.s4.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s5.h1.h2,"02_results/modelcomp.s5.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s6.h1.h2,"02_results/modelcomp.s6.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s7.h1.h2,"02_results/modelcomp.s7.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
+write.table(s8.h1.h2,"02_results/modelcomp.s8.h1.h2",quote=F,row.names=F,col.names=F,sep="\t")
 

@@ -191,5 +191,11 @@ if (!dir.exists("02_results/ideogram")){
 }
 
 
-ideogram(karyotype = karyo, synteny = all, output=paste0('plots/', sp1,sp2,'.svg'))
+if (length(argv)==5) {
+ideogram(karyotype = karyo, synteny = all, output=paste0('02_results/ideogram/', sp1,sp2,'.svg'))
 convertSVG(paste0('02_results/ideogram/', sp1,sp2,'.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'.pdf'), device = "pdf")
+} else {
+    #assumming links were provided
+ideogram(karyotype = karyo, synteny = all, output=paste0('02_results/ideogram/', sp1,sp2,'links.svg'))
+convertSVG(paste0('02_results/ideogram/', sp1,sp2,'links.svg', sep=''), file = paste0('02_results/ideogram/', sp1,sp2,'links.pdf'), device = "pdf")
+

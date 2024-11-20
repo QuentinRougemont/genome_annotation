@@ -737,4 +737,11 @@ fi
 
 #to do here: 
 #run ideogram with strata colors a posteriori 
-
+#### JUST A TEST
+Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                02_results/paml/single.copy.orthologs_cleaned \
+                genespace/bed/"$haplo1".bed \
+                genespace/bed/"$haplo2".bed \
+                haplo1/03_genome/"$haplo1".fa.fai \
+                haplo2/03_genome/"$haplo2".fa.fai 
+                02_results/modelcomp.s6.h1.h2 
