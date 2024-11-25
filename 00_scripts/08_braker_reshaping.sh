@@ -396,3 +396,4 @@ cp "$haplo"_prot.final.clean.fa ../../02_results
 cp "$haplo".spliced_cds.fa ../../02_results
 #to do: copy other stuff to 02_results general folder (quality, busco summary, etc)
 
+

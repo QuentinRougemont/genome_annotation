@@ -35,10 +35,12 @@ if("viridis" %in% rownames(installed.packages()) == FALSE)
 {install.packages("viridis", repos="https://cloud.r-project.org") }
 if("ggrepel" %in% rownames(installed.packages()) == FALSE)
 {install.packages("ggrepel", repos="https://cloud.r-project.org") }
+if("ggbreak" %in% rownames(installed.packages()) == FALSE)
+{install.packages("ggbreak", repos="https://cloud.r-project.org") }
 
 
 #---------------- load libraries ---------------------------------------------#
-libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel')
+libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel','ggbreak')
 invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.only = TRUE))
 
 ## --------------------- generic function ------------------------------------------------- ##
@@ -116,13 +118,16 @@ Ds_table <- merge(dat, single_cp, by.x = "geneX", by.y = "geneX")
 #now we must: 
     #1 - reorder according to the scaffold orientation
     #2 - create an incremenantial gene order accordingly:
+
+head(scaf)
+
 if (exists("sp3")) {
     #assuming ancestral species was provided
     writeLines("merging all data\n\n")
-    all <- merge(bedAnc, scaf, by.x = "scaff", by.y = "chr") %>%
-        left_join(., Ds_table, by=join_by(gene == gene) ) %>%
+    all <- merge(bedAnc, scaf, by.x = "scaff", by.y = "chr", sort =F) %>%
+        left_join(., Ds_table, by=join_by(gene == gene)  ) %>%
         arrange(scaff, start) %>%
-        group_by(scaff) %>%
+        group_by(desc(scaff)) %>%
         mutate(St = ifelse(order == "N", start, rev(start) )) %>% 
         arrange(St, .by_group = TRUE) %>%
         ungroup() %>%
@@ -133,13 +138,16 @@ if (exists("sp3")) {
     writeLines("merging all data\n\n")
     all <- merge(bedSp1, scaf, by.x = "scaff", by.y = "chr") %>%
         left_join(., Ds_table, by=join_by(gene == gene) ) %>%
-        arrange(scaff, start) %>%
+        arrange(scaff, start, sort =F) %>%
         group_by(scaff) %>%
         mutate(St = ifelse(order == "N", start, rev(start) )) %>% 
         arrange(St, .by_group = TRUE) %>%
         ungroup() %>%
         mutate(orderchp = seq(1:nrow(.)))
 }
+
+print("#####################")
+head(all)
 
 #Ds values above 0.3 will be considered as pseudo-genes for the changepoint analyses. 
 #df <- all %>% filter(Ds < 0.3) %>% select(order, Ds)
@@ -166,9 +174,14 @@ th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face=
 
 mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
 
+print('maxDs')
+dim(all)
+summary(all$Ds)
+max(all$Ds, na.rm=T)
+print('###################')
+
 writeLines("making some plots.....\n")
 Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
-  filter(Ds < 1.01) %>%
   ggplot(., aes(x = start, y = Ds )) +
   geom_errorbar(aes(ymin = Ds-SEDs, ymax = Ds + SEDs), width = .1) +
   facet_wrap(~scaff, scale="free_x") +
@@ -187,7 +200,8 @@ Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
     #color the gene:
   #  scale_fill_discrete(type = mycolor2[1:3]) +
 
-  ylim(c(0,1)) +
+  scale_y_break(c(1,max(all$Ds, na.rm = T)-0.1)) +
+  ylim(c(0,max(all$Ds, na.rm=T)+.1)) +
   xlab("position along chr") +
   ylab( expression(italic("Ds"))) +
   th_plot + theme(legend.position = "none") 
@@ -208,7 +222,13 @@ Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   
 #Fig1B
 
-pdf(file = "02_results/plots/Ds.pdf",14,8)
+#create dir if not present:
+if (!dir.exists("02_results/dsplots")){
+  dir.create("02_results/dsplots")
+}
+
+
+pdf(file = "02_results/dsplots/Ds.pdf",14,8)
 plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
@@ -263,7 +283,7 @@ if(length(argv)==4){
 	  scale_color_viridis(discrete=TRUE) 
 	  #scale_color_manual(values=wes_palette(n=4, name="GrandBudapest1"))   
 	
-	pdf(file = "02_results/plots/Ds_and_arrangements.pdf",18,20)
+	pdf(file = "02_results/dsplots/Ds_and_arrangements.pdf",18,20)
 	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
 	dev.off()
 }

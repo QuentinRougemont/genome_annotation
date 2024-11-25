@@ -51,7 +51,8 @@ if (length(argv)<=4) {
 
     link <- argv[6] 
     baselink <-basename(link)
-	links <- read.table(link, stringsAsFactors = T) %>% set_colnames(.,c("gene1", "gene2","status"))	
+	links <- read.table(link, stringsAsFactors = T) %>%
+        set_colnames(.,c("gene1", "gene2","status"))	
 	#we will create a vector of color according to the number of status
 }
 
@@ -97,22 +98,30 @@ all <- cbind(bed1, bed2) %>% group_by(contig1) %>%
     #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
     as.data.frame(.)
 } else {
-    #assumming links were provided
-    all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
-    filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
-    mutate(fill = 'cccccc') %>%
-    as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
-    mutate(Species_2 = dense_rank(contig2)) %>% 
-    #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
-    as.data.frame(.)
-
     #assuming we have a link file that is provided
     #some cols:
     colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","d67236", "#fee0d2" , "#edf8b1" ,"#636363" )
     #col_pal <- c("#2b8cbe","#de2d26", "#fc9272", "#fee0d2" , "#edf8b1" ,"#636363" )
     links$fill <- rep(colS[1:length(levels(links$status))], c(data.frame(table(links$status))[,2]))
+
+    #now merge:
+    all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
+    filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
+    #mutate(fill = 'cccccc') %>%
+    as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
+    mutate(Species_2 = dense_rank(contig2)) %>% 
+    #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
+    as.data.frame(.)
+    left_join(links, .,  by = join_by(gene1 == gene1, gene2 == gene2) )
+   
+    #handle cases were Ds > 0.3 were present, 
+    #these are excluded from the changepoint analysis and
+    #therefore they have no strata assignation and
+    #are excluded from the  links file analysis for now:
+    all <- na.omit(all)
+
     #finally we use matching of gene to have it all together:
-    all$fill[match(links$gene1,all$gene1)] <- links$fill
+    #all$fill[match(links$gene1,all$gene1)] <- links$fill
 }
 
 #export the joint bed:
