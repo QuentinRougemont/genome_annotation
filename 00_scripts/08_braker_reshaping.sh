@@ -394,6 +394,17 @@ echo -e "running quality checks now "
 cp "$gtf4" ../../02_results
 cp "$haplo"_prot.final.clean.fa ../../02_results
 cp "$haplo".spliced_cds.fa ../../02_results
+cp busco_final/short_summary*.txt ../../02_results/busco."$haplo".txt
+
 #to do: copy other stuff to 02_results general folder (quality, busco summary, etc)
 
+# checking if busco score is ok:
+score=$(grep "C:" busco_final/short_summary.*.txt  |cut -d ":" -f 2 |sed 's/%.*//' )
+target=85
 
+if [ "$(echo "$score < $target" | bc)" -eq 1 ] ;
+then
+    echo "stop !! busco score too low for further analyses !!" ;
+    echo "please check your data "
+    exit 1
+fi

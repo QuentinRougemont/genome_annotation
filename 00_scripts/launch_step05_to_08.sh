@@ -6,7 +6,7 @@
 source ../config/config
 source ../config/colors 
 
-mkdir 02_results 2>/dev/null
+mkdir ../02_results 2>/dev/null
 
 ##  ------------------------ general parameters --------------------------------  ##
 while [ $# -gt 0 ] ; do

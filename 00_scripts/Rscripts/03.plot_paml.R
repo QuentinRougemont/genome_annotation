@@ -37,17 +37,36 @@ if("ggrepel" %in% rownames(installed.packages()) == FALSE)
 {install.packages("ggrepel", repos="https://cloud.r-project.org") }
 if("ggbreak" %in% rownames(installed.packages()) == FALSE)
 {install.packages("ggbreak", repos="https://cloud.r-project.org") }
+if("tidyr" %in% rownames(installed.packages()) == FALSE)
+{install.packages("tidyr", repos="https://cloud.r-project.org") }
+if('patchwork' %in% rownames(installed.packages()) == FALSE)
+{install.packages('patchwork', repos="https://cloud.r-project.org") }
 
 
 #---------------- load libraries ---------------------------------------------#
-libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel','ggbreak')
+libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel',
+          'ggbreak','tidyr','patchwork')
 invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.only = TRUE))
 
-## --------------------- generic function ------------------------------------------------- ##
+#--------------------- generic function --------------------------------------#
 
 `%nin%` = Negate(`%in%`) #to negate 
 
-#--------------- load thne data -----------------------------------------------#
+#--------------------- fixed parameters --------------------------------------#
+
+## ------------------ GGPLOT  CUSTOMISATION ----------------------------------#
+th_plot <- theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
+  axis.text.x=element_text(size=14,family="Helvetica",face="bold", angle=90, hjust=0, vjust=0.5),
+  axis.title.y=element_text(size=18, family="Helvetica",face="bold",angle=90, hjust=0.5, vjust=0.5),
+  axis.text.y=element_text(size=14,family="Helvetica",face="bold"),
+  strip.text.x = element_text(size=18),
+  panel.grid.major = element_blank(),
+  plot.title=element_text(family='Helvetica', face='bold', size=22))
+
+
+mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
+
+#--------------- load the data ----------------------------------------------#
 
 #- common results
 # yn00 results:
@@ -107,19 +126,10 @@ bedSp2 <- read.table(paste0("genespace/bed/",sp2, ".bed", sep = "" )) %>%
 ## ------------- arrange the data as needed ----------------------------------------------- ##
 Ds_table <- merge(dat, single_cp, by.x = "geneX", by.y = "geneX")
 
-#merge with the coordinate of the reference sequence (either Sp1 or ancestral species):
-#if (length(argv)==3) {
-#    Ds_table <- merge(Ds_table, bedSp1,    by.x = "geneX", by.y = "gene") 
-#} else {
-#    Ds_table <- merge(Ds_table, bedAnc,    by.x = "gene", by.y = "gene") 
-#
-#}
 
 #now we must: 
     #1 - reorder according to the scaffold orientation
     #2 - create an incremenantial gene order accordingly:
-
-head(scaf)
 
 if (exists("sp3")) {
     #assuming ancestral species was provided
@@ -146,39 +156,20 @@ if (exists("sp3")) {
         mutate(orderchp = seq(1:nrow(.)))
 }
 
-print("#####################")
-head(all)
 
 #Ds values above 0.3 will be considered as pseudo-genes for the changepoint analyses. 
-#df <- all %>% filter(Ds < 0.3) %>% select(order, Ds)
-df <- all %>% 
-    filter(Ds < 0.3) %>% 
-    select(scaff, start, order, orderchp, St, Ds) %>%
-    na.omit()
+allgood <- all %>% filter((Ds < 0.20) %>% replace_na(TRUE))
 
 #export the df for model comparison on the cluster:
 #write.table(df, "02_results/dS.values.forchangepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
-write.table(all, "02_results/dS.values.forchangepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+write.table(allgood, "02_results/dS.values.forchangepoint.txt", quote =F, row.names = F, col.names = T, sep = "\t")
 #write.table(all, "02_results/dS.values.metadata.txt", quote =F, row.names = F, col.names = T, sep = "\t")
+allgood2 <- na.omit(allgood) %>% mutate(orderchp = seq(1:nrow(.)))
 
-## ------------------ GGPLOT  CUSTOMISATION ------------------------------------------------##
-th_plot <-     theme(axis.title.x=element_text(size=14, family="Helvetica",face="bold"),
-  axis.text.x=element_text(size=14,family="Helvetica",face="bold", angle=90, hjust=0, vjust=0.5),
-  axis.title.y=element_text(size=18, family="Helvetica",face="bold",angle=90, hjust=0.5, vjust=0.5),
-  axis.text.y=element_text(size=14,family="Helvetica",face="bold"),
-  strip.text.x = element_text(size=18),
-  panel.grid.major = element_blank())
-
+write.table(allgood2, "02_results/dS.values.forchangepoint_noNA.txt",
+            quote =F, row.names = F, col.names = T, sep = "\t")
 
 ########################## make plot now using ALL GENES #######################################
-
-mycolor2 <-c("#E69F00",  "#0072B2" ,"#5B1A79",  "#CC79A7", "#D55E00")
-
-print('maxDs')
-dim(all)
-summary(all$Ds)
-max(all$Ds, na.rm=T)
-print('###################')
 
 writeLines("making some plots.....\n")
 Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
@@ -197,16 +188,15 @@ Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
   #  hjust        = 0,
   #  segment.size = 0.4,
   #  max.iter = 1e4, max.time = 1) +
-    #color the gene:
+  #color the gene:
   #  scale_fill_discrete(type = mycolor2[1:3]) +
 
   scale_y_break(c(1,max(all$Ds, na.rm = T)-0.1)) +
   ylim(c(0,max(all$Ds, na.rm=T)+.1)) +
   xlab("position along chr") +
   ylab( expression(italic("Ds"))) +
-  th_plot + theme(legend.position = "none") 
-
-#to do: add a trim Y-axis to display high Ds genes
+  th_plot + theme(legend.position = "none") +
+  ggtitle("A") 
 
 Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   filter(Ds < 1) %>%
@@ -218,7 +208,9 @@ Fig1B <- all %>%   #we plot the D dataframe to obtain the Ds along the order
   xlab("order along reference") +
   ylab( expression(italic("Ds"))) +
   th_plot + theme(legend.position = "none") +
-  scale_color_manual(values=wes_palette(n=2, name="GrandBudapest1"))   
+  scale_color_manual(values=wes_palette(n=2, name="GrandBudapest1")) +
+  ggtitle("B") 
+ 
   
 #Fig1B
 
@@ -228,8 +220,11 @@ if (!dir.exists("02_results/dsplots")){
 }
 
 
+patch <- Fig1A / Fig1B 
+
 pdf(file = "02_results/dsplots/Ds.pdf",14,8)
-plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
+patch 
+#plot_grid(Fig1A, Fig1B, labels="AUTO", ncol = 1)
 dev.off()
 
 
@@ -266,7 +261,8 @@ if(length(argv)==4){
 	  theme(axis.text.y=element_blank(),
 	        axis.ticks.y=element_blank() 
 	  ) +
-	  scale_color_viridis(discrete=TRUE) 
+	  scale_color_viridis(discrete=TRUE) +
+      ggtitle("C") 
 	  #scale_color_manual(values=wes_palette(n=4, name="GrandBudapest1"))   
 	
 	pordSp2 <- ggplot(ordSp2, aes(x = orderchp, y = rankA1, colour = scaffSp2 )) +
@@ -280,10 +276,16 @@ if(length(argv)==4){
 	  theme(axis.text.y=element_blank(),
 	        axis.ticks.y=element_blank() 
 	  ) +
-	  scale_color_viridis(discrete=TRUE) 
+	  scale_color_viridis(discrete=TRUE) +
+      ggtitle("D")
 	  #scale_color_manual(values=wes_palette(n=4, name="GrandBudapest1"))   
 	
+    patch <- Fig1A / Fig1B / pordSp1 / pordSp2 + 
+          plot_layout(heights = c(4,4,3,3))
+        
 	pdf(file = "02_results/dsplots/Ds_and_arrangements.pdf",18,20)
-	print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
+	#print(plot_grid(Fig1A, Fig1B, pordSp1, pordSp2, 
+        #labels="AUTO", ncol = 1, rel_heights = c(1,1,0.9,0.9)) )
+    print(patch)
 	dev.off()
 }

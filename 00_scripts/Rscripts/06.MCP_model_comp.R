@@ -156,7 +156,7 @@ cp2m7 <- m7$mean[2]
 cp3m7 <- m7$mean[3]
 cp4m7 <- m7$mean[4]
 cp5m7 <- m7$mean[5]
-cp6m7 <- m7$mean[5]
+cp6m7 <- m7$mean[6]
 
 
 #5 - changepoint model :
@@ -165,8 +165,8 @@ cp2m8 <- m8$mean[2]
 cp3m8 <- m8$mean[3]
 cp4m8 <- m8$mean[4]
 cp5m8 <- m8$mean[5]
-cp6m8 <- m8$mean[5]
-cp7m8 <- m8$mean[5]
+cp6m8 <- m8$mean[6]
+cp7m8 <- m8$mean[7]
 
 #filter data and visualise differences in mean Ds values:
 #note: we could do better using the BF and hypothesis function instead of working with means ....
@@ -303,7 +303,8 @@ m.choice <- loo::loo_compare(fit_1st$loo, fit_2st$loo, fit_3st$loo,
 
 #finally compute the weight:
 loo_list = list(fit_1st$loo, fit_2st$loo, fit_3st$loo, 
-                fit_4st$loo, fit_5st$loo, fit_6st$loo)
+                fit_4st$loo, fit_5st$loo, fit_6st$loo,
+                fit_7st$loo, fit_8st$loo)
 
 weights <- loo::loo_model_weights(loo_list, method="pseudobma")
 
@@ -375,7 +376,6 @@ dplot <- function(df_of_ds, nstrata, columnstrata) {
     ylab( expression(italic("dS"))) +
     th_plot2 + 
     theme(legend.position = "none") + 
-    #scale_colour_manual(values=mycolor[1:4])  
     scale_colour_manual(values=mycolor[1:nstrata])  
 
 }

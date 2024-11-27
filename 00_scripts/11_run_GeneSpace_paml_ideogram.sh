@@ -228,7 +228,7 @@ if [[ $options = "synteny_and_Ds" ]]  || [[ $options = "synteny_only" ]] ; then
         haplo1/03_genome/"$haplo1".fa \
         haplo2/03_genome/"$haplo2".fa \
         > 02_results/aln."$haplo1"_"$haplo2".paf || \
-        { echo -e "${RED} ERROR! minimap2 faield - check your data\n${NC} " ; exit 1 ; }
+        { echo -e "${RED} ERROR! minimap2 failed - check your data\n${NC} " ; exit 1 ; }
 
     
     #/!\ to do: replace by the simple NO.file!
