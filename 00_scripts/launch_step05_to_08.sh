@@ -48,6 +48,19 @@ fi
 #check that no repeatmodeler output already exist:
 rm_file="03_genome/genome.wholemask.fa"
 
+if [[ $annotateTE = "NO" ]]
+then
+    echo -e "\n-----------------------------------------------------"
+    echo -e "\tNO TE annotation requested\n\twill skip this step"; 
+    echo -e '\tassuming genome already softmasked ';
+    echo -e "-----------------------------------------------------\n"
+    if ! cp ../03_genome/$genome ../03_genome
+    then
+        echo "error could not copy genome!"
+        exit 1
+    fi
+fi
+
 if [  -e "$rm_file" ] ; then 
     echo -e "\n-----------------------------------------------------"
     echo -e "\trepeatmodeler output already exist\n\twill skip this step"; 

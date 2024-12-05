@@ -229,6 +229,12 @@ if [[ -n "${ancestral_genome}" ]] ; then
 
 fi
 
+#test if RNAseq info are provided or not:
+if [ -z "${rnaseq}" ] 
+then 
+    echo -e "no info on RNAseq data\nwe assume no data are available"
+    rnaseq="NO"
+fi
 
 if [[ $interpro = "YES" ]]
 then
@@ -263,12 +269,6 @@ if [ "$option" == 1 ]; then
     #download uniprot for later checks
     ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
 
-    #test if RNAseq info are provided or not:
-    if [ -z "${rnaseq}" ] 
-    then 
-        echo -e "no info on RNAseq data\nwe assume no data are available"
-        rnaseq="NO"
-    fi
 
     #if both species are provided without RNAseq:
     if [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "NO" ]]  && [ -z "$ancestral_genome" ]  ; then
