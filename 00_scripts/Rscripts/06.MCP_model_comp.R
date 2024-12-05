@@ -536,6 +536,7 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #  dir.create("02_results/modelcomp/withprior")
 #}
 
+#unfortunately it seems that this needs to be run manually given the dependance on user assumed priors
 
 #prior2=list(cp_1="dnorm(100, 10)",cp_2="dnorm(330, 10)")
 #priorfit_2cp = mcp(model2cp,

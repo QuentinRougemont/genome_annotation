@@ -20,7 +20,7 @@ III - Plot Ds along the genome using ancestral genomes
 
 IV - Perform changepoint analysis to obbjectively identify evolutionary strata
 
-<img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig1.png" width = "490" heigth = "490">
+<img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig1.png" width = "490" heigth = "490">
 
 
 # Full automated installation 
@@ -720,11 +720,11 @@ If you provided one genome containing both sex/mating type chromosomes, only the
     
 ex: minimap based divergence along the mating type chromosomes :
 
-![Fig2.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig2.png)
+![Fig2.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig2.png)
 
 ex: minimap based whole genome alignment : 
 	
-![Fig3.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig3.png)
+![Fig3.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig3.png)
 
 
 
@@ -740,7 +740,7 @@ For more information, consult the [GeneSpace readme](https://github.com/jtlovell
 
 ex: Synteny plot from GeneSpace
 
-![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig4.png)
+![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig4.png)
 
 
 # STEP III - Compute and plot dS - Plot ideogram and rearrangements
@@ -774,7 +774,7 @@ It is possible to modify the R script to adapt the plotting options to your need
 
 Ex: Ds plot : 
 
-![Fig5.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/pictures/Fig5.png)
+![Fig5.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig5.png)
 
 
 ### === - Plot circos (==step III==)
