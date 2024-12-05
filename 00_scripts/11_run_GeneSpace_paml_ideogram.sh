@@ -319,15 +319,15 @@ if [[ $options = "Ds_only" ]] ; then
         awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$6"_"$7}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
-            awk '$1>10 '  > 02_results/scaff.anc.haplo1.txt
+            awk '$1>4 '  > 02_results/scaff.anc.haplo1.txt
         awk '{gsub("_","\t",$0) ; print $2"_"$3"_"$4"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c\
-            |awk '$1>10 ' > 02_results/scaff.anc.haplo2.txt
+            |awk '$1>4 ' > 02_results/scaff.anc.haplo2.txt
         awk '{gsub("_","\t",$0) ; print $6"_"$7"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
-            awk '$1>10 ' \
+            awk '$1>4 ' \
             |sed -e 's/^    //g' -e 's/ /\t/g' > 02_results/scaff.haplo1.haplo2.txt
 
         #do a clean-up in case there is false positive single copy orthologs:  
@@ -340,7 +340,7 @@ if [[ $options = "Ds_only" ]] ; then
         awk '{gsub("_","\t",$0) ; print $2"_"$3"\t"$5"_"$6}' 02_results/paml/single.copy.orthologs|\
             sort |\
             uniq -c|\
-            awk '$1>10 ' \
+            awk '$1>4 ' \
            |sed -e 's/^    //g' -e 's/ /\t/g'  > 02_results/scaff.haplo1.haplo2.txt
 
         #do a clean-up in case there is false positive single copy orthologs:  
@@ -350,10 +350,11 @@ if [[ $options = "Ds_only" ]] ; then
     fi
 fi
 
+#cut  -f3 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo1".txt
+#cut  -f4 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo2".txt
 
-cut  -f3 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo1".txt
-cut  -f4 02_results/paml/single.copy.orthologs_cleaned > 02_results/paml/sco."$haplo2".txt
-
+cut  -f3 02_results/paml/single.copy.orthologs > 02_results/paml/sco."$haplo1".txt
+cut  -f4 02_results/paml/single.copy.orthologs > 02_results/paml/sco."$haplo2".txt
 
 #------------------------------ step 3 run paml  -------------------------------------------------------------#
 

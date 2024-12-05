@@ -99,20 +99,25 @@ all <- cbind(bed1, bed2) %>% group_by(contig1) %>%
     as.data.frame(.)
 } else {
     #assuming we have a link file that is provided
+    print("creating cols")
     #some cols:
-    colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","d67236", "#fee0d2" , "#edf8b1" ,"#636363" )
-    #col_pal <- c("#2b8cbe","#de2d26", "#fc9272", "#fee0d2" , "#edf8b1" ,"#636363" )
+    colS <- c("f1bb7b", "fd6467","5b1a18","5b1a88","4575b4",
+              "d67236", "fee0d2" , "edf8b1" ,"636363","fc9272", "d73027")
+    #col_pal <- c("2b8cbe","de2d26", "fc9272", "fee0d2" , "edf8b1" ,"636363" )
     links$fill <- rep(colS[1:length(levels(links$status))], c(data.frame(table(links$status))[,2]))
+    print("cols ok")
 
     #now merge:
-    all <- cbind(bed1, bed2) %>% group_by(contig1) %>% 
-    filter(n()>4) %>% group_by(contig2) %>% filter(n()>4) %>%
-    #mutate(fill = 'cccccc') %>%
-    as.data.frame() %>%  mutate(Species_1 = dense_rank(contig1)) %>%
-    mutate(Species_2 = dense_rank(contig2)) %>% 
-    #select(Species_1,Start_1,End_1,Species_2,Start_2,End_2,fill) %>%
-    as.data.frame(.)
-    left_join(links, .,  by = join_by(gene1 == gene1, gene2 == gene2) )
+    all <- cbind(bed1, bed2) %>% 
+        group_by(contig1) %>% 
+        left_join(links, .,  by = join_by(gene1 == gene1, gene2 == gene2) ) %>%
+        filter(n()>4) %>% 
+        group_by(contig2) %>% 
+        filter(n()>4) %>%
+        as.data.frame() %>%  
+        mutate(Species_1 = dense_rank(contig1)) %>%
+        mutate(Species_2 = dense_rank(contig2)) %>% 
+        as.data.frame(.) 
    
     #handle cases were Ds > 0.3 were present, 
     #these are excluded from the changepoint analysis and
@@ -129,7 +134,6 @@ write.table(all, paste0("joint_", sp1, "_" , sp2, ".bed" ) , sep="\t", row.names
 writeLines("joint bed file succesffuly exported\n")
 #here it would be important to check that the order of the genes in one or the two species is identical
 #to the order of the genes in the sco! 
-
 
 #read index to filter chromosome and create a pseudobed file :
 #structure of the pseudobed:
@@ -169,17 +173,6 @@ small  <- data.frame(Chr = "none",
                      species = sp$species, #name of 
                      size = 12, 
                      color = 25252525) 
-#small
-#print("index1 is :")
-#index1 
-#print("-----------------")
-#print("index2 is: ")
-#index2
-#print("-----------------")
-#print("karyo : ")
-#karyo 
-#print("-----small is: ")
-#small
 
 if(small$species==index1$species[1]) {
 karyo <- rbind(index1, small, index2)
