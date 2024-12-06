@@ -75,7 +75,7 @@ dplot <- function(df_of_ds, nstrata, columnstrata) {
     theme_classic() +
     ylim(c(0,0.3)) +
     xlab("position along chr (bp)") +
-    ylab( expression(italic("dS"))) +
+    ylab(expression(italic(d[s])))
     th_plot2 + 
     theme(legend.position = "none") + 
     scale_colour_manual(values=mycolor[1:nstrata])  
@@ -90,7 +90,7 @@ dplot2 <- function(df_of_ds, nstrata, columnstrata) {
     theme_classic() +
     ylim(c(0,0.4)) +
     xlab("position along gene order") +
-    ylab( expression(italic("dS"))) +
+    ylab(expression(italic(d[s])))
     th_plot2 + 
     theme(legend.position = "none") + 
     scale_colour_manual(values=mycolor[1:nstrata])  
@@ -105,7 +105,7 @@ vplot <- function(data, nstrata, columnstrata) {
     geom_jitter(shape=16, position=position_jitter(0.2)) +
     theme_classic() + 
     th_plot  + 
-    ylab("dS") +
+    ylab(expression(italic(d[s])))
     scale_fill_manual(values=mycolor[1:nstrata])  + 
     theme(legend.position="none")
 }
@@ -150,6 +150,7 @@ figcp <- vector('list', max(maxchgp))
 fitcp <- vector('list', max(maxchgp))
 m <- list()
 
+
 for(i in 1:maxchgp){
     message(i)
     fitcp[[i]] <- mcp(modelcp[[i]], 
@@ -162,7 +163,7 @@ for(i in 1:maxchgp){
 
     figcp[[i]] <- plotcp(fitcp[[i]], paste0("Posterior fit ", i ,"  changepoint")) 
     
-    pdf(file = paste0(path,"/Strata_comparison_", i , "chpt.pdf"), 10,8)
+    pdf(file = paste0(path,"/Strata_comparison_", i , "chpt.pdf"), 10,6)
     plot_grid(print(figcp[[i]]), labels = "AUTO", ncol = 1)
     dev.off()
 
@@ -187,7 +188,7 @@ for(i in 1:maxchgp){
     
     fitcp[[i]]$loo <- loo(fitcp[[i]])
     vp3 <- vplot(df,3,"three_strata")
-    pdf(file = paste0(path, "violin_plot3strata.pdf"))
+    pdf(file = paste0(path, "violin_plot3strata.pdf"), 10,6)
     print(vp3)
     dev.off()
     
@@ -205,7 +206,7 @@ for(i in 1:maxchgp){
       fitcp[[i]]$loo <- loo(fitcp[[i]])
       
       vp4 <- vplot(df,4, "four_strata")
-      pdf(file = paste0(path, "violin_plot4Strata.pdf"))
+      pdf(file = paste0(path, "violin_plot4Strata.pdf"),10,6)
       print(vp4)
       dev.off()
       
@@ -225,7 +226,7 @@ for(i in 1:maxchgp){
     fitcp[[i]]$loo <- loo(fitcp[[i]])
     
     vp5 <- vplot(df,5,"five_strata")
-    pdf(file = paste0(path, "violin_plot5strata.pdf"))
+    pdf(file = paste0(path, "violin_plot5strata.pdf"),10,6)
     print(vp5)
     dev.off()
     
@@ -245,7 +246,7 @@ for(i in 1:maxchgp){
                               "strata5" )))))
         
       vp6 <- vplot(df,6,"six_strata")
-      pdf(file = paste0(path, "violin_plot6strata.pdf"))
+      pdf(file = paste0(path, "violin_plot6strata.pdf"), 10,6)
       print(vp6)
       dev.off()
       
@@ -267,7 +268,7 @@ for(i in 1:maxchgp){
                                   "strata6"))))))  
         
         vp7 <- vplot(df,7,"seven_strata")
-        pdf(file = paste0(path, "violin_plot7strata.pdf"))
+        pdf(file = paste0(path, "violin_plot7strata.pdf"), 10,6)
         print(vp7)
         dev.off()
         
@@ -290,7 +291,7 @@ for(i in 1:maxchgp){
          
         
         vp8 <- vplot(df,8,"eight_strata")
-        pdf(file = paste0(path, "violin_plot8strata.pdf"))
+        pdf(file = paste0(path, "violin_plot8strata.pdf"), 10,6)
         print(vp8)
         dev.off()
         
@@ -313,7 +314,177 @@ for(i in 1:maxchgp){
                           ifelse(df$orderchp > m[[8]]$mean[6] & df$orderchp < m[[8]]$mean[7], "strata7",
                                           "strata8" ))))))))
         vp9 <- vplot(df,9,"nine_strata")
-        pdf(file = paste0(path, "violin_plot9strata.pdf"))
+        pdf(file = paste0(path, "violin_plot9strata.pdf"), 10,6)
+        print(vp9)
+        dev.off()
+        
+  }
+}
+
+for(i in 1:maxchgp){
+    message(i)
+    fitcp[[i]] <- mcp(modelcp[[i]], 
+                 data = df, 
+                 par_x = "orderchp", 
+                 iter = 8e3, 
+                 adapt = 1.5e3,  
+                 chains = 5, 
+                 cores = 5 )
+
+    figcp[[i]] <- plotcp(fitcp[[i]], paste0("Posterior fit ", i ,"  changepoint")) 
+    
+    pdf(file = paste0(path,"/Strata_comparison_", i , "chpt.pdf"), 10,6)
+    plot_grid(print(figcp[[i]]), labels = "AUTO", ncol = 1)
+    dev.off()
+
+   m[[i]] <- summary(fitcp[[i]])
+   write.table(m[[i]], paste0(path, "/model",i,"chpt.txt"), quote =F )
+
+  if (i == 1){
+    pdf(file = paste(path,"pars_1cp.pdf"))
+    print(plot_pars(fitcp[[i]], pars = c("cp_1")))
+    dev.off()
+    df$two_strata <- ifelse(df$orderchp < m[[i]]$mean[1], "strata1", "strata2")
+
+    fitcp[[i]]$loo <- loo(fitcp[[i]])
+    
+  } else if (i == 2){
+    pdf(file =paste0(path, "pars_2cp.pdf"))
+    print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2")))
+    dev.off()
+   
+     df$three_strata <- ifelse(df$orderchp < m[[2]]$mean[1], "strata1",
+          ifelse(df$orderchp > m[[2]]$mean[2], "strata3", "strata2"))
+    
+    fitcp[[i]]$loo <- loo(fitcp[[i]])
+    vp3 <- vplot(df,3,"three_strata")
+    pdf(file = paste0(path, "violin_plot3strata.pdf"), 10,6)
+    print(vp3)
+    dev.off()
+    
+  } else if (i == 3){
+      pdf(file = paste0(path, "pars_3cp.pdf"))
+      print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2","cp_3")))
+      dev.off()
+  
+      df$four_strata <- ifelse(df$orderchp < m[[3]]$mean[1], "strata1", 
+                        ifelse(df$orderchp > m[[3]]$mean[3], "strata4",
+                        ifelse(df$orderchp > m[[3]]$mean[1] & df$orderchp < 
+                                 m[[3]]$mean[2], 
+                               "strata2","strata3"))) 
+
+      fitcp[[i]]$loo <- loo(fitcp[[i]])
+      
+      vp4 <- vplot(df,4, "four_strata")
+      pdf(file = paste0(path, "violin_plot4Strata.pdf"),10,6)
+      print(vp4)
+      dev.off()
+      
+  } else if (i == 4) {
+      pdf(file = paste0(path, "pars_4cp.pdf"))
+      print(plot_pars(fitcp[[i]], 
+                      pars = c("cp_1" ,"cp_2","cp_3","cp_4")))
+      dev.off()
+     df$five_strata <- ifelse(df$orderchp < m[[4]]$mean[1] , "strata1", 
+                       ifelse(df$orderchp > m[[4]]$mean[4], "strata5",
+                       ifelse(df$orderchp > m[[4]]$mean[1] & df$orderchp < 
+                                m[[4]]$mean[2], "strata2",
+                       ifelse(df$orderchp > m[[4]]$mean[2] & df$orderchp < 
+                                m[[4]]$mean[3], "strata3",
+                              "strata4"))))  
+      
+    fitcp[[i]]$loo <- loo(fitcp[[i]])
+    
+    vp5 <- vplot(df,5,"five_strata")
+    pdf(file = paste0(path, "violin_plot5strata.pdf"),10,6)
+    print(vp5)
+    dev.off()
+    
+  } else if (i == 5){
+      pdf(file = paste0(path, "pars_5cp.pdf"))
+      print(plot_pars(fitcp[[i]], 
+                      pars = c("cp_1" ,"cp_2","cp_3","cp_4","cp_5")))
+      dev.off()
+        
+      fitcp[[i]]$loo <- loo(fitcp[[i]])
+    
+      df$six_strata <- ifelse(df$orderchp < m[[5]]$mean[1], "strata1", 
+                       ifelse(df$orderchp > m[[5]]$mean[5], "strata6",
+                       ifelse(df$orderchp > m[[5]]$mean[1] & df$orderchp < m[[5]]$mean[2], "strata2",
+                       ifelse(df$orderchp > m[[5]]$mean[2] & df$orderchp < m[[5]]$mean[3], "strata3",
+                       ifelse(df$orderchp > m[[5]]$mean[3] & df$orderchp < m[[5]]$mean[4], "strata4", 
+                              "strata5" )))))
+        
+      vp6 <- vplot(df,6,"six_strata")
+      pdf(file = paste0(path, "violin_plot6strata.pdf"), 10,6)
+      print(vp6)
+      dev.off()
+      
+  } else if (i == 6) {
+        pdf(file = paste0(path, "pars_6cp.pdf"))
+        print(plot_pars(fitcp[[i]], 
+                        pars = c("cp_1" ,"cp_2","cp_3",
+                                "cp_4","cp_5","cp_6")))
+        dev.off()
+        
+        fitcp[[i]]$loo <- loo(fitcp[[i]])
+     
+        df$seven_strata <- ifelse(df$orderchp < m[[6]]$mean[1], "strata1", 
+                           ifelse(df$orderchp > m[[6]]$mean[6], "strata7",
+                           ifelse(df$orderchp > m[[6]]$mean[1] & df$orderchp < m[[6]]$mean[2], "strata2",
+                           ifelse(df$orderchp > m[[6]]$mean[2] & df$orderchp < m[[6]]$mean[3], "strata3",
+                           ifelse(df$orderchp > m[[6]]$mean[3] & df$orderchp < m[[6]]$mean[4], "strata4",
+                           ifelse(df$orderchp > m[[6]]$mean[4] & df$orderchp < m[[6]]$mean[5], "strata5",
+                                  "strata6"))))))  
+        
+        vp7 <- vplot(df,7,"seven_strata")
+        pdf(file = paste0(path, "violin_plot7strata.pdf"), 10,6)
+        print(vp7)
+        dev.off()
+        
+  } else if (i == 7){
+        pdf(file = paste0(path, "pars_7cp.pdf"))
+        print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2","cp_3","cp_4",
+                                       "cp_5","cp_6", "cp_7")))
+        dev.off()
+        
+        fitcp[[i]]$loo <- loo(fitcp[[i]])
+       
+        df$eight_strata <- ifelse(df$orderchp < m[[7]]$mean[1], "strata1", 
+                           ifelse(df$orderchp > m[[7]]$mean[7], "strata8",
+                           ifelse(df$orderchp > m[[7]]$mean[1] & df$orderchp < m[[7]]$mean[2], "strata2",
+                           ifelse(df$orderchp > m[[7]]$mean[2] & df$orderchp < m[[7]]$mean[3], "strata3",
+                           ifelse(df$orderchp > m[[7]]$mean[3] & df$orderchp < m[[7]]$mean[4], "strata4",
+                           ifelse(df$orderchp > m[[7]]$mean[4] & df$orderchp < m[[7]]$mean[5], "strata5",
+                           ifelse(df$orderchp > m[[7]]$mean[5] & df$orderchp < m[[7]]$mean[6], "strata6",
+                                    "strata7" )))))))
+         
+        
+        vp8 <- vplot(df,8,"eight_strata")
+        pdf(file = paste0(path, "violin_plot8strata.pdf"), 10,6)
+        print(vp8)
+        dev.off()
+        
+  } else { #assuming (i = 8)
+        pdf(file = paste0(path, "pars_8cp.pdf"))
+        print(plot_pars(fitcp[[i]], 
+                        pars = c("cp_1" ,"cp_2","cp_3","cp_4",
+                                 "cp_5","cp_6", "cp_7","cp_8")))
+        dev.off()
+        
+        fitcp[[i]]$loo <- loo(fitcp[[i]])
+ 
+        df$nine_strata <- ifelse(df$orderchp <m[[8]]$mean[1], "strata1", 
+                          ifelse(df$orderchp > m[[8]]$mean[8], "strata9",
+                          ifelse(df$orderchp > m[[8]]$mean[1] & df$orderchp < m[[8]]$mean[2], "strata2",
+                          ifelse(df$orderchp > m[[8]]$mean[2] & df$orderchp < m[[8]]$mean[3], "strata3",
+                          ifelse(df$orderchp > m[[8]]$mean[3] & df$orderchp < m[[8]]$mean[4], "strata4",
+                          ifelse(df$orderchp > m[[8]]$mean[4] & df$orderchp < m[[8]]$mean[5], "strata5",
+                          ifelse(df$orderchp > m[[8]]$mean[5] & df$orderchp < m[[8]]$mean[6], "strata6",
+                          ifelse(df$orderchp > m[[8]]$mean[6] & df$orderchp < m[[8]]$mean[7], "strata7",
+                                          "strata8" ))))))))
+        vp9 <- vplot(df,9,"nine_strata")
+        pdf(file = paste0(path, "violin_plot9strata.pdf"), 10,6)
         print(vp9)
         dev.off()
         
@@ -525,6 +696,48 @@ write.table(s7.h1.h2,paste0(path,"classif.s7.haplo1.haplo2"),
 write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
     quote=F,row.names=F,col.names=F,sep="\t")
 
+################################################################################
+#finally construct some combined plot:
+plot <- list()
+for (i in 2:8) {
+plot[[i]] <- plot_grid(print(figcp[[i]]) + th_plot3, labels = "AUTO", ncol = 1)
+}
+
+vp3s <- ggbetweenstats(df, three_strata, Ds)  + th_plot3
+vp4s <- ggbetweenstats(df, four_strata, Ds)   + th_plot3
+vp5s <- ggbetweenstats(df, five_strata, Ds)   + th_plot3
+vp6s <- ggbetweenstats(df, six_strata, Ds)    + th_plot3
+vp7s <- ggbetweenstats(df, seven_strata, Ds)  + th_plot3
+#this is probably too much: 
+vp8s <- ggbetweenstats(df, eight_strata, Ds, palette = "Paired")  + th_plot3
+vp9s <- ggbetweenstats(df, eight_strata, Ds, palette = "Paired")  + th_plot3
+
+#comment if you don't want some:
+pdf(file = paste0(path, "viobox_ds_strata_distribution_priors.pdf"), 10,16)
+plot_grid(
+    #vp3s, 
+    vp4s,
+    vp5s,
+    vp6s,
+    vp7s,
+    vp8s, 
+    #vp9s,
+    labels = "AUTO", ncol = 1)
+dev.off()
+
+#comment those that are not wanted:
+pdf(file = paste0(path, "strata_and_viobox_ds_strata_distribution_priors.pdf"), 10,20)
+plot_grid(
+  #plot[[2]],vp3s,
+  plot[[3]],vp4s,
+  plot[[4]],vp5s,
+  plot[[5]],vp6s,
+  plot[[6]],vp6s,
+  plot[[7]],vp8s,
+  #plot[[8]],vp9s,
+  labels = "AUTO", ncol = 1, rel_heights = c(.6,1,.6,1,.6,1))
+dev.off()
+
 
 ###########################################################################
 #### changepoint with prior example
@@ -536,6 +749,7 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #  dir.create("02_results/modelcomp/withprior")
 #}
 
+path="02_results/modelcomp/withprior"
 #unfortunately it seems that this needs to be run manually given the dependance on user assumed priors
 
 #prior2=list(cp_1="dnorm(100, 10)",cp_2="dnorm(330, 10)")
@@ -639,29 +853,19 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #Fig8cpt <- plotcp(priorfit_8cp, "Posterior fit - 8 changepoint") 
 ##Fig9cpt <- plotcp(priorfit_9cp, "Posterior fit - 9 changepoint") 
 #
-#pdf(file = "02_results/modelcomp/changepoint_comparison_withpriors.pdf", 12,18)
-#plot_grid(Fig2cpt, Fig3cpt, Fig4cpt, 
-#          Fig5cpt, Fig6cpt, 
-#          Fig7cpt, Fig8cpt,
-#          labels = "AUTO", ncol = 1)
-#dev.off()
-#
-#pdf(file = "02_results/modelcomp/changepoint_comparison_3to7_withpriors.pdf", 12,18)
-#plot_grid(Fig3cpt, Fig4cpt, 
-#          Fig5cpt, Fig6cpt, 
-#          Fig7cpt, 
-#          labels = "AUTO", ncol = 1)
-#dev.off()
-#
-#
-#pdf(file = "02_results/modelcomp/changepoint_comparison_subset_with_priors.pdf", 12,18)
-#pdf(file = "3_12_24.pdf")
+#pdf(file = paste0(path, "changepoint_comparison_withpriors.pdf"), 12,18)
 #plot_grid(
-#          Fig5cpt, Fig6cpt, 
-#          Fig7cpt, Fig8cpt,
-#          labels = "AUTO", ncol = 1)
+#   Fig2cpt, 
+#   Fig3cpt, 
+#   Fig4cpt, 
+#   Fig5cpt, 
+#   Fig6cpt, 
+#   Fig7cpt, 
+#   Fig8cpt,
+#   labels = "AUTO", ncol = 1)
 #dev.off()
 #
+
 ##----------------  a bit of model choice --------------------------------------#
 ##to be considered precautionously!
 #priorfit_1cp$loo <- loo(priorfit_1cp)
@@ -677,10 +881,7 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #                             priorfit_4cp$loo, priorfit_5cp$loo, priorfit_6cp$loo,
 #                             priorfit_7cp$loo, priorfit_8cp$loo)
 #
-#m.choice <- loo::loo_compare(priorfit_3cp$loo, 
-#                             priorfit_4cp$loo, priorfit_5cp$loo, priorfit_6cp$loo,
-#                             priorfit_7cp$loo )
-#
+
 ## ----- rule of thumb - to be used as a helper for model choice ---- : #
 ## you should read the manual (https://lindeloev.github.io/mcp/articles/comparison.html)
 ## and associated paper to help in choosing a model.
@@ -689,9 +890,6 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 ##                priorfit_4cp$loo, priorfit_5cp$loo, priorfit_6cp$loo,
 ##                priorfit_7cp$loo, priorfit_8cp$loo)
 #
-#loo_list = list(priorfit_3cp$loo, 
-#                priorfit_4cp$loo, priorfit_5cp$loo, priorfit_6cp$loo,
-#                priorfit_7cp$loo)
 #
 #weights <- loo::loo_model_weights(loo_list, method="pseudobma")
 #
@@ -816,7 +1014,7 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #                  ifelse(df$orderchp > cp6m8 & df$orderchp < cp7m8, "strata7",
 #                           "strata8" ))))))))
 #
-#write.table(df,"02_results/modelcomp/df_with_prior.txt",quote=F,row.names=F,col.names=T,sep="\t")
+#write.table(df,paste0(path, "df_with_prior.txt"),quote=F,row.names=F,col.names=T,sep="\t")
 #
 #vp2 <- vplot(df, 2, "two_strata")
 #vp3 <- vplot(df, 3, "three_strata")
@@ -828,14 +1026,15 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #
 #
 ##plot them all
-#pdf(file = "02_results/modelcomp/ds_strata_distribution_priors.pdf", 12,18)
-#plot_grid(vp3,
-#          vp4,
-#          vp5,
-#          vp6,
-#          vp7,
-#          vp8, 
-#          labels = "AUTO", ncol = 1)
+#pdf(file = paste0(path, "vioplot_ds_strata_distribution_priors.pdf", 12,18)
+#plot_grid(
+#    vp3,
+#    vp4,
+#    vp5,
+#    vp6,
+#    vp7,
+#    vp8, 
+#    labels = "AUTO", ncol = 1)
 #dev.off()
 #
 ##same data but with a bit more stats:
@@ -846,32 +1045,35 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #vp7s <- ggbetweenstats(df, seven_strata, Ds)  + th_plot3
 #vp8s <- ggbetweenstats(df, eight_strata, Ds, palette = "paired")  + th_plot3
 #
-#pdf(file = "02_results/modelcomp/ds_strata_distribution_priors.pdf", 12,28)
-#plot_grid(vp3s,
-#          vp4s,
-#          vp5s,
-#          vp6s,
-#          vp7s,
-#          vp8s, 
-#          labels = "AUTO", ncol = 1)
-#dev.off()
-#
-#pdf(file = "Figure.pdf", 24,14)
+#pdf(file = paste0(path, "viobox_ds_strata_distribution_priors.pdf"), 12,28)
 #plot_grid(
-#Fig5cpt, vp5s, Fig6cpt, vp6s, 
-#          Fig7cpt, 
-#          vp7s,
-#          labels = "AUTO", ncol = 2)
+#   vp3s,
+#   vp4s,
+#   vp5s,
+#   vp6s,
+#   vp7s,
+#   vp8s, 
+#   labels = "AUTO", 
+#   ncol = 1)
 #dev.off()
 #
-#write.table(m1, "02_results/modelcomp/summary1strata.priors.txt", quote = F)
-#write.table(m2, "02_results/modelcomp/summary2strata.priors.txt", quote = F)
-#write.table(m3, "02_results/modelcomp/summary3strata.priors.txt", quote = F)
-#write.table(m4, "02_results/modelcomp/summary4strata.priors.txt", quote = F)
-#write.table(m5, "02_results/modelcomp/summary5strata.priors.txt", quote = F)
-#write.table(m6, "02_results/modelcomp/summary6strata.priors.txt", quote = F)
-#write.table(m7, "02_results/modelcomp/summary7strata.priors.txt", quote = F)
-#write.table(m8, "02_results/modelcomp/summary8strata.priors.txt", quote = F)
+#pdf(file = paste0(path, "Figure.pdf"), 24,14)
+#plot_grid(
+#   Fig5cpt, vp5s, 
+#   Fig6cpt, vp6s, 
+#   Fig7cpt, vp7s,
+#   labels = "AUTO", 
+#   ncol = 2)
+#dev.off()
+
+#write.table(m1, paste0(path, "summary1strata.priors.txt"), quote = F)
+#write.table(m2, paste0(path, "summary2strata.priors.txt"), quote = F)
+#write.table(m3, paste0(path, "summary3strata.priors.txt"), quote = F)
+#write.table(m4, paste0(path, "summary4strata.priors.txt"), quote = F)
+#write.table(m5, paste0(path, "summary5strata.priors.txt"), quote = F)
+#write.table(m6, paste0(path, "summary6strata.priors.txt"), quote = F)
+#write.table(m7, paste0(path, "summary7strata.priors.txt"), quote = F)
+#write.table(m8, paste0(path, "summary8strata.priors.txt"), quote = F)
 #
 #ds3 <- dplot(df, nstrata=3, "three_strata")
 #ds4 <- dplot(df, nstrata=4, "four_strata")
@@ -879,29 +1081,24 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #ds6 <- dplot(df, nstrata=6, "six_strata")
 #ds7 <- dplot(df, nstrata=7, "seven_strata")
 #ds8 <- dplot(df, nstrata=8, "eight_strata")
-#pdf(file="02_results/modelcomp/plot_dS_all_position_priors.pdf",8,12)
-#plot_grid(ds3, ds4, ds5, ds6, ds7, ds8, 
-#          labels = c("A - three changepoint",
-#                     "B - four changepoint" ,
-#                     "C - five changepoint" ,
-#                     "D - six changepoint"  ,
-#                     "E - seven changepoint" ,
-#                     "F - eight changepoint") , 
-#         label_size = 7,
-#         hjust = -0.5, vjust = -0.5,
-#         ncol = 1)
-#dev.off()
-#
-#pdf(file="02_results/modelcomp/plot_dS_all_position_priors.pdf",8,12)
-#plot_grid(ds3, ds4, ds5, ds6, ds7,  
-#          labels = c("A - three strata",
-#                     "B - four strata" ,
-#                     "C - five strata" ,
-#                     "D - six strata"  ,
-#                     "E - seven strata" ),
-#         label_size = 7,
-#         hjust = -0.5, vjust = -0.5,
-#         ncol = 1)
+
+#pdf(file=paste0(path, "plot_dS_all_position_priors.pdf" ),8,12)
+#plot_grid(
+#    ds3, 
+#    ds4, 
+#    ds5, 
+#    ds6, 
+#    ds7, 
+#    ds8, 
+#   labels = c("A - three changepoint",
+#               "B - four changepoint" ,
+#               "C - five changepoint" ,
+#               "D - six changepoint"  ,
+#               "E - seven changepoint" ,
+#               "F - eight changepoint") , 
+#   label_size = 7,
+#   hjust = -0.5, vjust = -0.5,
+#   ncol = 1)
 #dev.off()
 #
 #ds3 <- dplot2(df, nstrata=3, "three_strata")
@@ -911,31 +1108,24 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 #ds7 <- dplot2(df, nstrata=7, "seven_strata")
 #ds8 <- dplot2(df, nstrata=8, "eight_strata")
 #
-#
-#pdf(file="02_results/modelcomp/plot_Ds_along_order_priors.pdf",8,12)
-#plot_grid(ds3, ds4, ds5, ds6, ds7, 
-#          labels = c("A - three changepoint",
-#                     "B - four changepoint" ,
-#                     "C - five changepoint" ,
-#                     "D - six changepoint"  ,
-#                     "E - seven changepoint" ),
-#         label_size = 7,
-#         hjust = -0.5, vjust = -0.5,
-#         ncol = 1)
-#dev.off()
-#
-#
-#pdf(file="02_results/modelcomp/plot_Ds_along_order_priors.pdf",8,12)
-#plot_grid(ds3, ds4, ds5, ds6, ds7, ds8, 
-#          labels = c("A - three changepoint",
-#                     "B - four changepoint" ,
-#                     "C - five changepoint" ,
-#                     "D - six changepoint"  ,
-#                     "E - seven changepoint" ,
-#                     "F - eight changepoint") , 
-#         label_size = 7,
-#         hjust = -0.5, vjust = -0.5,
-#         ncol = 1)
+
+#pdf(file=paste0(path, "plot_Ds_along_order_priors.pdf" ),8,12)
+#plot_grid(
+#    ds3, 
+#    ds4, 
+#    ds5, 
+#    ds6, 
+#    ds7, 
+#    ds8, 
+#    labels = c("A - three changepoint",
+#                "B - four changepoint" ,
+#                "C - five changepoint" ,
+#                "D - six changepoint"  ,
+#                "E - seven changepoint" ,
+#                "F - eight changepoint") , 
+#    label_size = 7,
+#    hjust = -0.5, vjust = -0.5,
+#    ncol = 1)
 #dev.off()
 #
 ##finally: 
