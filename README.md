@@ -9,7 +9,7 @@
 
 # Purpose:
 ##  sets of scripts to : 
-[I - Perform TE and gene prediction](#I-Performe-TE-and-gene-prediction)
+[I - Perform TE and gene prediction](#I---Perform-TE-and-gene-prediction)
 
 [II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)](#II-Identify-synteny-blcks-and-rearrangements-(GeneSpace-circos-minimap2))
 
@@ -120,8 +120,6 @@ This will perform steps I to IV as follows:
 # I - Perform TE and gene prediction
 
 ## RNAseq alignment - TE masking - Gene prediction - Quality assessment
-
-## Input of step I
 
 ### Parameters set in config
 
