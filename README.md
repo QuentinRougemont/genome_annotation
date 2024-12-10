@@ -11,7 +11,7 @@
 ##  sets of scripts to : 
 [I - Perform TE and gene prediction](#I---Perform-TE-and-gene-prediction)
 
-[II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)](#II---Identify-synteny-blocks-and-rearragements-(GeneSpace-Circos-Minimap2))
+[II - Identify synteny blocks and rearragements](#II---Identify-synteny-blocks-and-rearragements)
 
 [III - Plot dS along the genome](#III---Plot-dS-along-the-genome)
 
@@ -226,7 +226,7 @@ If you wish to skip this, comment l.295 of the script `00_scripts/08_braker_resh
 \- **InterProScan** (if option interpro is set to "YES" in the config file and Blast against Uniprot successfully ran)  
 This tool is more time-consuming.
 
-# II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)
+# II - Identify synteny blocks and rearragements
 
 will enable to infer gene order for dS interpretation 
 
@@ -289,7 +289,8 @@ ex: Synteny plot from GeneSpace
 ![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig4.png)
 
 
-#III - Plot dS along the genome
+# III - Plot dS along the genome
+
 ## STEP III - Compute and plot dS - Plot ideogram and rearrangements
 
 ## Input of step III
