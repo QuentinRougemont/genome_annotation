@@ -24,16 +24,16 @@ git clone https://github.com/QuentinRougemont/genome_annotation
 then create the following environnement:
 ```sh
 cd genome_annotation 
-mamba env create -f annotation_env.yml   
+mamba env create -f INSTALL/annotation_env.yml   
 
 #to install to a specific directory:
 #use mamba env create -p your_path/ -f annotation_env.yml 
 
 #for busco:
-mamba env create -f busco_env.yml
+mamba env create -f INSTALL/busco_env.yml
 
 #for repeatmodeller:
-mamba env create -f repeatmodeler.yml
+mamba env create -f INSTALL/repeatmodeler.yml
 
 #Note: I often observed bugs when installing all the software above in a single environnement
 
