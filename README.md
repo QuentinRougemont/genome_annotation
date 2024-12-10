@@ -228,6 +228,8 @@ This tool is more time-consuming.
 
 # II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)
 
+will enable to infer gene order for dS interpretation 
+
 ## Input of step II
 
 ### Parameters set in config ==in yellow parameters to be set==
