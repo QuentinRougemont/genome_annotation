@@ -889,7 +889,10 @@ For all the values of changepoint tested such plots are automatically exported t
 
 here's an example for the two best model in the studied species: 
  
-![Fig7.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig7.B.png)
+![Fig7.svg](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig7.svg)
+
+**Figure 7:** example vioboxplot for the two "most likely" models inferred by the loo analysis.
+By default plots are constructed for all models (from 1 to 9 changepoint) 
 
 
 ds colored by strata along the ancestral genome:
@@ -898,14 +901,25 @@ automatically generated for each changepoint values:
 
 ![Fig8.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig8.png)
 
+
+**Figure 8:** dS values plotted along the ancestral genome for all possible models from three to eight changepoints  
+each point is a gene dS value colored according to the strata of assignation
+
 ds colored by strata along the gene order:
 
 automatically generated for each changepoint values: 
 ![Fig9.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig9.png)
 
+**Figure 9:** dS values plotted along the ancestral gene order for all possible models from three to eight changepoints  
+each point is a gene dS value colored according to the strata of assignation
+
 a posterior colored ideogram: 
 automatically generated for each changepoint values: 
 ![Fig10.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig10.png)
+
+**Figure10:**  example ideograms infered for the most likely models here. Links are colored according to their strata of appartenance. 
+
+
 
 
 
