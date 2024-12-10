@@ -5,20 +5,17 @@
    * [Installation](#Installation)
    * [Input data](#input-data)
    * [Example input data](#example-input-data)
-   * [Quick start](#quick-start)
-   * [Example plot](#example-plot)
-   * [Detailed steps](#detailed-steps)
 
 
 # Purpose:
 ##  sets of scripts to : 
-I - Perform genome annotation using braker3
+[I - Perform TE and gene prediction](#I-Performe-TE-and-gene-prediction)
 
-II - Identify synteny blocks and rearragnements (GeneSpace and Minimap2)
+[II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)](#II-Identify-synteny-blcks-and-rearrangements-(GeneSpace-circos-minimap2))
 
-III - Plot Ds along the genome using ancestral genomes
+[III - Plot dS along the genome](#III-plot-dS-along-the-genome)
 
-IV - Perform changepoint analysis to objectively identify evolutionary strata
+[IV - Perform changepoint analysis to identify evolutionary strata](#IV-Perform-changepoint-analysis-to-identify-evolutionary-strata)
 
 <img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig1.png" width = "490" heigth = "490">
 
@@ -64,13 +61,13 @@ species-1.fasta will not be valid in GeneSpace. => Use **Species1.fasta** instea
 For the chromosome/contig/scaffold ids we recommand a standard naming including the Species name within it without any thing else than alhpanumeric character.  
 
 
-## Example input data   
+## Example input data
 
 
-   
-**Compulsory** 
+several files are **Compulsory** 
 
-see example data folder: 
+see [example data folder](https://github.com/QuentinRougemont/genome_annotation/blob/main/example_data) 
+
 
 	* genome1: `example_data/genome1.fa.gz`
 	* genome2: `example_data/genome2.fa.gz`
@@ -120,8 +117,9 @@ You can launch the whole workflow by typing:
 This will perform steps I to IV as follows:
 
 
+# I - Perform TE and gene prediction
 
-# STEP I - RNA-seq alignment - TE masking - Gene prediction - Quality assessment
+## RNAseq alignment - TE masking - Gene prediction - Quality assessment
 
 ## Input of step I
 
@@ -230,7 +228,7 @@ If you wish to skip this, comment l.295 of the script `00_scripts/08_braker_resh
 \- **InterProScan** (if option interpro is set to "YES" in the config file and Blast against Uniprot successfully ran)  
 This tool is more time-consuming.
 
-# STEP II - Run GeneSpace - Produce synteny plots
+# II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)
 
 ## Input of step II
 
@@ -291,7 +289,8 @@ ex: Synteny plot from GeneSpace
 ![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig4.png)
 
 
-# STEP III - Compute and plot dS - Plot ideogram and rearrangements
+#III - Plot dS along the genome
+## STEP III - Compute and plot dS - Plot ideogram and rearrangements
 
 ## Input of step III
 
@@ -341,8 +340,10 @@ By default any fused autosome will be plotted but these can be removed from the 
 
 See **figure4 panel B** above for example.
 
+# IV - Perform changepoint analysis to identify evolutionary strata
 
-# Step IV
+## Step IV
+
 ### 1\. Changepoint analyses
 
 Before launching this step, we strongly suggest that you consult the results of the workflow, especially the dS plot. i
