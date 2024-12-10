@@ -809,16 +809,18 @@ Once you have deciphered clear hypotheses as to whether there are strata on your
 To that end, you can automatically launch the code ```master.sh -o7``` and it will launch the MCP, producing several graph as well as colored ideogram according for each model infered by the MCP 
 
 ![Fig6.A.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.A.png)
-TODO: insert legend here
+
+**Figure 6A:** Results from the changepoint analysis for 3  (panel A) to 8 changepoints (panel F) that will be automatically performed to infer evolutionary strata. Each changepoint panel displays the distribution of raw data (i.e., dS values as black dots) along with 25 draws from the joint posterior distribution (grey lines) and 95% highest density interval (red lines). Posterior distributions of the changepoints are shown in blue with one line for each chain. Note that in general the "strata" with zero dS value on the left most and rigth most side respectively will correspond to the PAR, not true evolutionary strata.  
 
 
 it is important to check the convergence of the runs for each parameters : 
 this will be perform automatically in our code resulting in these plots for each changepoint tested.
 
-![Fig6.B.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.B.png)
+![Fig6.B.svg](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.B.svg)
 
+**Figure 6B:** posterior fit of the model parameter and mixing of the chains. Here only the values inferred for the 7-changepoint model are shown - the one with highest support.
+values for all other models are generated on the flye.
 
-TODO: insert legend here
 
 The MCP produced many usefull informations that will be extracted and automatically exported in *.txt* tables:
 
