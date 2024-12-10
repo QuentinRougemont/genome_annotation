@@ -11,11 +11,11 @@
 ##  sets of scripts to : 
 [I - Perform TE and gene prediction](#I---Perform-TE-and-gene-prediction)
 
-[II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)](#II-Identify-synteny-blcks-and-rearrangements-(GeneSpace-circos-minimap2))
+[II - Identify synteny blocks and rearragements (GeneSpace Circos Minimap2)](#II---Identify-synteny-blocks-and-rearrangements-(GeneSpace-Circos-Minimap2))
 
-[III - Plot dS along the genome](#III-plot-dS-along-the-genome)
+[III - Plot dS along the genome](#III---plot-dS-along-the-genome)
 
-[IV - Perform changepoint analysis to identify evolutionary strata](#IV-Perform-changepoint-analysis-to-identify-evolutionary-strata)
+[IV - Perform changepoint analysis to identify evolutionary strata](#IV---Perform-changepoint-analysis-to-identify-evolutionary-strata)
 
 <img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig1.png" width = "490" heigth = "490">
 
