@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 
 argv <- commandArgs(T)
 genome_id <- argv[1]

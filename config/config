@@ -18,7 +18,7 @@ RelatedProt="" #/path/to/related_protein.fa" #a full path to a set of external p
 fungus="" #YES or NO set to YES if species is a fungus
 
 ## orthoDB ###
-orthoDBspecies="" #one of : "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" "Stramenopiles"
+orthoDBspecies="" #one of : "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata"
 #if a species is given then it will be used for annotation (in addition to eventual RNAseq and orthProteins) 
 
 #----- optional --------

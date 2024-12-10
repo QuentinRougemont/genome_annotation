@@ -122,7 +122,7 @@ else
                 echo "please verify if this is the file that you need"
         #       exit 1 
             else
-                wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/"${target}".fa.gz
+                wget -q https://bioinf.uni-greifswald.de/bioinf/partitioned_odb12/"${target}".fa.gz
                 gunzip "${target}".fa.gz
                 cd ../ 
                 if [ -z ${RelatedProt+x} ] ; then

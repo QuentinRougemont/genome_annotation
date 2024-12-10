@@ -1,0 +1,58 @@
+#mamba env create -p superannot -f environment.yml
+#conda activate superannot
+name: superannot
+channels:
+  - anaconda
+  - conda-forge
+  - bioconda
+  - eumetsat
+dependencies:
+  - python=3.9.18
+  - wget=1.21.4
+  - curl=8.6.0
+  - numpy=1.26.4
+  - biopython=1.83
+  - make=4.3
+  - cmake=3.28.3
+  - pandas
+  - perl-app-cpanminus
+  - perl-hash-merge
+  - perl-parallel-forkmanager
+  - perl-scalar-util-numeric
+  - perl-yaml
+  - perl-class-data-inheritable
+  - perl-exception-class
+  - perl-test-pod
+  - perl-file-which
+  - perl-mce
+  - perl-threaded
+  - perl-list-util
+  - perl-math-utils
+  - perl-list-moreutils
+  - perl-file-homedir
+  - perl-devel-size
+  - perl-posix
+  - perl-file-spec
+  - perl-module-load-conditional
+  - perl-data-dumper
+  - perl-yaml-xs
+  - json5=0.9.24
+  - matplotlib
+  - jags=4.3.2
+  - r-rjags=4.14
+  - r-rsvg=2.6.0
+  - r-igraph=2.0.2
+  - bioconductor-biostrings=2.70.1
+  - r-devtools=2.4.5
+  - r-curl=5.2.1
+  - r-ragg=1.3.2
+  - r-ggplot2
+  - cdbtools=0.99
+  - samtools=1.18
+  - minimap2=2.27
+  - emboss=6.6.0
+  - json5
+  - matplotlib
+    # - repeatmasker=4.1.5
+    # - repeatmodeler=2.0.5
+

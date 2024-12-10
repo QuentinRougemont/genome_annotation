@@ -20,33 +20,12 @@
 argv <- commandArgs(T)
 
 #--------------- check if library are installed -------------------------------#
-
-if("dplyr" %in% rownames(installed.packages()) == FALSE)
-{install.packages("dplyr", repos="https://cloud.r-project.org") }
-if("ggplot2" %in% rownames(installed.packages()) == FALSE)
-{install.packages("ggplot2", repos="https://cloud.r-project.org") }
-if("magrittr" %in% rownames(installed.packages()) == FALSE)
-{install.packages("magrittr", repos="https://cloud.r-project.org") }
-if("cowplot" %in% rownames(installed.packages()) == FALSE)
-{install.packages("cowplot", repos="https://cloud.r-project.org") }
-if("wesanderson" %in% rownames(installed.packages()) == FALSE)
-{install.packages("wesanderson", repos="https://cloud.r-project.org") }
-if("viridis" %in% rownames(installed.packages()) == FALSE)
-{install.packages("viridis", repos="https://cloud.r-project.org") }
-if("ggrepel" %in% rownames(installed.packages()) == FALSE)
-{install.packages("ggrepel", repos="https://cloud.r-project.org") }
-if("ggbreak" %in% rownames(installed.packages()) == FALSE)
-{install.packages("ggbreak", repos="https://cloud.r-project.org") }
-if("tidyr" %in% rownames(installed.packages()) == FALSE)
-{install.packages("tidyr", repos="https://cloud.r-project.org") }
-if('patchwork' %in% rownames(installed.packages()) == FALSE)
-{install.packages('patchwork', repos="https://cloud.r-project.org") }
-
-
-#---------------- load libraries ---------------------------------------------#
 libs <- c('dplyr','ggplot2','magrittr','cowplot','wesanderson', 'viridis','ggrepel',
           'ggbreak','tidyr','patchwork')
-invisible(lapply(libs, suppressWarnings(suppressMessages(library)), character.only = TRUE))
+install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
+
+#---------------- load libraries ---------------------------------------------#
+invisible(lapply(libs, suppressWarnings(suppressMessages(suppressPackageStartupMessages(library))), character.only = TRUE))
 
 #--------------------- generic function --------------------------------------#
 

@@ -634,7 +634,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
      awk '{gsub("_","\t",$0) ; print $2"\t"$2"_"$3"_"$4"\t"$6"\t"$6"_"$7"\t"$9"\t"$9"_"$10}' 02_results/paml/single.copy.orthologs\
             |sort \
             |uniq -c\
-            |awk '$1>10 {print $2"\t"$3"\n"$4"\t"$5"\n"$6"\t"$7} ' |sort|uniq > 02_results/chromosomes.txt
+            |awk '$1>5 {print $2"\t"$3"\n"$4"\t"$5"\n"$6"\t"$7} ' |sort|uniq > 02_results/chromosomes.txt
     chromosomes="02_results/chromosomes.txt"
 
 
@@ -643,34 +643,47 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
         echo "ancestral genome was provided" 
 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo1" \
-            "$chromosomes" \
-            02_results/synteny_ancestral_sp_"$haplo1".txt \
-            ancestral_sp/ancestral_sp.fa.fai \
-            haplo1/03_genome/"$haplo1".fa.fai #"$genes_plot"
+        
+       #TO DO : test if links were provided by the user and launch code appropriately       
+
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo1" \
+            -c "$chromosomes" \
+            -y 02_results/synteny_ancestral_sp_"$haplo1".txt \
+            -f ancestral_sp/ancestral_sp.fa.fai \
+            -g haplo1/03_genome/"$haplo1".fa.fai \
+            -i genespace/bed/ancestral_sp.bed  \
+            -j genespace/bed/"$haplo1".bed  \
+            -t ancestral_sp/ancestral_sp.TE.bed \
+            -u haplo1/03_genome/"$haplo1".TE.bed  #-l "$genes_plot"
         then
             echo -e "\nERROR: circos plots failed /!\ \n
             please check logs and input data\n" 
             exit 1
         fi
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$ancestral" "$haplo2" \
-            "$chromosomes" \
-            02_results/synteny_ancestral_sp_"$haplo2".txt \
-            ancestral_sp/ancestral_sp.fa.fai \
-            haplo2/03_genome/"$haplo2".fa.fai 
-                    #"$genes_plot"
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo2" \
+            -c "$chromosomes" \
+            -y 02_results/synteny_ancestral_sp_"$haplo2".txt \
+            -f ancestral_sp/ancestral_sp.fa.fai \
+            -g haplo2/03_genome/"$haplo2".fa.fai \
+            -i genespace/bed/ancestral_sp.bed  \
+            -j genespace/bed/"$haplo2".bed  \
+            -t ancestral_sp/ancestral_sp.TE.bed \
+            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
         then
             echo -e "\nERROR: circos plots failed /!\ \n
             please check logs and input data\n" 
             exit 1
         fi
 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-                "$chromosomes" \
-                02_results/synteny_"$haplo1"_"$haplo2".txt  \
-                haplo1/03_genome/"$haplo1".fa.fai \
-                haplo2/03_genome/"$haplo2".fa.fai \
-                #"$genes_plot"
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+            -c  "$chromosomes" \
+            -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+            -f  haplo1/03_genome/"$haplo1".fa.fai \
+            -g haplo2/03_genome/"$haplo2".fa.fai \
+            -i genespace/bed/"$haplo1".bed  \
+            -j genespace/bed/"$haplo2".bed  \
+            -t haplo1/03_genome/"$haplo1".TE.bed \
+            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
         then
             echo -e "\nERROR: circos plots failed /!\ \n
             please check logs and input data\n" 
@@ -679,12 +692,15 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
     else
         echo "no ancestral genome" 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R "$haplo1" "$haplo2" \
-                $chromosomes \
-                02_results/synteny_"$haplo1"_"$haplo2".txt  \
-                haplo1/03_genome/"$haplo1".fa.fai \
-                haplo2/03_genome/"$haplo2".fa.fai 
-                #"$genes_plot"
+        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+            -c  "$chromosomes" \
+            -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+            -f  haplo1/03_genome/"$haplo1".fa.fai \
+            -g haplo2/03_genome/"$haplo2".fa.fai \
+            -i genespace/bed/"$haplo1".bed  \
+            -j genespace/bed/"$haplo2".bed  \
+            -t haplo1/03_genome/"$haplo1".TE.bed \
+            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
         then
             echo -e "\nERROR: circos plots failed /!\ \n
             please check logs and input data\n" 
@@ -739,9 +755,6 @@ elif [[ $options = "changepoint" ]]  ; then
 fi 
 
 
-#to do here: 
-#run ideogram with strata colors a posteriori 
-#### JUST A TEST
 for links in 02_results/modelcomp/classif.s*haplo1.haplo2 ; 
 do 
      Rscript ./00_scripts/Rscripts/04.ideogram.R \
@@ -753,16 +766,15 @@ do
                 "$links" 
 done
 
-for links in 02_results/modelcomp/classif.s*ancestral.haplo1 ; 
-do 
-     Rscript ./00_scripts/Rscripts/04.ideogram.R \
-                02_results/sco_anc \
-                genespace/bed/ancestral_sp.bed \
-                genespace/bed/"$haplo1".bed  \
-                "${ancestral_genome}".fai \
-                haplo1/03_genome/"$haplo1".fa.fai \
-                "$links" 
-done
-
-
-#
+if [ -n "${ancestral_genome}" ] ; then
+   for links in 02_results/modelcomp/classif.s*ancestral.haplo1 ; 
+   do 
+        Rscript ./00_scripts/Rscripts/04.ideogram.R \
+                   02_results/sco_anc \
+                   genespace/bed/ancestral_sp.bed \
+                   genespace/bed/"$haplo1".bed  \
+                   "${ancestral_genome}".fai \
+                   haplo1/03_genome/"$haplo1".fa.fai \
+                   "$links" 
+   done
+fi

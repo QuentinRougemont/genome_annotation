@@ -4,28 +4,13 @@
 #Author: QR
 #Date: 26-01-24
 ################################################################################
-### load librariers ############################################################
 
-# perform the usual verifications :
-if("mcp" %in% rownames(installed.packages()) == FALSE)
-{install.packages("mcp", repos="https://cloud.r-project.org") }
-if("dplyr" %in% rownames(installed.packages()) == FALSE)
-{install.packages("dplyr", repos="https://cloud.r-project.org") }
-if("ggplot2" %in% rownames(installed.packages()) == FALSE)
-{install.packages("ggplot2", repos="https://cloud.r-project.org") }
-if("cowplot" %in% rownames(installed.packages()) == FALSE)
-{install.packages("cowplot", repos="https://cloud.r-project.org") }
-if("ggstatsplot" %in% rownames(installed.packages()) == FALSE)
-{install.packages("ggstatsplot", repos="https://cloud.r-project.org") }
-if("magrittr" %in% rownames(installed.packages()) == FALSE)
-{install.packages("magrittr", repos="https://cloud.r-project.org") }
+#--------------- check if library are installed -------------------------------#
+libs <- c('mcp','dplyr','ggplot2','magrittr','cowplot','ggstatsplot' )
+install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 
-library(mcp)
-library(ggplot2)
-library(cowplot)
-library(dplyr)
-library(ggstatsplot)
-library(magrittr)
+#---------------- load libraries ---------------------------------------------#
+invisible(lapply(libs, suppressWarnings(suppressMessages(suppressPackageStartupMessages(library))), character.only = TRUE))
 
 #---- load data ---- # 
 df <- read.table("02_results/dS.values.forchangepoint.txt", h = T) #a table with two columns : Ds and order 
@@ -55,7 +40,7 @@ th_plot2 <-  theme(axis.title.x=element_text(size=8, family="Helvetica",face="bo
     axis.text.y=element_text(size=8,family="Helvetica",face="bold"),
     strip.text.x = element_text(size=7),panel.grid.major = element_blank())
 
-th_plot <-  theme(axis.title.x=element_text(size=10, family="Helvetica",face="bold"),
+th_plot3<-  theme(axis.title.x=element_text(size=10, family="Helvetica",face="bold"),
     axis.text.x=element_text(size=10,family="Helvetica",face="bold", angle=0, hjust=0, vjust=0.5),
     axis.title.y=element_text(size=12, family="Helvetica",face="bold",angle=90, hjust=0.5, vjust=0.5),
     axis.text.y=element_text(size=10,family="Helvetica",face="bold"),
@@ -75,7 +60,7 @@ dplot <- function(df_of_ds, nstrata, columnstrata) {
     theme_classic() +
     ylim(c(0,0.3)) +
     xlab("position along chr (bp)") +
-    ylab(expression(italic(d[s])))
+    ylab(expression(italic(d[s]))) +
     th_plot2 + 
     theme(legend.position = "none") + 
     scale_colour_manual(values=mycolor[1:nstrata])  
@@ -90,7 +75,7 @@ dplot2 <- function(df_of_ds, nstrata, columnstrata) {
     theme_classic() +
     ylim(c(0,0.4)) +
     xlab("position along gene order") +
-    ylab(expression(italic(d[s])))
+    ylab(expression(italic(d[s]))) +
     th_plot2 + 
     theme(legend.position = "none") + 
     scale_colour_manual(values=mycolor[1:nstrata])  
@@ -105,7 +90,7 @@ vplot <- function(data, nstrata, columnstrata) {
     geom_jitter(shape=16, position=position_jitter(0.2)) +
     theme_classic() + 
     th_plot  + 
-    ylab(expression(italic(d[s])))
+    ylab(expression(italic(d[s]))) +
     scale_fill_manual(values=mycolor[1:nstrata])  + 
     theme(legend.position="none")
 }
@@ -321,179 +306,14 @@ for(i in 1:maxchgp){
   }
 }
 
-for(i in 1:maxchgp){
-    message(i)
-    fitcp[[i]] <- mcp(modelcp[[i]], 
-                 data = df, 
-                 par_x = "orderchp", 
-                 iter = 8e3, 
-                 adapt = 1.5e3,  
-                 chains = 5, 
-                 cores = 5 )
-
-    figcp[[i]] <- plotcp(fitcp[[i]], paste0("Posterior fit ", i ,"  changepoint")) 
-    
-    pdf(file = paste0(path,"/Strata_comparison_", i , "chpt.pdf"), 10,6)
-    plot_grid(print(figcp[[i]]), labels = "AUTO", ncol = 1)
-    dev.off()
-
-   m[[i]] <- summary(fitcp[[i]])
-   write.table(m[[i]], paste0(path, "/model",i,"chpt.txt"), quote =F )
-
-  if (i == 1){
-    pdf(file = paste(path,"pars_1cp.pdf"))
-    print(plot_pars(fitcp[[i]], pars = c("cp_1")))
-    dev.off()
-    df$two_strata <- ifelse(df$orderchp < m[[i]]$mean[1], "strata1", "strata2")
-
-    fitcp[[i]]$loo <- loo(fitcp[[i]])
-    
-  } else if (i == 2){
-    pdf(file =paste0(path, "pars_2cp.pdf"))
-    print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2")))
-    dev.off()
-   
-     df$three_strata <- ifelse(df$orderchp < m[[2]]$mean[1], "strata1",
-          ifelse(df$orderchp > m[[2]]$mean[2], "strata3", "strata2"))
-    
-    fitcp[[i]]$loo <- loo(fitcp[[i]])
-    vp3 <- vplot(df,3,"three_strata")
-    pdf(file = paste0(path, "violin_plot3strata.pdf"), 10,6)
-    print(vp3)
-    dev.off()
-    
-  } else if (i == 3){
-      pdf(file = paste0(path, "pars_3cp.pdf"))
-      print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2","cp_3")))
-      dev.off()
-  
-      df$four_strata <- ifelse(df$orderchp < m[[3]]$mean[1], "strata1", 
-                        ifelse(df$orderchp > m[[3]]$mean[3], "strata4",
-                        ifelse(df$orderchp > m[[3]]$mean[1] & df$orderchp < 
-                                 m[[3]]$mean[2], 
-                               "strata2","strata3"))) 
-
-      fitcp[[i]]$loo <- loo(fitcp[[i]])
-      
-      vp4 <- vplot(df,4, "four_strata")
-      pdf(file = paste0(path, "violin_plot4Strata.pdf"),10,6)
-      print(vp4)
-      dev.off()
-      
-  } else if (i == 4) {
-      pdf(file = paste0(path, "pars_4cp.pdf"))
-      print(plot_pars(fitcp[[i]], 
-                      pars = c("cp_1" ,"cp_2","cp_3","cp_4")))
-      dev.off()
-     df$five_strata <- ifelse(df$orderchp < m[[4]]$mean[1] , "strata1", 
-                       ifelse(df$orderchp > m[[4]]$mean[4], "strata5",
-                       ifelse(df$orderchp > m[[4]]$mean[1] & df$orderchp < 
-                                m[[4]]$mean[2], "strata2",
-                       ifelse(df$orderchp > m[[4]]$mean[2] & df$orderchp < 
-                                m[[4]]$mean[3], "strata3",
-                              "strata4"))))  
-      
-    fitcp[[i]]$loo <- loo(fitcp[[i]])
-    
-    vp5 <- vplot(df,5,"five_strata")
-    pdf(file = paste0(path, "violin_plot5strata.pdf"),10,6)
-    print(vp5)
-    dev.off()
-    
-  } else if (i == 5){
-      pdf(file = paste0(path, "pars_5cp.pdf"))
-      print(plot_pars(fitcp[[i]], 
-                      pars = c("cp_1" ,"cp_2","cp_3","cp_4","cp_5")))
-      dev.off()
-        
-      fitcp[[i]]$loo <- loo(fitcp[[i]])
-    
-      df$six_strata <- ifelse(df$orderchp < m[[5]]$mean[1], "strata1", 
-                       ifelse(df$orderchp > m[[5]]$mean[5], "strata6",
-                       ifelse(df$orderchp > m[[5]]$mean[1] & df$orderchp < m[[5]]$mean[2], "strata2",
-                       ifelse(df$orderchp > m[[5]]$mean[2] & df$orderchp < m[[5]]$mean[3], "strata3",
-                       ifelse(df$orderchp > m[[5]]$mean[3] & df$orderchp < m[[5]]$mean[4], "strata4", 
-                              "strata5" )))))
-        
-      vp6 <- vplot(df,6,"six_strata")
-      pdf(file = paste0(path, "violin_plot6strata.pdf"), 10,6)
-      print(vp6)
-      dev.off()
-      
-  } else if (i == 6) {
-        pdf(file = paste0(path, "pars_6cp.pdf"))
-        print(plot_pars(fitcp[[i]], 
-                        pars = c("cp_1" ,"cp_2","cp_3",
-                                "cp_4","cp_5","cp_6")))
-        dev.off()
-        
-        fitcp[[i]]$loo <- loo(fitcp[[i]])
-     
-        df$seven_strata <- ifelse(df$orderchp < m[[6]]$mean[1], "strata1", 
-                           ifelse(df$orderchp > m[[6]]$mean[6], "strata7",
-                           ifelse(df$orderchp > m[[6]]$mean[1] & df$orderchp < m[[6]]$mean[2], "strata2",
-                           ifelse(df$orderchp > m[[6]]$mean[2] & df$orderchp < m[[6]]$mean[3], "strata3",
-                           ifelse(df$orderchp > m[[6]]$mean[3] & df$orderchp < m[[6]]$mean[4], "strata4",
-                           ifelse(df$orderchp > m[[6]]$mean[4] & df$orderchp < m[[6]]$mean[5], "strata5",
-                                  "strata6"))))))  
-        
-        vp7 <- vplot(df,7,"seven_strata")
-        pdf(file = paste0(path, "violin_plot7strata.pdf"), 10,6)
-        print(vp7)
-        dev.off()
-        
-  } else if (i == 7){
-        pdf(file = paste0(path, "pars_7cp.pdf"))
-        print(plot_pars(fitcp[[i]], pars = c("cp_1" ,"cp_2","cp_3","cp_4",
-                                       "cp_5","cp_6", "cp_7")))
-        dev.off()
-        
-        fitcp[[i]]$loo <- loo(fitcp[[i]])
-       
-        df$eight_strata <- ifelse(df$orderchp < m[[7]]$mean[1], "strata1", 
-                           ifelse(df$orderchp > m[[7]]$mean[7], "strata8",
-                           ifelse(df$orderchp > m[[7]]$mean[1] & df$orderchp < m[[7]]$mean[2], "strata2",
-                           ifelse(df$orderchp > m[[7]]$mean[2] & df$orderchp < m[[7]]$mean[3], "strata3",
-                           ifelse(df$orderchp > m[[7]]$mean[3] & df$orderchp < m[[7]]$mean[4], "strata4",
-                           ifelse(df$orderchp > m[[7]]$mean[4] & df$orderchp < m[[7]]$mean[5], "strata5",
-                           ifelse(df$orderchp > m[[7]]$mean[5] & df$orderchp < m[[7]]$mean[6], "strata6",
-                                    "strata7" )))))))
-         
-        
-        vp8 <- vplot(df,8,"eight_strata")
-        pdf(file = paste0(path, "violin_plot8strata.pdf"), 10,6)
-        print(vp8)
-        dev.off()
-        
-  } else { #assuming (i = 8)
-        pdf(file = paste0(path, "pars_8cp.pdf"))
-        print(plot_pars(fitcp[[i]], 
-                        pars = c("cp_1" ,"cp_2","cp_3","cp_4",
-                                 "cp_5","cp_6", "cp_7","cp_8")))
-        dev.off()
-        
-        fitcp[[i]]$loo <- loo(fitcp[[i]])
- 
-        df$nine_strata <- ifelse(df$orderchp <m[[8]]$mean[1], "strata1", 
-                          ifelse(df$orderchp > m[[8]]$mean[8], "strata9",
-                          ifelse(df$orderchp > m[[8]]$mean[1] & df$orderchp < m[[8]]$mean[2], "strata2",
-                          ifelse(df$orderchp > m[[8]]$mean[2] & df$orderchp < m[[8]]$mean[3], "strata3",
-                          ifelse(df$orderchp > m[[8]]$mean[3] & df$orderchp < m[[8]]$mean[4], "strata4",
-                          ifelse(df$orderchp > m[[8]]$mean[4] & df$orderchp < m[[8]]$mean[5], "strata5",
-                          ifelse(df$orderchp > m[[8]]$mean[5] & df$orderchp < m[[8]]$mean[6], "strata6",
-                          ifelse(df$orderchp > m[[8]]$mean[6] & df$orderchp < m[[8]]$mean[7], "strata7",
-                                          "strata8" ))))))))
-        vp9 <- vplot(df,9,"nine_strata")
-        pdf(file = paste0(path, "violin_plot9strata.pdf"), 10,6)
-        print(vp9)
-        dev.off()
-        
-  }
-}
 
 #save.image( file = "02_results/modelcomp/changepoint_analysis.RData")
 
-### part 2: 
+# part 2: 
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines("\n\nperforming model choice \n\n")
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
 #perform model choice and extract weights:
 loo_list = list()
 
@@ -513,6 +333,11 @@ write.table(df,"02_results/modelcomp/noprior/df.txt",quote=F,row.names=F,col.nam
 #testing hypothesis
 #see more here: https://lindeloev.github.io/mcp/articles/comparison.html
 #below 3 changepoints, there is little relevance, so we test this directly
+
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines("\n\n compare adjacent strata value through BF \n\n")
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
 
 for (i in 3:maxchgp){
   if (i == 3){
@@ -612,6 +437,11 @@ write.table(hyp6, paste0(path, "hypothesis6strata.txt"), quote= F)
 write.table(hyp7, paste0(path, "hypothesis7strata.txt"), quote= F)
 write.table(hyp8, paste0(path, "hypothesis8strata.txt"), quote= F)
 
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines("\n\n exporting some more plots \n\n")
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
+
 #other plots: 
 ds3 <- dplot(df, nstrata=3, "three_strata")
 ds4 <- dplot(df, nstrata=4, "four_strata")
@@ -699,9 +529,13 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 ################################################################################
 #finally construct some combined plot:
 plot <- list()
-for (i in 2:8) {
+for (i in 1:maxchp) {
 plot[[i]] <- plot_grid(print(figcp[[i]]) + th_plot3, labels = "AUTO", ncol = 1)
 }
+
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines("\n\n comparing models with gstatsplot\n\n")
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
 vp3s <- ggbetweenstats(df, three_strata, Ds)  + th_plot3
 vp4s <- ggbetweenstats(df, four_strata, Ds)   + th_plot3
@@ -710,33 +544,49 @@ vp6s <- ggbetweenstats(df, six_strata, Ds)    + th_plot3
 vp7s <- ggbetweenstats(df, seven_strata, Ds)  + th_plot3
 #this is probably too much: 
 vp8s <- ggbetweenstats(df, eight_strata, Ds, palette = "Paired")  + th_plot3
-vp9s <- ggbetweenstats(df, eight_strata, Ds, palette = "Paired")  + th_plot3
+vp9s <- ggbetweenstats(df, nine_strata, Ds, palette = "Paired")  + th_plot3
 
 #comment if you don't want some:
 pdf(file = paste0(path, "viobox_ds_strata_distribution_priors.pdf"), 10,16)
 plot_grid(
     #vp3s, 
-    vp4s,
-    vp5s,
+    #vp4s,
+    #vp5s,
     vp6s,
     vp7s,
     vp8s, 
-    #vp9s,
+    vp9s,
     labels = "AUTO", ncol = 1)
 dev.off()
+
+pdf(file = paste0(path, "all_comp.pdf"), 10,20)
+plot_grid(
+  plot[[3]],
+  plot[[4]],
+  plot[[5]],
+  plot[[6]],
+  plot[[7]],
+  plot[[8]],
+  labels = "AUTO", ncol = 1)
+dev.off()
+
 
 #comment those that are not wanted:
 pdf(file = paste0(path, "strata_and_viobox_ds_strata_distribution_priors.pdf"), 10,20)
 plot_grid(
   #plot[[2]],vp3s,
-  plot[[3]],vp4s,
-  plot[[4]],vp5s,
+  #plot[[3]],vp4s,
+  #plot[[4]],vp5s,
   plot[[5]],vp6s,
   plot[[6]],vp6s,
-  plot[[7]],vp8s,
-  #plot[[8]],vp9s,
-  labels = "AUTO", ncol = 1, rel_heights = c(.6,1,.6,1,.6,1))
+  #plot[[7]],vp8s,
+  plot[[8]],vp9s,
+  labels = "AUTO", ncol = 1, rel_heights = c(.4,1,.4,1,.4,1))
 dev.off()
+
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines("\n analyses finished !! \n\n")
+writeLines("\nn~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
 
 ###########################################################################

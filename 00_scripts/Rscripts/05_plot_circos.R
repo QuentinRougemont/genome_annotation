@@ -18,79 +18,112 @@
 ####-------------------------- INITIALISATION ------------------------------####
 
 #------------- check that libraries are installed and load them ---------------#
-packages <- c('circlize','dplyr','tidyr','wesanderson','magrittr')
+packages <- c('circlize','dplyr','tidyr','wesanderson','magrittr','optparse')
+
 #install.packages(setdiff(packages, rownames(installed.packages())))
 install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
-#invisible(lapply(packages, library, character.only = TRUE))
-invisible(lapply(packages, suppressWarnings(suppressPackageStartupMessages(library)), character.only = TRUE))
+invisible(lapply(packages, suppressMessages(suppressWarnings(suppressPackageStartupMessages(library))), character.only = TRUE))
 
 #------------- read input from the command line -------------------------------#
-args <- commandArgs(T)
-#
-## test if there are at least 3 arguments: if not, return an error
-#if (length(args) < 3) {
-#  stop("At least the name of 2 species and a list of focus scaffolds must be supplied", call.=FALSE)
-#} else if (length(args)==3) {
-#  print("assuming no particular gene to be highlighted")
-#} else {
-#  print("Genes of interest will be displayed in colors")
-#  data_genes=read.table(args[4], as.is=T, sep='\t')
-#  # test that bed file has 4 columns
-#  if (ncol(data_genes)<4) {
-#    stop("Missing one or more columns in BED files. Expected: chr, start, end, state", call.=FALSE)
-#  }
-#}
-## enter variables
-reference <- args[1]
-haplo <- args[2]
-chromosomes <- read.table(args[3])
-synt <- args[4] 
-fai1 <- args[5]
-fai2 <- args[6]
+option_list <- list(
+  make_option(c("-s","--species1"), type="character", default=NULL,
+              help="species1 name' [default %default]", 
+              ),
+  make_option(c("-p","--species2"), type="character", default=NULL,
+              help="species2 [default %default]",
+              ),
+  make_option(c("-c","--chromosome_file"), type="character", default=NULL,
+              help="txt file of target chromosomes, a 2 column file with species id\tchromosome id [default %default]",
+              ),
+  make_option(c("-y","--synteny_table"), type="character", default=NULL,
+              help="txt file of synteny table (generated from previous steps) [default %default]",
+              dest="synteny_file"),
+  make_option(c("-f","--fai_species1"), type="character", default=NULL,
+              help="samtools index file from species1 (generated from previous steps) [default %default]",
+              dest="fai1"),
+  make_option(c("-g","--fai_species2"), type="character", default=NULL,
+              help="samtools index file from species2 (generated from previous steps) [default %default]",
+              dest="fai2"),
+  make_option(c("-i","--gene_species1"), type="character", default=NULL,
+              help="bed file of genes for species1 (generated from previous steps) [default %default]",
+              dest="g1"),
+  make_option(c("-j","--gene_species2"), type="character", default=NULL,
+              help="bed file of genes for species2 (generated from previous steps) [default %default]",
+              dest="g2"),
+  make_option(c("-t","--TE_species1"), type="character", default=NULL,
+              help="bed file of TE for species1 (generated from previous steps) [default %default]",
+              dest="TE1"),
+  make_option(c("-u","--TE_species2"), type="character", default=NULL,
+              help="bed file of TE for species2 (generated from previous steps) [default %default]",
+              dest="TE2"),
+  make_option(c("-l","--links"), type="character", default=NULL,
+              help="bed file of regions to highlight (gene/centromere/etc) [default %default]",
+              ),
+  make_option(c("-v", "--verbose"), action="store_true", default=TRUE,
+              help="Print out all parameter settings [default]")
+)
 
-print(paste0("reference is ", reference))
-print(paste0("haplo is ", haplo))
-print(paste0("chromosome are ", args[3]))
-print(paste0("synt are ",synt))
-print(paste0("fai1 is ", fai1))
-print(paste0("fai2 is ", fai2))
+options(error=traceback)
 
-####  examples #######
-#haplo <- "Mlyc1064a1" #args[1]
-#haplo <- "Mlyc1064a2"
-#reference <- "ancestral_sp" #args[2]
-#reference <- "Mlag129A1" 
-#reference <- "Mlyc1064a1"
-#chromosomes <- read.table("chromosomes.txt")    #args[3]
-#synt <- "synteny_ancestral_sp_Mlyc1064a1.txt"  #args[4]
-#synt <- "synteny_ancestral_sp_Mlyc1064a2.txt"
-#synt <- "synteny_Mlyc1064a1_Mlyc1064a2.txt"
-#fai1 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"  #args[5]
-#fai1 <- "ancestral_sp/ancestral_sp.fa.fai"     
-#fai2 <- "haplo2/03_genome/Mlyc1064a2.fa.fai"
-#fai2 <- "haplo1/03_genome/Mlyc1064a1.fa.fai"   #args[6]
+parser <- OptionParser(usage = "%prog -s species1 -p species2 -c chromosomes -y synteny_table
+                       -f fai_specie1 -g fai_species2 [options]", 
+                       option_list = option_list)
+opt = parse_args(parser)
+#opt = parse_args(OptionParser(option_list=option_list))
+
+if(opt$v){
+  cat(paste0("script to perform CIRCOS plot\n\n"))
+  cat(paste0("COMPULSORY PARAMETERS :\n\t--species1 (-s): ", opt$species1,"\n"))
+  cat(paste0("\t--species2 (-p): ", opt$species2,"\n"))
+  cat(paste0("\t--chromosome (-c): ", opt$chromosome_file,"\n"))
+  cat(paste0("\t--synteny_table (-y): ", opt$synteny_file,"\n"))
+  cat(paste0("\t--fai_species1: index file sp1 (-f): ", opt$fai1,"\n"))
+  cat(paste0("\t--fai_species2: index file sp2 (-g): ", opt$fai2,"\n"))
+  cat(paste0("optional parameters: \n"))
+  cat(paste0("\t--gene_species1 (-i bed file of gene for sp1): ", opt$g1,"\n"))
+  cat(paste0("\t--gene_species2 (-j bed file of gene for sp2): ", opt$g2,"\n"))
+  cat(paste0("\t--TE_species1 (-t): bed file of TE for sp1", opt$TE1,"\n"))
+  cat(paste0("\t--TE_species2 (-u): bed for of TE for sp2", opt$TE2,"\n"))
+  cat(paste0("\t--links (-u): bed file of links  to highlight", opt$links,"\n"))
+
+}
+
+#----------- load parameters --------------------------------------------------#
+reference <- opt$species1
+haplo <- opt$species2 
+
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+writeLines(paste0("\nreference is ", reference,"\n"))
+writeLines(paste0("haplo is ", haplo, "\n"))
+writeLines("~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
 
 #------------- Import other files ---------------------------------------------#
 # import synteny data
 writeLines("\n~~~~~~ loading data ~~~~~~~\n")
-syn <- read.table(synt, header=T, as.is=T, sep='\t')
+syn <- read.table(opt$synteny_file, header=T, as.is=T, sep='\t')
 
 # import contig informations from .fai index
-index_ref <- read.table(fai1, as.is = T, sep = '\t')[,c(1,2)] %>% 
+index_ref <- read.table(opt$fai1, as.is = T, sep = '\t')[,c(1,2)] %>% 
     set_colnames(., c("chr","end"))
 
 #to fix:
-index_hap <- read.table(fai2, as.is = T, sep = '\t')[,c(1,2)] %>% 
+index_hap <- read.table(opt$fai2, as.is = T, sep = '\t')[,c(1,2)] %>% 
     set_colnames(., c("chr","end"))
 writeLines("\n~~~~~~ data loaded ~~~~~~~\n")
 
-####------------------------ PREPARE CIRCOS DATA ---------------------------####
-#------------- Prepare data sets ----------------------------------------------#
+#import chromosme data: 
+chromosomes <- read.table(opt$chromosome_file)
 # Check if some contigs have to be inverted
 if(ncol(chromosomes)==2) {
   chromosomes$inv=0
 }
 colnames(chromosomes) <- c("species","chr","inv")
+
+
+
+####------------------------ PREPARE CIRCOS DATA ---------------------------####
+#------------- Prepare data sets ----------------------------------------------#
 
 # Get list of focus scaffolds for each species
 chr_ref <- chromosomes[which(chromosomes$species == reference),]
@@ -127,10 +160,49 @@ for (contig in to_inv) {
 nb_contig <- nrow(contigs)
 m <- matrix(c(rep(0, nb_contig), c(contigs$end)), ncol=2)
 
+#---------- Optional: getting gene density from bed ---------------------#
+if(!(is.null(opt$g1))){
+  gedens1 <- read.table(opt$g1)
+}
+
+if(!(is.null(opt$g2))){
+  gedens2 <- read.table(opt$g2) 
+  
+  genedensity <- rbind(gedens1,gedens2) %>% 
+    select(-V4) %>%
+    set_colnames(.,c("chr","start","end")) %>%
+    mutate(value = 1) %>%
+    filter(chr %in% contigs$chr)
+
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~")
+cat(paste0("number of gene in sex chr :", nrow(genedensity),"\n"))
+
+}
+
+#---------- Optional: TE density from bed ---------------------#
+
+if(!(is.null(opt$TE1))){
+  TE1 <- read.table(opt$TE1)
+}
+
+if(!(is.null(opt$TE2))){
+  TE2 <- read.table(opt$TE2) 
+
+TEdensity <- rbind(TE1,TE2) %>% 
+    select(-V4) %>%
+    set_colnames(.,c("chr","start","end")) %>%
+    mutate(value = 1) %>%
+    filter(chr %in% contigs$chr)
+
+writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~")
+cat(paste0("number of TE in sex chr: ", nrow(TEdensity),"\n\n"))
+
+}
+
 #---------- Optional: Prepare table of genes to highlight ---------------------#
 #Import the gene positions
-if(length(args) == 7) {
-data_genes <- read.table("links.txt", as.is=T, sep='\t') #TMP modif
+if(!(is.null(opt$links))) {
+data_genes <- read.table(opt$links, as.is=T, sep='\t') 
   colnames(data_genes)=c("chr","start","end","category")
   #Invert contig orientation if needed
   for (contig in to_inv)
@@ -139,13 +211,16 @@ data_genes <- read.table("links.txt", as.is=T, sep='\t') #TMP modif
     data_genes[which(data_genes$chr==contig),]$start=end-data_genes[which(data_genes$chr==contig),]$start
     data_genes[which(data_genes$chr==contig),]$end=end-data_genes[which(data_genes$chr==contig),]$end
   }
-print(data_genes)
 
+#keep target only: 
+data_genes <- data_genes %>% filter(chr %in% contigs$chr)
+print(data_genes)
+nrow(data_genes)
 }
 ####------------------------ LAUNCH CIRCOS ---------------------------------####
 #------------- Define plotting parameters -------------------------------------#
 
-writeLines("~~~~~~ preparing colors ~~~~~~~\n")
+writeLines("\n~~~~~~ preparing colors ~~~~~~~\n")
 # Contig colors
 col_ref <- "grey"
 col_hap <- "grey95"
@@ -199,6 +274,28 @@ circos.track(track.index = get.current.track.index(), panel.fun=function(x, y) {
               col="grey40", labels.col="black", lwd=0.7, labels.facing="clockwise")
 }, bg.border=F)
 
+#gene density plots:
+if(exists('genedensity')){
+  circos.genomicDensity(genedensity, 
+                      col="slategray1", 
+                      bg.border=contig_color, 
+                      #bg.lwd=0.8,
+                      window.size = 8000, #force.ylim=FALSE, ylim=c(-0.01,0.99),
+                      overlap = FALSE,
+                      count_by = "number",  track.height=0.05)
+}
+
+#gene density plots:
+if(exists('TEdensity')){
+  circos.genomicDensity(TEdensity, 
+                      col="springgreen", 
+                      bg.border=contig_color, 
+                      #bg.lwd=0.8,
+                      window.size = 8000, #force.ylim=FALSE, ylim=c(-0.01,0.99),
+                      overlap = FALSE,
+                      count_by = "number",  track.height=0.05)
+}
+
 #------------- Plot links -----------------------------------------------------#
 #rcols=scales::alpha(ifelse(d$chrom_lag=='MC03',"blue","purple"),alpha=1)
 # Color the links according to reference haplotype contigs
@@ -206,7 +303,8 @@ circos.track(track.index = get.current.track.index(), panel.fun=function(x, y) {
 circos.genomicLink(nuc1, nuc2, col=rcols, border=NA)
 
 #---------- Optional: highlight genes -----------------------------------------#
-if(length(args) == 7) { #TMP
+if(exists('data_genes')){
+  writeLines("\nadding links to highlight some regions of interest\n")
   # Make a new track
   circos.track(ylim=c(0, 1), panel.fun=function(x, y) {
     chr=CELL_META$sector.index
@@ -216,16 +314,19 @@ if(length(args) == 7) { #TMP
   
   # Plot genes
   list_cat=unique(data_genes$category)
+
   for(c in 1:length(list_cat)) {
     cat=list_cat[c]
     d_cat=data_genes[which(data_genes$category==cat),]
     col=rainbow(length(list_cat))[c]
+    #print(col)
     for(i in d_cat$chr) {
       circos.genomicRect(d_cat[which(d_cat$chr==i),], sector.index=i,
-		track.index=2, ytop = 1, ybottom = 0,col=col,border=col)}
+		track.index=1, ytop = 1, ybottom = 0,col=col,border=col)}
     }
-} #TMP
+}
 
+#
 #----------- Write pdf file ---------------------------------------------------#
 dev.off()
 

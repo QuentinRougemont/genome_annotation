@@ -517,9 +517,11 @@ we recommend to use short name for each of your genome assemblies name and avoid
 
 species-1.fasta will not be valid in GeneSpace. => Use **Species1.fasta** instead.
 
-For the chromosome/contig/scaffold ids we recommand a standard naming including the Species name within it without any thing else than alhpanumeric character.
+For the chromosome/contig/scaffold ids we recommand a standard naming including the Species name within it without any thing else than alhpanumeric character.  
 
-# Example input data:  
+
+# Example input data:   
+
    
 **Compulsory** 
 
@@ -544,8 +546,9 @@ see example data folder:
 **Proteins for annotation (optional)**
 
 	* example_data/prot.fa 
-	  note: if no protein data are available we will use orthoDB11  (downloaded automatically)
-
+	  note: if no protein data are available we will use orthoDB12  (downloaded automatically)
+      
+    for orthoDB12 users *must* provide a lineage name among "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata"
 
 
 | option in config | description |
@@ -586,7 +589,7 @@ This will perform steps I to IV as follows:
 | \[*RNAseqlist*\] | Compulsory with option *a*. Full path to a .txt file containing the list of RNA-seq data files. |
 | \[*bamlist1*\] | Compulsory with option *b*. Full path to a .txt file containing the list of bam files for *genome1* (alignment of RNA-seq data onto the fasta of *genome 1*). |
 | \[*bamlist2*\] | Compulsory with option *b* and if *genome2* is given. Full path to a .txt file containing the list of bam files for genome2 (alignment of RNA-seq data onto the fasta of *genome 2*). |
-| \[*orthoDBspecies*\] | "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata" or "Stramenopiles". Will use a database from **orthoDB** for gene prediction. |
+| \[*orthoDBspecies*\] | "Metazoa" "Vertebrata" "Viridiplantae" "Arthropoda" "Eukaryota" "Fungi" "Alveolata". Will use a database from **orthoDB** for gene prediction. |
 | *fungus* | "YES" or "NO" (default), whether your species is a fungus. |
 | *TEdatabase* | Full path to a database of TE for your species/genus, used in TE prediction, in fasta format. |
 | *ncbi_species* | Name of the ncbi species, used in TE prediction. ==list available [here](https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi)== |
@@ -762,12 +765,13 @@ Align all coding sequences from the focal scaffolds.
 
 ### 6\. dS calculation and plotting
 
-- Calculation of dS & dN using **PAML**
+- Calculation of dS (& dN) using **PAML**
     
 - Plotting dS values using a custom R script
     
 
 Corresponding script: `00_scripts/Rscripts/03_plot_paml.R`  
+
 dS values are plotted along the focal scaffolds, and, if 2 haplotypes were given as input, along the whole genome.  
 The gene order will be that of the genome used as proxy for the ancestral state: either one of the two sex/mating type chromosomes, or an outgroup (see option *ancestral*).  
 It is possible to modify the R script to adapt the plotting options to your needs (for instance position and direction of scaffolds).
@@ -779,22 +783,132 @@ Ex: Ds plot :
 
 ### === - Plot circos (==step III==)
 
-Corresponding script: `00_scripts/Rscripts/05_plot_circos.R`  
+Corresponding script: `00_scripts/Rscripts/05_plot_circos.R [options]`  
+
 Construction of a circos plot of the focal scaffolds, tracing links between their single copy ortholog genes, using **circlize**.  
+* If TE info are available these can also be provided as arguments.
+
+* gene density can be extracted from the bed file in genespace and be plotted if provided as arguments
+
 It is possible to modify the R script to adapt the plotting options to your needs (for instance position and direction of scaffolds).
 
-==insert circos plot here==
+By default any fused autosome will be plotted but these can be removed from the contig list
 
-The operations automatically performed by the script `master.sh` stop here.
+See **figure4 panel B** above for example.
+
 
 # Step IV
 ### 1\. Changepoint analyses
 
-Before launching this step, we strongly suggest that you consult the results of the workflow, especially the dS plot. Once you have deciphered clear hypotheses as to whether there are strata on your focal scaffolds, and where they occur, you can use the R script.
-`00_scripts/Rscripts/06.MCP_model_comp.R` to perform changepoint analyses on the dS, using **mcp**.
-To that end, you can automatically launch the code ```master.sh -o7``` and it will launch 
+Before launching this step, we strongly suggest that you consult the results of the workflow, especially the dS plot. i
 
-==insert graph here and how to interpret==
+Once you have deciphered clear hypotheses as to whether there are strata on your focal scaffolds, and where they occur, you can use the R script.
+
+`00_scripts/Rscripts/06.MCP_model_comp.R` to perform changepoint analyses on the dS, using **mcp**.
+
+To that end, you can automatically launch the code ```master.sh -o7``` and it will launch the MCP, producing several graph as well as colored ideogram according for each model infered by the MCP 
+
+![Fig6.A.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.A.png)
+TODO: insert legend here
+
+
+it is important to check the convergence of the runs for each parameters : 
+this will be perform automatically in our code resulting in these plots for each changepoint tested.
+
+![Fig6.B.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.B.png)
+
+
+TODO: insert legend here
+
+The MCP produced many usefull informations that will be extracted and automatically exported in *.txt* tables:
+
+* `modelX.chpt.txt`:  X = number of changepoint tested (from 1 to 9). 
+
+    These files is the output of the summary function from MCP. 
+    
+    It contains the following columns:
+ 
+    1. name: name of the parameter (changepont and interval) 
+    2. mean: mean value of dS and interval (gene order based) 
+    3. lower/upper: lower and upper boundaries, 
+    4. Rhat: is the Gelman-Rubin convergence diagnostic which is often taken to be acceptable if <1.1. 
+    5. n.eff:  is the effective sample size computed using effectiveSize. Low effective sample sizes are also obvious as poor mixing in trace plots .
+
+* `modelchoice.txt` : 
+    This file contains info from the loo model choice operation 
+
+    It contains the following columns:
+
+    1. elpd_diff 
+    2. se_diff 
+    3. elpd_loo 
+    4. se_elpd_loo 
+    5. p_loo 
+    6. se_p_loo looic 
+    7. se_looic
+
+* `weights.txt` : 
+
+    This file contains the weights of each tested models
+    higher weights indicates higher supports.
+
+
+* `HypothesisXstrata.txt` :  X = number of changepoint tested (from 1 to 9). 
+
+    These file contains results from hypothesis testing (BayesFactor and posterior probabilities aiming at testing difference among strata) 
+
+    Here only difference in dS values among adjacent strata are tested when moving forward from the left to the right of the gene order. 
+
+    The two directionalyty of differences are tested, i.e.: 
+
+    "int_1 > int_2": the intercept is greater in strata 1 than 2. 
+    "int_1 < int_2": the intercept is greater in strata 2 than 1. 
+    
+    This is repeated for all comparison of adjacent interval for 1 to 9 changepoints.
+
+
+* `classif.sX.$haplo1.$haplo2` :   X = number of changepoint tested (from 1 to 9). 
+
+
+    A three column file containing the assignment of single copy orthologs to a strata :
+    1. column1: genes in $haplo1 
+
+    2. column2: genes in $haplo2 
+
+    3. column3: strata of appartenance 
+
+    These file are use to automatically color links in Ideograms. 
+
+* `df.txt` : a dataframe recaputilating all infos 
+
+
+other output : 
+
+vio-boxplot with statistical tests. 
+For all the values of changepoint tested such plots are automatically exported to a single pdf: 
+
+here's an example for the two best model in the studied species: 
+ 
+![Fig7.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig7.B.png)
+
+
+ds colored by strata along the ancestral genome:
+
+automatically generated for each changepoint values: 
+
+![Fig8.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig8.png)
+
+ds colored by strata along the gene order:
+
+automatically generated for each changepoint values: 
+![Fig9.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig9.png)
+
+a posterior colored ideogram: 
+automatically generated for each changepoint values: 
+![Fig10.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig10.png)
+
+
+
 
 # Options to run part of the workflow
 
