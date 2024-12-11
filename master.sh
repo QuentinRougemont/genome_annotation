@@ -143,14 +143,15 @@ echo "*** fasta for genome1 is ${genome1} **** "
 echo "*** fasta for genome2 is ${genome2} **** "
 echo "*** haplotype1 is ${haplotype1} ***"
 echo "*** haplotype2 is ${haplotype2}"
-echo "*** RNAseq? $rnaseq ***"
+echo "*** shoulbe genome be annotated ? $annotate" 
+echo "*** is RNAseq provided? $rnaseq ***"
 echo "*** RNAseq list is: ${RNAseqlist} ****" 
 echo "*** Alternatively, BAM list might be : ${bamlist1} & ${bamlist2}****"
+echo "*** should TE be annotated ? $annotateTE ****"
 echo "*** TE database is : $TEdatabase ***"
 echo "*** lineage for busco analyses will be:  $busco_lineage ***"
-echo "*** annotate? $annotate" 
 echo "*** is species a fungus? $fungus ****"
-echo -e "------------------------------------------------------------\n"
+echo -e "------------------------------------------------------------\n\n"
 
 
 
@@ -250,7 +251,7 @@ fi
 
 mkdir LOGS 2>/dev/null
 
-echo -e "\ntesting use cases and checking inputs\n"
+echo -e "\n\ntesting use cases and checking inputs\n\n"
 
 
 ################################################################################
@@ -280,21 +281,25 @@ if [ "$option" == 1 ]; then
         cd haplo1 || exit 1
         #partie en erreur à débuguer:
         if [ -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-        
-            echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "\n\n-------------------------------------------"
+            echo "      running TE detection and gene prediction    "
+            echo -e "---------------------------------------------\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -306,22 +311,27 @@ if [ "$option" == 1 ]; then
        
         cd haplo2 || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "\n\n-------------------------------------------"
+            echo "      running TE detection and gene prediction    "
+            echo -e "---------------------------------------------\n"
+            
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-             then
-                 echo "error some steps have failed for haplo1" 
-                 echo "please check the logs" 
-                 exit 1
-             fi
-             cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+                exit 1
+            fi
 
+            cd ../
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -330,15 +340,23 @@ if [ "$option" == 1 ]; then
         fi
         
         #if all is OK then run GeneSpace - paml etc :
-        #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+        #TO DO: modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-    
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
     
@@ -350,26 +368,35 @@ if [ "$option" == 1 ]; then
 
         cd haplo1/ || exit 1 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh "${haplotype1}"   2>&1 |\
+            ../00_scripts/launch_rnaseq.sh "${haplotype1}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            
+            echo -e "\n----------------------------------------\n"
+            echo -e "launching next steps....\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -381,26 +408,35 @@ if [ "$option" == 1 ]; then
        
         cd haplo2/ || exit 1 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh "${haplotype2}"   2>&1 |\
+            ../00_scripts/launch_rnaseq.sh "${haplotype2}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo2
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa  \
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -411,28 +447,39 @@ if [ "$option" == 1 ]; then
         fi
 
         #then run GeneSpace etc :
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
 
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -z "$ancestral_genome" ] ; then
     
-        echo "we will perform TE detection - genome annotation with RNAseq - Ds computation and plots - bam files already provided"
-        echo "genomes are ${genome1} and ${genome2}"
+        echo -e "\nwe will perform TE detection - genome annotation with RNAseq - 
+        dS computation and plots - bam files already provided"
+
+        echo -e "genomes are ${genome1} and ${genome2}\n\n"
 
         #download uniprot for later checks
         ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
 
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype1".fa  \
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
@@ -440,11 +487,15 @@ if [ "$option" == 1 ]; then
                 -b YES \
                 -b "$bamlist1" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
        
         else
@@ -456,9 +507,10 @@ if [ "$option" == 1 ]; then
         
         cd haplo2/ || exit 1 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r YES \
@@ -466,11 +518,15 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-           then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
-           fi
+            fi
+
            cd ../
 
         else
@@ -481,12 +537,21 @@ if [ "$option" == 1 ]; then
         fi
         
         #then run GeneSpace etc :
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log__GeneSpace_and_Co"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
 
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_genome" ]  ; then
@@ -499,20 +564,25 @@ if [ "$option" == 1 ]; then
         cd haplo1 || exit 1 
 
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -524,20 +594,25 @@ if [ "$option" == 1 ]; then
         
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
        
         else
@@ -549,6 +624,7 @@ if [ "$option" == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -557,22 +633,31 @@ if [ "$option" == 1 ]; then
             -c "$scaffold" \
             -o "$opt"  2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-        
-        
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -n "$ancestral_genome" ]  ; then
-        echo "we will perform all analyses with annotations performed with rnaseq - 
+        echo -e "\n\nwe will perform all analyses with annotations performed with rnaseq - 
         list of bam provided "
-        echo "genomes are ${genome1} and ${genome2}"
+        echo "genomes are ${genome1} and ${genome2}\n\n"
 
         #download uniprot for later checks
         ./00_scripts/get_uniprot.sh #trivial as long as diamond successffuly installed 
 
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
@@ -580,11 +665,15 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist1"  2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -596,9 +685,10 @@ if [ "$option" == 1 ]; then
         
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r NO \
@@ -606,11 +696,15 @@ if [ "$option" == 1 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -622,6 +716,7 @@ if [ "$option" == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -630,9 +725,16 @@ if [ "$option" == 1 ]; then
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-        
-        
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+ 
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]
     then
@@ -644,28 +746,37 @@ if [ "$option" == 1 ]; then
 
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype1}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 \
                 | tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -675,28 +786,36 @@ if [ "$option" == 1 ]; then
         
         cd haplo2/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype2}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
 
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
 
         else
@@ -708,6 +827,7 @@ if [ "$option" == 1 ]; then
         
         #then run GeneSpace etc :
         #modifiy the script RunGeneSpace etc to handle case with/without ancestral species
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -716,6 +836,14 @@ if [ "$option" == 1 ]; then
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
 
     fi
 fi
@@ -749,10 +877,10 @@ then
         cd haplo1  || exit 1
         #partie en erreur à débuguer:
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-        
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r NO \
@@ -760,9 +888,12 @@ then
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
                 cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
 
@@ -775,21 +906,27 @@ then
         
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -799,13 +936,23 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         echo "genomes are ${genome1} and ${genome2}"
@@ -815,30 +962,39 @@ then
 
         cd haplo1/ || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype1}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
 
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+                cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -848,31 +1004,39 @@ then
         
         cd haplo2/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype2}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo2
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
 
-
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+                cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -882,13 +1046,23 @@ then
 
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold"  \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]]  && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -z "$ancestral_genome" ] ; then
     
@@ -901,9 +1075,10 @@ then
 
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
@@ -912,13 +1087,17 @@ then
                 -b YES \
                 -b "$bamlist1" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+                exit 1
+            fi
+
                 cd ../
-             then
-                 echo "error some steps have failed for haplo1" 
-                 echo "please check the logs" 
-                 exit 1
-             fi
-        
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -928,9 +1107,10 @@ then
         
         cd haplo2/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r YES \
@@ -938,12 +1118,16 @@ then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+                exit 1
+            fi
+
                 cd ../
-             then
-                 echo "error some steps have failed for haplo1" 
-                 echo "please check the logs" 
-                 exit 1
-             fi
 
         else
             echo "error no fasta file in 03_genome"
@@ -954,14 +1138,23 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
             -c "$scaffold" \
             -o "$opt" 2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-    
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -n "$ancestral_genome" ]  ; then
         echo "we will perform analyses with annotations performed without rnaseq "
@@ -972,21 +1165,26 @@ then
 
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -997,21 +1195,26 @@ then
         
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -1022,6 +1225,7 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -1030,8 +1234,16 @@ then
             -c "$scaffold" \
             -o "$opt"  2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-        
-        
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${bamlist1}" ] && [ -n "${bamlist2}" ] && [ -n "$ancestral_genome" ]  ; then
         echo "we will perform analyses with annotations performed with rnaseq - 
@@ -1043,9 +1255,10 @@ then
 
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r YES \
@@ -1053,12 +1266,16 @@ then
                 -f YES \
                 -b "$bamlist1"  2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -1071,7 +1288,7 @@ then
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
             echo "running TE detection and gene prediction"
             echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r NO \
@@ -1079,12 +1296,18 @@ then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1094,6 +1317,7 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -1102,8 +1326,16 @@ then
             -c "$scaffold" \
             -o "$opt"  2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
-        
-    
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
+
+
     #step1: 
     elif [ -n "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -n "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]   ; then
         echo "we will perform all analyses including annotation with rnaseq"
@@ -1114,28 +1346,37 @@ then
 
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype1}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+
+            echo -e "----------------------------------------\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1145,29 +1386,37 @@ then
         
         cd haplo2/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype2}"   2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
-                cd ../
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
+            cd ../
 
         else
             echo "error no fasta file in 03_genome"
@@ -1178,6 +1427,7 @@ then
         
         #if all is OK then run GeneSpace / Synteny and optionally Ds (paml) etc :
         opt="synteny_only"
+        echo -e "\n\t\t~~~~~~~~~~~~\n\tlaunching GeneSpace & other analysis\n\t\t~~~~~~~~~~~\n"
         ./00_scripts/11_run_GeneSpace_paml_ideogram.sh \
             -s1 "$haplotype1" \
             -s2 "$haplotype2" \
@@ -1186,6 +1436,14 @@ then
             -c "$scaffold" \
             -o "$opt"  2>&1 |\
             tee LOGS/log_GeneSpace_and_Co
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo -e "error some steps failed during GeneSpace/Ds analyses"
+            echo -e "please check file LOGS/log_GeneSpace"
+            echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+            exit 1
+        fi
 
     fi    # launched earlier
 
@@ -1301,6 +1559,14 @@ if [ "$option" == 3 ] ; then
         -c "$scaffold" \
         -o "$opt" 2>&1 |\
         tee LOGS/log_GeneSpace_and_Co
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+    then
+        echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "error some steps failed during GeneSpace/Ds analyses"
+        echo -e "please check file LOGS/log_GeneSpace"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+        exit 1
+    fi
 
 elif [ "$option" == 4 ] ; then 
             
@@ -1318,6 +1584,15 @@ elif [ "$option" == 4 ] ; then
         -c "$scaffold" \
         -o "$opt" 2>&1 |\
         tee LOGS/log_GeneSpace_and_Co
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+    then
+        echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "error some steps failed during GeneSpace/Ds analyses"
+        echo -e "please check file LOGS/log_GeneSpace"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+        exit 1
+    fi
+
 
 elif [ "$option" == 5 ] ; then 
         
@@ -1335,7 +1610,15 @@ elif [ "$option" == 5 ] ; then
         -c "$scaffold"  \
         -o "$opt" 2>&1 |\
         tee LOGS/log_GeneSpace_and_Co
-    #check success here
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+    then
+        echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "error some steps failed during GeneSpace/Ds analyses"
+        echo -e "please check file LOGS/log_GeneSpace"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+        exit 1
+    fi
+
 
 elif [ "$option" == 7 ] ; then
 
@@ -1353,6 +1636,14 @@ elif [ "$option" == 7 ] ; then
         -c "$scaffold" \
         -o "$opt" 2>&1 |\
         tee LOGS/log_GeneSpace_and_Co
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+    then
+        echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "error some steps failed during GeneSpace/Ds analyses"
+        echo -e "please check file LOGS/log_GeneSpace"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+        exit 1
+    fi
 
 fi
 
@@ -1374,23 +1665,29 @@ if [ "$option" = 6 ]; then
     if [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -z "$ancestral_genome" ] ; then
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1401,23 +1698,29 @@ if [ "$option" = 6 ]; then
     elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "NO" ]]   && [ -n "$ancestral_genome" ] ; then
         cd haplo1  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa  \
                 -s "$haplotype1" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1429,23 +1732,29 @@ if [ "$option" = 6 ]; then
     elif [ -z "${genome1}" ] && [ -n "${genome2}" ] && [[ $rnaseq = "NO" ]] && [ -z "$ancestral_genome" ]   ; then
         cd haplo2  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1459,20 +1768,25 @@ if [ "$option" = 6 ]; then
             echo "only the genome of one species was provided" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo -e "\----------------------------------------\n\n"
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r NO \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1484,51 +1798,61 @@ if [ "$option" = 6 ]; then
     elif [ -n "${genome1}" ] && [ -z "${genome2}" ] && [[ $rnaseq = "YES" ]] && [ -n "${RNAseqlist}" ]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         cd haplo1/  || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided with RNAseq data" 
             echo "genome is ${genome1} "
-            if ! ../00_scripts/launch_rnaseq.sh \
+            
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype1}" 2>&1 |\
                 tee ../LOGS/log_rna_haplo1
-
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
-            echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
 
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            echo "running TE detection and gene prediction"
+            echo -e "\----------------------------------------\n\n"
+
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap1
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap1"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
             Help
             exit 1
         fi
-    
-    
+
     # option = 6 - only genome 1 & RNAseq from bamfiles: 
     elif [ -n "${genome1}" ] && [ -z "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -z "$ancestral_genome" ] && [ -n "$bamlist1" ] && [ -z "$bamlist2" ] ; then
         cd haplo1/ || exit 1
         if [  -n "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided along with a list of bam" 
             echo "genome is ${genome1} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
+            echo -e "----------------------------------------"
             
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype1".fa \
                 -s "$haplotype1" \
                 -r YES \
@@ -1536,12 +1860,17 @@ if [ "$option" = 6 ]; then
                 -f YES \
                 -b "$bamlist1" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1554,33 +1883,42 @@ if [ "$option" = 6 ]; then
     elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]]  && [ -z "$ancestral_genome" ] && [ -z "$bamlist1" ] && [ -z "$bamlist2" ]  ; then
         cd haplo2/ || exit 1
         if [  "$(ls -A 03_genome/ --ignore=Readme )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided with RNAseq data" 
             echo "genome is ${genome2} "
-            if ! ../00_scripts/launch_rnaseq.sh \
+            ../00_scripts/launch_rnaseq.sh \
                 "${haplotype2}" 2>&1 |\
                 tee ../LOGS/log_rna_haplo2
-            then 
-                echo "RNAseq step failed" 
-                echo "please check the logs"
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+            then
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror RNA seq failed"
+                echo -e "please check file LOGS/log__rna_haplo2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
 
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
+            echo -e "----------------------------------------\n\n"
 
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa  \
                 -s "$haplotype2" \
                 -r YES \
                 -m YES \
                 -f YES 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    
@@ -1592,12 +1930,13 @@ if [ "$option" = 6 ]; then
     elif [ -z "${genome1}" ] && [ -n "${genome2}" ]  && [[ $rnaseq = "YES" ]] && [ -z "$ancestral_genome" ]  && [ -z "$bamlist1" ] && [ -n "${bamlist2}" ]  ; then
         cd haplo2/ || exit 1
         if [ "$(ls -A 03_genome/ --ignore=Readme  )"  ] ; then
+            echo -e "\n\n----------------------------------------"
             echo "only the genome of one species was provided along with a list of bam" 
             echo "genome is ${genome2} "
             echo "running TE detection and gene prediction"
-            echo -e "\----------------------------------------\n"
+            echo -e "----------------------------------------\n\n"
 
-            if ! ../00_scripts/launch_step05_to_08.sh \
+            ../00_scripts/launch_step05_to_08.sh \
                 -g 03_genome/"$haplotype2".fa \
                 -s "$haplotype2" \
                 -r YES \
@@ -1605,12 +1944,17 @@ if [ "$option" = 6 ]; then
                 -f YES \
                 -b "$bamlist2" 2>&1 |\
                 tee ../LOGS/log_step05_08_hap2
+            if [[  "${PIPESTATUS[0]}" -ne 0 ]]
             then
-                echo "error some steps have failed for haplo1" 
-                echo "please check the logs" 
+                echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+                echo -e "\terror some steps failed"
+                echo -e "please check file LOGS/log__step05_08_hap2"
+                echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
                 exit 1
             fi
+
             cd ../
+
         else
             echo "error no fasta file in 03_genome"
             echo "please copy your genome here"    

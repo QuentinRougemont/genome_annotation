@@ -50,6 +50,12 @@ if [[ $ncol = 2 ]] ; then
     while IFS=$'\t' read -r -a read ; 
     do 
         ../00_scripts/01_trimmomatic_PE.sh "${read[0]}" "${read[1]}"  
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo "ERROR TRIMMOMATIC FAILED"
+            exit 1
+        fi
+
     done < "$RNAseqlist" #  file1file2.tmp 
 
     if [ $? -eq 0 ]; then
@@ -66,6 +72,12 @@ if [[ $ncol = 2 ]] ; then
     for read1 in 02_trimmed/*R1.paired.fastq.gz  ; do
         [ -e "$read1" ] || continue 
         ../00_scripts/03_gsnap_PE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$(basename "$read1")"_"$TIME".log
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo "ERROR GSNAP FAILED"
+            exit 1
+        fi
+
     done 
 
 else
@@ -74,6 +86,12 @@ else
     while IFS=$'\t' read -r -a read ; 
     do 
         ../00_scripts/01_trimmomatic_SE.sh "${read[0]}" 2>&1 |tee "$LOG_FOLDER"/trimmo_"${read[0]}"_log  
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo "ERROR TRIMMOMATIC FAILED"
+            exit 1
+        fi
+
     done < "$RNAseqlist" #  file1file2.tmp 
     
     if [ $? -eq 0 ]; then
@@ -88,8 +106,14 @@ else
     for read1 in 02_trimmed/*R1.paired.fastq.gz ; do
         [ -e "$read1" ] || continue 
         ../00_scripts/03_gsnap_SE.sh "$genome" "$read1" 2>&1 |tee "$LOG_FOLDER"/gsnap_"$(basename "$read1")"_"$TIME".log
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+        then
+            echo "ERROR GSNAP FAILED"
+            exit 1
+        fi
+
     done 
 
 fi
 
-rm -rf Trimmomatic-0.39  
+rm -rf Trimmomatic-0.39* 

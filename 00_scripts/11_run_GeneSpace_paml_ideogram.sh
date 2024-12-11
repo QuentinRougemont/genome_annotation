@@ -645,68 +645,139 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
         
        #TO DO : test if links were provided by the user and launch code appropriately       
+        if [ ! -z "$links" ] ; then
+            echo "links file were provided"
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo1" \
+                -c "$chromosomes" \
+                -y 02_results/synteny_ancestral_sp_"$haplo1".txt \
+                -f ancestral_sp/ancestral_sp.fa.fai \
+                -g haplo1/03_genome/"$haplo1".fa.fai \
+                -i genespace/bed/ancestral_sp.bed  \
+                -j genespace/bed/"$haplo1".bed  \
+                -t ancestral_sp/ancestral_sp.TE.bed \
+                -u haplo1/03_genome/"$haplo1".TE.bed  \
+                -l "$links"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo1" \
-            -c "$chromosomes" \
-            -y 02_results/synteny_ancestral_sp_"$haplo1".txt \
-            -f ancestral_sp/ancestral_sp.fa.fai \
-            -g haplo1/03_genome/"$haplo1".fa.fai \
-            -i genespace/bed/ancestral_sp.bed  \
-            -j genespace/bed/"$haplo1".bed  \
-            -t ancestral_sp/ancestral_sp.TE.bed \
-            -u haplo1/03_genome/"$haplo1".TE.bed  #-l "$genes_plot"
-        then
-            echo -e "\nERROR: circos plots failed /!\ \n
-            please check logs and input data\n" 
-            exit 1
-        fi
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo2" \
-            -c "$chromosomes" \
-            -y 02_results/synteny_ancestral_sp_"$haplo2".txt \
-            -f ancestral_sp/ancestral_sp.fa.fai \
-            -g haplo2/03_genome/"$haplo2".fa.fai \
-            -i genespace/bed/ancestral_sp.bed  \
-            -j genespace/bed/"$haplo2".bed  \
-            -t ancestral_sp/ancestral_sp.TE.bed \
-            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
-        then
-            echo -e "\nERROR: circos plots failed /!\ \n
-            please check logs and input data\n" 
-            exit 1
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo2" \
+                -c "$chromosomes" \
+                -y 02_results/synteny_ancestral_sp_"$haplo2".txt \
+                -f ancestral_sp/ancestral_sp.fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+                -i genespace/bed/ancestral_sp.bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t ancestral_sp/ancestral_sp.TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed  \
+                -l "$links"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+                -c  "$chromosomes" \
+                -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+                -f  haplo1/03_genome/"$haplo1".fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+                -i genespace/bed/"$haplo1".bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t haplo1/03_genome/"$haplo1".TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed \
+                -l "$links"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+
+
+        else 
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo1" \
+                -c "$chromosomes" \
+                -y 02_results/synteny_ancestral_sp_"$haplo1".txt \
+                -f ancestral_sp/ancestral_sp.fa.fai \
+                -g haplo1/03_genome/"$haplo1".fa.fai \
+                -i genespace/bed/ancestral_sp.bed  \
+                -j genespace/bed/"$haplo1".bed  \
+                -t ancestral_sp/ancestral_sp.TE.bed \
+                -u haplo1/03_genome/"$haplo1".TE.bed  #-l "$genes_plot"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
         fi
 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
-            -c  "$chromosomes" \
-            -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
-            -f  haplo1/03_genome/"$haplo1".fa.fai \
-            -g haplo2/03_genome/"$haplo2".fa.fai \
-            -i genespace/bed/"$haplo1".bed  \
-            -j genespace/bed/"$haplo2".bed  \
-            -t haplo1/03_genome/"$haplo1".TE.bed \
-            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
-        then
-            echo -e "\nERROR: circos plots failed /!\ \n
-            please check logs and input data\n" 
-            exit 1
-        fi
-
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$ancestral" -p "$haplo2" \
+                -c "$chromosomes" \
+                -y 02_results/synteny_ancestral_sp_"$haplo2".txt \
+                -f ancestral_sp/ancestral_sp.fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+                -i genespace/bed/ancestral_sp.bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t ancestral_sp/ancestral_sp.TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+     
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+                -c  "$chromosomes" \
+                -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+                -f  haplo1/03_genome/"$haplo1".fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+                -i genespace/bed/"$haplo1".bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t haplo1/03_genome/"$haplo1".TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+    
     else
         echo "no ancestral genome" 
-        if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
-            -c  "$chromosomes" \
-            -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
-            -f  haplo1/03_genome/"$haplo1".fa.fai \
-            -g haplo2/03_genome/"$haplo2".fa.fai \
-            -i genespace/bed/"$haplo1".bed  \
-            -j genespace/bed/"$haplo2".bed  \
-            -t haplo1/03_genome/"$haplo1".TE.bed \
-            -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
-        then
-            echo -e "\nERROR: circos plots failed /!\ \n
-            please check logs and input data\n" 
-            exit 1
-        fi
+        if [ ! -z "$links" ] ; then
+            echo "links file were provided"
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+                -c  "$chromosomes" \
+                -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+                -f  haplo1/03_genome/"$haplo1".fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+               -i genespace/bed/"$haplo1".bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t haplo1/03_genome/"$haplo1".TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed  \
+                -l "$links"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+        else
 
+            if ! Rscript 00_scripts/Rscripts/05_plot_circos.R -s "$haplo1" -p "$haplo2" \
+                -c  "$chromosomes" \
+                -y  02_results/synteny_"$haplo1"_"$haplo2".txt  \
+                -f  haplo1/03_genome/"$haplo1".fa.fai \
+                -g haplo2/03_genome/"$haplo2".fa.fai \
+               -i genespace/bed/"$haplo1".bed  \
+                -j genespace/bed/"$haplo2".bed  \
+                -t haplo1/03_genome/"$haplo1".TE.bed \
+                -u haplo2/03_genome/"$haplo2".TE.bed  #-l "$genes_plot"
+            then
+                echo -e "\nERROR: circos plots failed /!\ \n
+                please check logs and input data\n" 
+                exit 1
+            fi
+        fi    
     fi
     #
     if [ $? -eq 0 ]; then
@@ -727,7 +798,8 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
         { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; }
 
-elif [[ $options = "changepoint" ]]  ; then
+elif [[ $options = "changepoint" ]]
+    then
 
     eval "$(conda shell.bash hook)"
     conda activate superannot

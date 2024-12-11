@@ -89,10 +89,11 @@ then
     echo "no orthoDB species provided"
         if [ -z "${RelatedProt}" ] ; 
         then
-            echo "no related protein"
-            echo "WARNING - you have not provided any external data "
-            echo "braker will try running with RNAseq only" 
+            echo -e "\nno related protein"
+            echo -e "WARNING - you have not provided any external data\n"
+            echo -e "braker will try running with RNAseq only\n\n" 
         else
+            echo -e "related protein is $relatProt\n\n"
             relatProt="$RelatedProt"
         fi
 else
@@ -135,11 +136,15 @@ else
             fi
         done 
     else
-        echo "No Protein database specified"
+        echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo -e "error the clade name you provided is not in the orthoDB list !!\n"
+        echo -e "please check the clade name"
+    	echo -e "this should be one among (casee sensitive):
+	    [Metazoa Vertebrata Viridiplantae Arthropoda Eukaryota Fungi Alveolata]"
+        echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+        exit 1
     fi
 fi
-
-
 
 ## --------- step 1 : BRAKER WITH RNA SEQ  ---------  ##
 ## Note on braker: we found that running on RNAseq & proteins separately and combining afterwards 

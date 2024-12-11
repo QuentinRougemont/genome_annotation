@@ -82,9 +82,16 @@ BuildDatabase -name "$database" -engine ncbi ../"$genome" 2>&1 |\
 
 #de novo TE annotations:
 RepeatModeler -threads 18 -engine ncbi -database "$database" 2>&1 |\
-    tee ../$LOG_FOLDER/repeatmodeler_"$base"."$TIME".log ||\
-    { echo -e " ${RED} ERROR! RepeatModeler failed - check your data and installation\n${NC} " ; 
-        exit 1 ; }
+    tee ../$LOG_FOLDER/repeatmodeler_"$base"."$TIME".log 
+if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+then
+    echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo -e "\terror repeatmodeler failed"
+    echo -e "please check file log_files/repeatmodeler_*log"
+    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+    exit 1
+fi
+
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
 
@@ -93,9 +100,16 @@ FOLDER1=FOLDER1_"${base}"_mask."$TIME"
 mkdir "$FOLDER1"
 lib1="$TEdatabase" 
 RepeatMasker -pa 18 -e ncbi -lib "$lib1" -xsmall -dir "$FOLDER1" ../"$genome" 2>&1 |\
-    tee ../"$LOG_FOLDER"/F1_repeatmasker_"$base"."$TIME".log || \
-    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
-        exit 1 ; }
+    tee ../"$LOG_FOLDER"/F1_repeatmasker_"$base"."$TIME".log 
+if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+then
+    echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo -e "\terror repeatmasker failed"
+    echo -e "please check file log_files/F1_repeatmasker_*log"
+    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+    exit 1
+fi
+
 
 # Based on de-novo repeat + database:
 FOLDER2=FOLDER2_"${base}"_mask."$TIME"
@@ -118,10 +132,15 @@ fi
 
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -lib "$libcat" -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
-    tee ../$LOG_FOLDER/F2_repeatmasker_"$base"."$TIME".log  ||\
-    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
-        exit 1 ; }
-
+    tee ../$LOG_FOLDER/F2_repeatmasker_"$base"."$TIME".log  
+if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+then
+    echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo -e "\terror repeatmasker failed"
+    echo -e "please check file log_files/F2_repeatmasker_*log"
+    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+    exit 1
+fi
 
 ## ----- step 2.3: based on online data ----- ## 
 #online database
@@ -131,8 +150,15 @@ mkdir "$FOLDER3"
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -species  "${ncbi_species}" -xsmall -dir "$FOLDER3"   "$FOLDER2"/"$base".masked.masked 2>&1 | \
     tee ../$LOG_FOLDER/F3_repeatmasker_"$base"."$TIME".log  ||\
-    { echo -e " ${RED} ERROR! RepeatMasker failed - check your data and installation\n${NC} " ; 
-        exit 1 ; }
+if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+then
+    echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo -e "\terror repeatmasker failed"
+    echo -e "please check file log_files/F3_repeatmasker_*log"
+    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+    exit 1
+fi
+
 
 cd ../03_genome || exit
 

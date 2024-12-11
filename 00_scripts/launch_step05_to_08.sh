@@ -52,7 +52,7 @@ if [[ $annotateTE = "NO" ]]
 then
     echo -e "\n-----------------------------------------------------"
     echo -e "\tNO TE annotation requested\n\twill skip this step"; 
-    echo -e '\tassuming genome already softmasked ';
+    echo -e "\tassuming genome already softmasked ";
     echo -e "-----------------------------------------------------\n"
     if ! ln -s ../$genome 03_genome/genome.wholemask.fa    
     then
@@ -72,7 +72,8 @@ else
     #remove any empty rm_file
     rm -rf $rm_file 2>/dev/null
 
-    if ! ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+    ../00_scripts/05_repeatmodeler.sh "$genome" "$haplotype" "$Mask" 2>&1 |tee log_rm
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]]
     then
         echo -e "${RED} ERROR: repeatmodeler failed.\n
         check the provided libraries and software dependancies  \n${NC}"   
@@ -112,10 +113,14 @@ sed -i "s#AUGSC_PATH#export AUGUSTUS_SCRIPTS_PATH=$augscripts#" ../00_scripts/06
 
 echo -e "---- running braker now on $haplotype ----- " 
 echo "see details in braker_log in case of bugs" 
-if ! ../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa "$haplotype" $RNAseq \
-    "$fungus" "$bamlist" 2>&1 |tee braker_log  #NO for no rnaseq  
+../00_scripts/06_braker.sh 03_genome/genome.wholemask.fa \
+    "$haplotype" \
+    $RNAseq \
+    "$fungus" \
+    "$bamlist" 2>&1 |tee log_braker  #NO for no rnaseq  
+if [[  "${PIPESTATUS[0]}" -ne 0 ]]
 then
-    echo -e "${RED} ERROR! FAILED RUNNING BRAKER - verfiy braker_log!  \n${NC}"
+    echo -e "${RED} ERROR! FAILED RUNNING BRAKER - verfiy log_braker!  \n${NC}"
     exit 1
 else
     echo -e "${BLU}------\nbraker successfully run\n------${NC}"
@@ -124,8 +129,18 @@ fi
 if [[ $RNAseq = "YES" ]]
 then
     ../00_scripts/07_busco_after_braker.sh "$busco_lineage" YES 2>&1 |tee log_busco
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]] 
+    then
+        echo -e "${RED} ERROR! FAILED RUNNING BUSCO - verfiy log_busco!  \n${NC}"
+        exit 1
+    fi
 else
    ../00_scripts/07_busco_after_braker.sh "$busco_lineage" 2>&1 |tee log_busco 
+    if [[  "${PIPESTATUS[0]}" -ne 0 ]] 
+    then
+        echo -e "${RED} ERROR! FAILED RUNNING BUSCO - verfiy log_busco!  \n${NC}"
+        exit 1
+    fi
 fi
 
 # ---------------------reshape Braker output ----------------- #
@@ -134,7 +149,8 @@ then
     if [ ! -s 08_best_run/"$haplotype".prot.final.clean.fa ]
     then 
         #run reshaping part
-        if ! ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -g "$genome" -r YES 2>&1 |tee log_reshape 
+        ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -g "$genome" -r YES 2>&1 |tee log_reshape 
+        if [[  "${PIPESTATUS[0]}" -ne 0 ]] 
         then
             echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
             exit 1
@@ -148,7 +164,8 @@ else
     if [ ! -s 08_best_run/"$haplotype".prot.final.clean.fa ]
     then 
         #run reshaping part
-       if ! ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -g "$genome" -r NO 2>&1 |tee log_reshape 
+       ../00_scripts/08_braker_reshaping.sh -s "$haplotype" -g "$genome" -r NO 2>&1 |tee log_reshape 
+       if [[  "${PIPESTATUS[0]}" -ne 0 ]] 
        then
            echo -e "${RED} ERROR! FAILED PROCESSING BRAKER - verfiy braker outputs!   \n${NC}"
            exit 1

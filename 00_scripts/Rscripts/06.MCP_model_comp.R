@@ -7,7 +7,7 @@
 
 #--------------- check if library are installed -------------------------------#
 libs <- c('mcp','dplyr','ggplot2','magrittr','cowplot','ggstatsplot' )
-install.packages(setdiff(packages, rownames(installed.packages())), repos="https://cloud.r-project.org" )
+install.packages(setdiff(libs, rownames(installed.packages())), repos="https://cloud.r-project.org" )
 
 #---------------- load libraries ---------------------------------------------#
 invisible(lapply(libs, suppressWarnings(suppressMessages(suppressPackageStartupMessages(library))), character.only = TRUE))
