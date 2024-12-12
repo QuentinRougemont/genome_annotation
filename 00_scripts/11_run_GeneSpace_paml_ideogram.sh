@@ -529,9 +529,19 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 
     #this part has been done elsewhere and should be removed:
     pathN0="genespace/orthofinder/Results_*/Phylogenetic_Hierarchical_Orthogroups/N0.tsv"
-    awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
+    haplo=$(head -n1 $pathN0 |awk '{print $7}')
+    if [[ $haplo1 == $haplo ]] ;
+    then
+          echo " " ;
+        awk -v var1="$haplo1" -v var2="$haplo2" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
         | grep -Ff <(awk '{print $2}' "$scaffold") - > orthologues
     sed -i -e "s/\r//g" orthologues
+    else
+        echo "not egal - reversing haplotype names to match columns"
+        awk -v var1="$haplo2" -v var2="$haplo1" -v var3="$ancestral" 'NF==6 && $4 ~ var1 && $5 ~ var2 && $6 ~ var3 ' $pathN0 \
+        | grep -Ff <(awk '{print $2}' "$scaffold") - |awk '{print $1"\t"$2"\t"$3"\t"$5"\t"$4"\t"$6}' > orthologues
+        sed -i -e "s/\r//g" orthologues
+   fi
    
     #creating different synteny table 
     #note: we already have that with the joint bed from the ideogram 
@@ -796,6 +806,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     
     #------------------------ step 8 -- model comparison -------------------------------------------------#
     mkdir 02_results/modelcomp/
+    echo -e "\n\n~~~~~~~~~~~\n\trunning changepoint\n~~~~~~~~~~~~~~~\n"
     Rscript 00_scripts/Rscripts/06.MCP_model_comp.R || \
         { echo -e "${RED} ERROR! changepoint failed - check your data\n${NC} " ; exit 1 ; }
 
@@ -835,7 +846,7 @@ do
                 genespace/bed/"$haplo1".bed \
                 genespace/bed/"$haplo2".bed \
                 haplo1/03_genome/"$haplo1".fa.fai \
-                haplo2/03_genome/"$haplo2".fa.fai 
+                haplo2/03_genome/"$haplo2".fa.fai \
                 "$links" 
 done
 

@@ -160,8 +160,10 @@ if (argv[1]=="-h" || length(argv)==0){
     ########################## make plot now using ALL GENES #######################################
     
     writeLines("making some plots.....\n")
+    all$scaff<- factor(all$scaff, levels = c(sort(unique(all$scaff), decreasing=T)))
+
     Fig1A <- all  %>%   #we plot the D dataframe to obtain the Ds along the order
-      ggplot(., aes(x = start, y = Ds )) +
+      ggplot(., aes(x = St, y = Ds )) +
       geom_errorbar(aes(ymin = Ds-SEDs, ymax = Ds + SEDs), width = .1) +
       facet_wrap(~scaff, scale="free_x") +
       geom_point( size = 1) + 
@@ -192,7 +194,7 @@ if (argv[1]=="-h" || length(argv)==0){
       geom_errorbar(aes(ymin = Ds-SEDs, ymax = Ds + SEDs), width = .1) +
       geom_point( size = 1) + 
       theme_classic() +
-      ylim(c(0,0.6)) +
+      ylim(c(0,0.4)) +
       xlab("order along reference") +
       ylab( expression(italic("Ds"))) +
       th_plot + theme(legend.position = "none") +

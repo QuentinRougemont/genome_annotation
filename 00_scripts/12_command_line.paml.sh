@@ -187,7 +187,7 @@ if [ -s long_geneID.hap1 ] ; then
     while read -r line ; 
     do
         j=$(( "$j" + 1)) ; 
-        echo -e "$line\t>gene.$j"  >> correspondance.table.hap1.txt; 
+        echo -e "$line\t>hap1_gene.$j"  >> correspondance.table.hap1.txt; 
     done < long_geneID.hap1
 
     #2 - keep a copy:
@@ -218,7 +218,7 @@ if [ -s long_geneID.hap2 ] ; then
     while read -r line ; 
     do
         j=$(( "$j" + 1)) ; 
-        echo -e "$line\t>gene.$j"  >> correspondance.table.hap2.txt; 
+        echo -e "$line\t>hap2_gene.$j"  >> correspondance.table.hap2.txt; 
     done < long_geneID.hap2
  
     #2 - keep a copy:
@@ -276,3 +276,16 @@ done < wanted_sequence 2>&1 |tee log.paml
 #we concatenate everyone to work with them in the next scripts:
 rm results_YN.txt 2>/dev/null   
 cat sequence_files/tmp.*/resultat_Yang_Nielsen_2000_method.orthogp.txt >> results_YN.txt
+cp results_YN.txt results_YN.txt.bkp
+if [ -e correspondance.table.hap1.txt ] ; then
+   sed -i 's/>//g' correspondance.table.hap1.txt
+   awk 'NR==FNR{a[$2]=$1;next}$5 in a{$5=a[$5]}1' correspondance.table.hap1.txt results_YN.txt > tmp
+fi
+
+if [ -e correspondance.table.hap2.txt ] ; then
+   sed -i 's/>//g' correspondance.table.hap2.txt
+   awk 'NR==FNR{a[$2]=$1;next}$6 in a{$6=a[$6]}1' correspondance.table.hap1.txt tmp
+fi
+
+mv tmp results_YN.txt
+
