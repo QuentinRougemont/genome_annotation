@@ -529,7 +529,7 @@ write.table(s8.h1.h2,paste0(path,"classif.s8.haplo1.haplo2"),
 ################################################################################
 #finally construct some combined plot:
 plot <- list()
-for (i in 1:maxchp) {
+for (i in 1:maxchgp) {
 plot[[i]] <- plot_grid(print(figcp[[i]]) + th_plot3, labels = "AUTO", ncol = 1)
 }
 
@@ -547,11 +547,13 @@ vp8s <- ggbetweenstats(df, eight_strata, Ds, palette = "Paired")  + th_plot3
 vp9s <- ggbetweenstats(df, nine_strata, Ds, palette = "Paired")  + th_plot3
 
 #comment if you don't want some:
-pdf(file = paste0(path, "viobox_ds_strata_distribution_priors.pdf"), 10,16)
+#TO DO: modify to plot each separately and to remove boxplot when n is low 
+
+pdf(file = paste0(path, "viobox_ds_strata_distribution_priors.pdf"), 10,28)
 plot_grid(
     #vp3s, 
-    #vp4s,
-    #vp5s,
+    vp4s,
+    vp5s,
     vp6s,
     vp7s,
     vp8s, 
@@ -561,7 +563,7 @@ dev.off()
 
 pdf(file = paste0(path, "all_comp.pdf"), 10,20)
 plot_grid(
-  plot[[3]],
+  #plot[[3]],
   plot[[4]],
   plot[[5]],
   plot[[6]],
@@ -572,16 +574,16 @@ dev.off()
 
 
 #comment those that are not wanted:
-pdf(file = paste0(path, "strata_and_viobox_ds_strata_distribution_priors.pdf"), 10,20)
+pdf(file = paste0(path, "strata_and_viobox_ds_strata_distribution_priors.pdf"), 20,20)
 plot_grid(
   #plot[[2]],vp3s,
   #plot[[3]],vp4s,
-  #plot[[4]],vp5s,
+  plot[[4]],vp5s,
   plot[[5]],vp6s,
   plot[[6]],vp6s,
-  #plot[[7]],vp8s,
+  plot[[7]],vp8s,
   plot[[8]],vp9s,
-  labels = "AUTO", ncol = 1, rel_heights = c(.4,1,.4,1,.4,1))
+  labels = "AUTO", ncol = 2, rel_heights = c(.4,1,.4,1,.4,1))
 dev.off()
 
 writeLines("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")

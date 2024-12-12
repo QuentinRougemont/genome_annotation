@@ -95,11 +95,11 @@ fi
 
 #--------------STEP2 : RUN REPEATMASKER -------------------------#
 
-# BASED ON DATABASE : 
+# ROUND1 BASED ON DATABASE : 
 FOLDER1=FOLDER1_"${base}"_mask."$TIME"
 mkdir "$FOLDER1"
 lib1="$TEdatabase" 
-RepeatMasker -pa 18 -e ncbi -lib "$lib1" -xsmall -dir "$FOLDER1" ../"$genome" 2>&1 |\
+RepeatMasker -pa 18 -e ncbi -lib "$lib1" -noint -xsmall -dir "$FOLDER1" ../"$genome" 2>&1 |\
     tee ../"$LOG_FOLDER"/F1_repeatmasker_"$base"."$TIME".log 
 if [[  "${PIPESTATUS[0]}" -ne 0 ]]
 then
@@ -109,7 +109,7 @@ then
     echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
     exit 1
 fi
-
+awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER1"/"$database".fa.out |sed '1,3d' > Round1.bed
 
 # Based on de-novo repeat + database:
 FOLDER2=FOLDER2_"${base}"_mask."$TIME"
@@ -130,6 +130,7 @@ else
     libcat="$base".repbase.fa
 fi
 
+#ROUND2:
 #run repeatmasker:
 RepeatMasker -pa 18 -e ncbi -lib "$libcat" -xsmall -dir "$FOLDER2" "$FOLDER1"/"$base".masked 2>&1 |\
     tee ../$LOG_FOLDER/F2_repeatmasker_"$base"."$TIME".log  
@@ -141,9 +142,9 @@ then
     echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
     exit 1
 fi
+awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER2"/"$database".fa.masked.out |sed '1,3d' > Round2.bed
 
-## ----- step 2.3: based on online data ----- ## 
-#online database
+#
 FOLDER3=FOLDER3_"${base}"_mask.$TIME
 mkdir "$FOLDER3"
 
@@ -158,7 +159,28 @@ then
     echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
     exit 1
 fi
+awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER3"/"$database".fa.masked.masked.out |sed '1,3d' > Round3.bed
 
+FOLDER4=FOLDER4_"${base}"_mask.$TIME
+mkdir "$FOLDER4"
+
+#run repeatmasker:
+awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$database"-families.fa |\
+    grep -A1 Unknown |sed '/^--$/d' > unknown.fa
+
+
+#RepeatMasker -pa 18 -e ncbi -lib unknown.fa  -dir "$FOLDER4" "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
+#    tee ../$LOG_FOLDER/F4_repeatmasker_"$base"."$TIME".log  ||\
+#if [[  "${PIPESTATUS[0]}" -ne 0 ]]
+#then
+#    echo -e "\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+#    echo -e "\terror repeatmasker failed"
+#    echo -e "please check file log_files/F3_repeatmasker_*log"
+#    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
+#    exit 1
+#fi
+#awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER3"/"$database".fa.masked.masked.masked.out |sed '1,3d' > Round4.bed
+#
 
 cd ../03_genome || exit
 
@@ -169,3 +191,4 @@ else
     ln -s ../05_TE/"$FOLDER3"/"$base".masked.masked.masked genome.wholemask.fa
 fi
 
+cat Round*bed >> ../"$database".TE.bed
