@@ -416,8 +416,9 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     samtools faidx haplo2/03_genome/"$haplo2".fa
     
     eval "$(conda shell.bash hook)"
-    conda activate superannot
-    
+    #conda activate superannot
+    conda deactivate 
+
     if [  -n "${ancestral_genome}" ] ; then
         echo -e "ancestral genome was provided for inference" 
         #we will make an ideogram with it 
@@ -827,7 +828,7 @@ elif [[ $options = "changepoint" ]]
 fi 
 
 
-for links in 02_results/modelcomp/classif.s*haplo1.haplo2 ; 
+for links in 02_results/modelcomp/noprior/classif.s*haplo1.haplo2 ; 
 do 
      Rscript ./00_scripts/Rscripts/04.ideogram.R \
                 02_results/sco \
@@ -839,7 +840,7 @@ do
 done
 
 if [ -n "${ancestral_genome}" ] ; then
-   for links in 02_results/modelcomp/classif.s*ancestral.haplo1 ; 
+   for links in 02_results/modelcomp/noprior/classif.s*ancestral.haplo1 ; 
    do 
         Rscript ./00_scripts/Rscripts/04.ideogram.R \
                    02_results/sco_anc \

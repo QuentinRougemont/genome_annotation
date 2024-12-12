@@ -168,7 +168,7 @@ mkdir "$FOLDER4"
 awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequence""$0}END{print sequence}' "$database"-families.fa |\
     grep -A1 Unknown |sed '/^--$/d' > unknown.fa
 
-
+cat Round*bed >> ../raw."$database".TE.bed
 #RepeatMasker -pa 18 -e ncbi -lib unknown.fa  -dir "$FOLDER4" "$FOLDER3"/"$base".masked.masked.masked 2>&1 | \
 #    tee ../$LOG_FOLDER/F4_repeatmasker_"$base"."$TIME".log  ||\
 #if [[  "${PIPESTATUS[0]}" -ne 0 ]]
@@ -179,7 +179,7 @@ awk '$0~/^>/{if(NR>1){print sequence;sequence=""}print $0}$0!~/^>/{sequence=sequ
 #    echo -e "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n"
 #    exit 1
 #fi
-#awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER3"/"$database".fa.masked.masked.masked.out |sed '1,3d' > Round4.bed
+#awk '{print $5"\t"$6"\t"$7"\t"$11}' "$FOLDER4"/"$database".fa.masked.masked.masked.out |sed '1,3d' > Round4.bed
 #
 
 cd ../03_genome || exit
@@ -191,4 +191,4 @@ else
     ln -s ../05_TE/"$FOLDER3"/"$base".masked.masked.masked genome.wholemask.fa
 fi
 
-cat Round*bed >> ../"$database".TE.bed
+
