@@ -182,11 +182,12 @@ cat(paste0("number of gene in sex chr :", nrow(genedensity),"\n"))
 #---------- Optional: TE density from bed ---------------------#
 
 if(!(is.null(opt$TE1))){
-  TE1 <- read.table(opt$TE1)
+  TE1 <- read.table(opt$TE1)[,c(1:4)]
 }
 
 if(!(is.null(opt$TE2))){
-  TE2 <- read.table(opt$TE2) 
+  TE2 <- read.table(opt$TE2)[,c(1:4)]
+
 
 TEdensity <- rbind(TE1,TE2) %>% 
     select(-V4) %>%

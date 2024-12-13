@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 
 ################################################################################
 ######  Script to plot Ds values and perform changepoint analyses     ##########

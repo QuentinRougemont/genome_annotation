@@ -91,8 +91,6 @@ best_round=$(grep "C:" round*_braker_on_refprot/busco_augustus*/short_summary.sp
 
 echo -e "best_round is $best_round\n------------------------------------------"
 
-
-
 cd ../
 
 #optionally make a report:
@@ -192,11 +190,10 @@ cd ../
 
 gtf=${haplo}.IDchecked.gtf
 
-#------------------- step 5 extracting prot and cds from new files  -----------#
+#------------------- step 5 extracting prot and cds from new files  ----------#
 echo -e  "\n-----------------------------------------------------------------"
 echo "extract protein and cds from the renamed gtf" 
 echo -e  "-----------------------------------------------------------------\n"
-
 
 gtffull=08_best_run/$gtf
 
@@ -244,7 +241,8 @@ awk '$2 =="Complete" || $2 =="Duplicated" {print $1"\t"$2"\t"$3}' "$table" \
     | awk '{print $3}' \
     | cat longest.transcript.tmp - > all.transcripts
 
-grep -A1 -Ff all.transcripts "$haplo".prot.lin.fasta > \
+grep -A1 -Ff all.transcripts "$haplo".prot.lin.fasta \
+    sed '/^--/d' > \
     "$haplo".longest_transcript.fa
 
 
@@ -252,10 +250,10 @@ source ../../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco571
-busco -c8 -o busco_check -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  
+busco -c8 -o busco_check -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  || \
+          { echo -e "${RED} ERROR! busco failed - check your data\n${NC} " ; exit 1 ; }
 
 #now we add the dup:
-
 grep -Ff busco_check/run_"$busco_lineage"/missing_busco_list.tsv "$table" \
 	|grep -v "Missing\|#" \
 	|cut -f3 \
@@ -264,10 +262,12 @@ grep -Ff busco_check/run_"$busco_lineage"/missing_busco_list.tsv "$table" \
 	| cat - all.transcripts > all.transcripts2
 
 #"
-grep -A1 -Ff all.transcripts2 "$haplo".prot.lin.fasta > \
+grep -A1 -Ff all.transcripts2 "$haplo".prot.lin.fasta \
+    sed '/^--/d' > \
     "$haplo".longest_transcript.fa
 
-busco -c8 -o busco_check2 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  
+busco -c8 -o busco_check2 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f  || \
+          { echo -e "${RED} ERROR! busco failed - check your data\n${NC} " ; exit 1 ; }
 
 if [[ $RNAseq = "YES" ]]
 then
@@ -277,9 +277,9 @@ then
     grep -vf busco.longest.transcript buso.rna |grep "Complete" |awk '{print $3}' > list.of.missing_busco
     cat longest.transcript.tmp list.of.missing_busco > all.ids
     grep -A1 -Ff all.ids "$haplo".prot.lin.fasta |sed '/--/d' > "$haplo".longest_transcript.fa
-    busco -c8 -o busco_check3 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f
+    busco -c8 -o busco_check3 -i "$haplo".longest_transcript.fa -l "$busco_lineage" -m protein -f || \
+          { echo -e "${RED} ERROR! busco failed - check your data\n${NC} " ; exit 1 ; }
 fi 
-
 
 cd ../../
 
@@ -381,14 +381,16 @@ source ../../config/config
 
 eval "$(conda shell.bash hook)"
 conda activate busco571
-busco -c8 -o busco_final -i "$haplo"_prot.final.fa -l "$busco_lineage" -m protein -f  
+busco -c8 -o busco_final -i "$haplo"_prot.final.fa -l "$busco_lineage" -m protein -f   || \
+          { echo -e "${RED} ERROR! busco failed - check your data\n${NC} " ; exit 1 ; }
 
 #then launch quality check on the final dataset: 
 chmod +x ../../00_scripts/quality.check.sh
 
 #note: maybe this could be an option
 echo -e "running quality checks now "
-../../00_scripts/quality.check.sh -s "$haplo"
+../../00_scripts/quality.check.sh -s "$haplo"  || \
+          { echo -e "${RED} ERROR! quality check failed! - check your data\n${NC} " ; exit 1 ; }
 
 # copy things : 
 cp "$gtf4" ../../02_results

@@ -417,7 +417,7 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
     
     eval "$(conda shell.bash hook)"
     #conda activate superannot
-    conda deactivate 
+    #conda deactivate 
 
     if [  -n "${ancestral_genome}" ] ; then
         echo -e "ancestral genome was provided for inference" 
@@ -813,8 +813,8 @@ if [[ $options = "synteny_and_Ds" ]] || [[ $options = "Ds_only" ]] ; then
 elif [[ $options = "changepoint" ]]
     then
 
-    eval "$(conda shell.bash hook)"
-    conda activate superannot
+    #eval "$(conda shell.bash hook)"
+    #conda activate superannot
 
     #eventually check its existence - ask user if he wants to remove it
     mkdir 02_results/modelcomp/ 2>/dev/null

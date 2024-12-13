@@ -168,8 +168,8 @@ fi
 
 # ----- check compression of fasta  ------ ##
 
-eval "$(conda shell.bash hook)"
-conda activate superannot
+#eval "$(conda shell.bash hook)"
+#conda activate superannot
 
 #check compression
 if file --mime-type "$genome1" | grep -q gzip$; then
@@ -218,7 +218,7 @@ if [[ -n "$genome2" ]] ; then
     fi
 fi
 
-conda deactivate
+#conda deactivate
 
 if [[ -n "${ancestral_genome}" ]] ; then 
     mkdir ancestral_sp  2>/dev/null
