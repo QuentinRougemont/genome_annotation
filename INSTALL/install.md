@@ -46,20 +46,36 @@ a number of software are not on conda (or not up-to-date) and need to be install
 
 here is an exemple procedure : 
 
+### attempt to automatically install all softwares in one go: 
+
 ```bash
-#create a software folder to store all new softs:
-mkdir ~/softs ; cd ~/softs #create softs in your home or somewhere that won't be moved
+#all at once: 
+conda activate superannot #wil activate some uefull dependancies
+
+#install GENESPACE:
+Rscript -e  'devtools::install_github("jtlovell/GENESPACE")'
+
+#installing all other dependencies:
+./INSTALL/softs.sh 2>&1 |tee log_installation.txt 
+
 ```
 
-all PATH to the new softwares should be in your .bashrc
+all PATH to the new softwares should have been automatically append to your .bashrc
 
+# ALTERNATIVELY:
+
+### install each non-conda software one by one: 
 below are attempts to install braker and a number of compulsory dependencies in a more or less automated fashion:
 
 first activate the braker_environnment above to get basic dependencies 
 
 ```
-conda activate superannot
+conda activate superannot #wil activate some uefull dependancies
+
+mkdir softs ; cd softs
 ```
+
+then insall all tools one by one: 
 
 ### BRAKER 
 

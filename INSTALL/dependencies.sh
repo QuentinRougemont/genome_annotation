@@ -11,6 +11,10 @@ then
     exit 1
 fi
 
+#install GeneSpace first:
+Rscript -e  'devtools::install_github("jtlovell/GENESPACE")' || \
+    { echo -e "ERROR!\nGeneSpace installation failed\ncheck conda dependencies\n" ; exit 1 ; }
+
 # test each command one by one and install them if necessary:
 mkdir softs
 cd softs 
