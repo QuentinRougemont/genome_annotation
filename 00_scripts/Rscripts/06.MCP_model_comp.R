@@ -142,7 +142,7 @@ for(i in 1:maxchgp){
     fitcp[[i]] <- mcp(modelcp[[i]], 
                  data = df, 
                  par_x = "orderchp", 
-                 iter = 8e3, 
+                 iter = 5e5, 
                  adapt = 1.5e3,  
                  chains = 5, 
                  cores = 5 )

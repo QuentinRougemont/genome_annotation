@@ -1,6 +1,5 @@
 Full automated installation 
 
-
 ### Mamba
 
 If you want to avoid potential conflicting versions or do not have root access on your device, you can use **conda** or **mamba** to install dependencies.
@@ -18,12 +17,12 @@ bash Miniforge-pypy3-Linux-x86_64.sh
 To get the workflow on your device:
 
 ```bash
-git clone https://github.com/QuentinRougemont/genome_annotation
+git clone https://github.com/QuentinRougemont/EASYstrata
 ```
 
 then create the following environnement:
 ```sh
-cd genome_annotation 
+cd EASYstrata 
 mamba env create -f INSTALL/annotation_env.yml   
 
 #to install to a specific directory:
@@ -38,7 +37,7 @@ mamba env create -f INSTALL/repeatmodeler.yml
 #Note: I often observed bugs when installing all the software above in a single environnement
 
 ```
-if you prefer, you can install all dependencies one by one, this takes more time but may help solving bugs. See [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/.infos/install.md) to have a list of all dependencies.
+if you prefer, you can install all dependencies one by one, this takes more time but may help solving bugs. See [here](https://github.com/QuentinRougemont/EASYstrata/blob/main/.infos/install.md) to have a list of all dependencies.
 
 
 ### Non-conda dependencies

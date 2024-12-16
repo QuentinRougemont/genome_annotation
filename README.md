@@ -17,7 +17,7 @@
 
 [IV - Perform changepoint analysis to identify evolutionary strata](#IV---Perform-changepoint-analysis-to-identify-evolutionary-strata)
 
-<img src="https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig1.png" width = "490" heigth = "490">
+<img src="https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig1.png" width = "490" heigth = "490">
 
 
 Installation: 
@@ -38,7 +38,7 @@ Keep all project separated otherwise it will be difficult to recover your result
 
 All options and input must be set in the config file: `config/config`
 
-an example is provided [here](https://github.com/QuentinRougemont/genome_annotation/blob/main/example_data/example.config)
+an example is provided [here](https://github.com/QuentinRougemont/EASYstrata/blob/main/example_data/example.config)
 
 ## Input data
 
@@ -66,7 +66,7 @@ For the chromosome/contig/scaffold ids we recommand a standard naming including 
 
 several files are **Compulsory** 
 
-see [example data folder](https://github.com/QuentinRougemont/genome_annotation/blob/main/example_data) 
+see [example data folder](https://github.com/QuentinRougemont/EASYstrata/blob/main/example_data) 
 
 
 	* genome1: `example_data/genome1.fa.gz`
@@ -266,11 +266,11 @@ If you provided one genome containing both sex/mating type chromosomes, only the
     
 ex: minimap based divergence along the mating type chromosomes :
 
-![Fig2.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig2.png)
+![Fig2.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig2.png)
 
 ex: minimap based whole genome alignment : 
 	
-![Fig3.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig3.png)
+![Fig3.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig3.png)
 
 
 
@@ -286,7 +286,7 @@ For more information, consult the [GeneSpace readme](https://github.com/jtlovell
 
 ex: Synteny plot from GeneSpace
 
-![Fig4.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig4.png)
+![Fig4.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig4.png)
 
 
 # III - Plot dS along the genome
@@ -323,7 +323,7 @@ It is possible to modify the R script to adapt the plotting options to your need
 
 Ex: Ds plot : 
 
-![Fig5.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig5.png)
+![Fig5.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig5.png)
 
 
 ### === - Plot circos (==step III==)
@@ -355,7 +355,7 @@ Once you have deciphered clear hypotheses as to whether there are strata on your
 
 To that end, you can automatically launch the code ```master.sh -o7``` and it will launch the MCP, producing several graph as well as colored ideogram according for each model infered by the MCP 
 
-![Fig6.A.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.A.png)
+![Fig6.A.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig6.A.png)
 
 **Figure 6A:** Results from the changepoint analysis for 3  (panel A) to 8 changepoints (panel F) that will be automatically performed to infer evolutionary strata. Each changepoint panel displays the distribution of raw data (i.e., dS values as black dots) along with 25 draws from the joint posterior distribution (grey lines) and 95% highest density interval (red lines). Posterior distributions of the changepoints are shown in blue with one line for each chain. Note that in general the "strata" with zero dS value on the left most and rigth most side respectively will correspond to the PAR, not true evolutionary strata.  
 
@@ -363,7 +363,7 @@ To that end, you can automatically launch the code ```master.sh -o7``` and it wi
 it is important to check the convergence of the runs for each parameters : 
 this will be perform automatically in our code resulting in these plots for each changepoint tested.
 
-![Fig6.B.svg](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig6.B.svg)
+![Fig6.B.svg](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig6.B.svg)
 
 **Figure 6B:** posterior fit of the model parameter and mixing of the chains. Here only the values inferred for the 7-changepoint model are shown - the one with highest support.
 values for all other models are generated on the flye.
@@ -437,7 +437,7 @@ vio-boxplot with statistical tests.
 
 here's an example for the two best model in the studied species: 
  
-![Fig7.svg](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig7.svg)
+![Fig7.svg](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig7.svg)
 
 **Figure 7:** example violinboxplot for the two "most likely" models inferred by the loo analysis.
 By default plots are constructed for all models (from 1 to 9 changepoints). Default statiscal test from the ggstats plot package are used
@@ -447,7 +447,7 @@ assuming parametric tests.
 
 dS colored by strata along the ancestral gene order:
 
-![Fig8.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig8.png)
+![Fig8.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig8.png)
 
 **Figure 9:** dS values plotted along the ancestral gene order for all possible models from three to eight changepoints  
 each point is a gene dS value colored according to the strata of assignation. 
@@ -455,14 +455,14 @@ each point is a gene dS value colored according to the strata of assignation.
 dS colored by strata along the ancestral genome:
 
 automatically generated for each changepoint values: 
-![Fig9.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig9.png)
+![Fig9.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig9.png)
 
 **Figure 8:** dS values plotted along the ancestral genome for all possible models from three to eight changepoints  
 each point is a gene dS value colored according to the strata of assignation
 
 a posterior colored ideogram: 
 automatically generated for each changepoint values: 
-![Fig10.png](https://github.com/QuentinRougemont/genome_annotation/blob/main/.pictures/Fig10.png)
+![Fig10.png](https://github.com/QuentinRougemont/EASYstrata/blob/main/.pictures/Fig10.png)
 
 **Figure10:**  example ideograms infered for the most likely models here. Links are colored according to their strata of appartenance. 
 
