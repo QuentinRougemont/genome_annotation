@@ -36,9 +36,33 @@ We recommend that you clone the pipeline ***for each of your new project*** and 
 Keep all project separated otherwise it will be difficult to recover your results.   
 
 
-All options and input must be set in the config file: `config/config`
+All options and input **must** be set in the config file: `config/config`
 
 an example is provided [here](https://github.com/QuentinRougemont/EASYstrata/blob/main/example_data/example.config)
+
+
+## How to: 
+
+simply run:
+```
+./master.sh --help to see all option 
+```
+
+The script provides several options depending on what you want: 
+
+-o 1: to perform all analyses (TE+gene prediction, GeneSpace, single copy orthogls inference between X/Y,  ds, evoluationary strata inference)
+ 
+-o 2: to ....
+
+-o 3: to perform GeneSpace and subsequent analysis 
+
+-o 4: to perform only Ds and subsequent analysis 
+
+-o 5: to only do
+
+-o 6: to only predict TE and genes
+
+-o 7: to perform only the changepoint analysis
 
 ## Input data
 

@@ -1,10 +1,11 @@
-Full automated installation 
+# Full automated installation 
 
-### Mamba
+
+### Mamba/Conda
 
 If you want to avoid potential conflicting versions or do not have root access on your device, you can use **conda** or **mamba** to install dependencies.
 
-We recommend mamba for linux:
+I recommend **mamba** for linux:
 
 ```
 curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge-pypy3-Linux-x86_64.sh
@@ -46,7 +47,7 @@ a number of software are not on conda (or not up-to-date) and need to be install
 
 here is an exemple procedure : 
 
-### attempt to automatically install all softwares in one go: 
+## attempt to automatically install all softwares in one go: 
 
 ```bash
 #all at once: 
@@ -56,15 +57,20 @@ conda activate superannot #wil activate some uefull dependancies
 Rscript -e  'devtools::install_github("jtlovell/GENESPACE")'
 
 #installing all other dependencies:
-./INSTALL/softs.sh 2>&1 |tee log_installation.txt 
+./INSTALL/dependencies.sh 2>&1 |tee log_installation.txt 
 
+WARNING:
+Augustus and Bamtools are the two tools that are most likely to fail 
+please check that it works and that all path were correctly appended to your repository
 ```
+
 
 all PATH to the new softwares should have been automatically append to your .bashrc
 
-# ALTERNATIVELY:
 
-### install each non-conda software one by one: 
+
+# ALTERNATIVELY: install each non-conda software one by one: 
+
 below are attempts to install braker and a number of compulsory dependencies in a more or less automated fashion:
 
 first activate the braker_environnment above to get basic dependencies 
